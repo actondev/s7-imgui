@@ -44,6 +44,9 @@ sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
 # https://mesonbuild.com/Reference-manual.html#dependency
 meson.override_dependency('sdl', sdl2_dep)
 
+s7_proj = subproject('s7')
+s7_dep = s7_proj.get_variable('s7_dep')
+
 imgui = subproject('imgui',
 		   default_options: ['sdl=enabled',
 				     'opengl2=enabled',
@@ -56,6 +59,7 @@ app = executable(
     app_dep,
     sdl2_dep,
     imgui_dep,
+    s7_dep,
   ],
   link_args: link_args,
   cpp_args: extra_args,

@@ -2,30 +2,42 @@
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
 * TODO Linux
-  Optional: using an existing =SDL= repo
+  Optional: using existing repositories for subprojects
   #+BEGIN_SRC sh
 ln -s `readlink -f ../SDL` subprojects/sdl2
 ls -alh subprojects/sdl2 # subprojects/sdl2 -> xxxx/SDL
+ln -s `readlink -f ../s7` subprojects/s7
+ls -alh subprojects/s7
   #+END_SRC
 ** Building
-#+BEGIN_SRC sh
+   #+BEGIN_SRC sh
 meson setup build
 ninja -C build
+   #+END_SRC
+*** Helpful commands
+    #+BEGIN_SRC sh
+# for the scheme sources
+ln -s `readlink -f src/scheme` build/scheme
 
-# more commands
 meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
-   #+END_SRC
+    #+END_SRC
 ** Running
    #+BEGIN_SRC sh
 ./build/s7-imgui
+   #+END_SRC
+
+   That solves any problem with pwd
+   #+BEGIN_SRC sh :session *s7-in-build*
+cd build
+./s7-imgui
    #+END_SRC
 * TODO Windows
   Optional: using an existing =SDL= repo
   =mklink /J subprojects\sdl2 ..\SDL=
 ** Building
-#+BEGIN_SRC sh
+   #+BEGIN_SRC sh
 # visual studio command prompts
 cmd //k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 

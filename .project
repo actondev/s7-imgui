@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>IPlugImgui</name>
+	<name>s7-imgui</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -13,8 +13,8 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>org.eclipse.cdt.meson.core.mesonNature</nature>
 		<nature>org.eclipse.cdt.core.cnature</nature>
 		<nature>org.eclipse.cdt.core.ccnature</nature>
-		<nature>org.eclipse.cdt.meson.core.mesonNature</nature>
 	</natures>
 </projectDescription>
