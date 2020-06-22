@@ -1,0 +1,5 @@
+imgui.ini
+build*/
+
+subprojects/*
+!subprojects/*.wrap

@@ -1,0 +1,11 @@
+[wrap-file]
+directory = imgui-1.76
+
+source_url = https://github.com/ocornut/imgui/archive/v1.76.tar.gz
+source_filename = v1.76.tar.gz
+source_hash = e482dda81330d38c87bd81597cacaa89f05e20ed2c4c4a93a64322e97565f6dc
+
+
+patch_url = https://wrapdb.mesonbuild.com/v1/projects/imgui/1.76/2/get_zip
+patch_filename = imgui-1.76-2-wrap.zip
+patch_hash = 1fb56f37e0890eac6ebfe6c8d9bb0bcda36c74231cbdcfbd3c7b1b65d8905b68

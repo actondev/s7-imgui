@@ -1,0 +1,4 @@
+[wrap-git]
+ url = https://github.com/actonDev/SDL.git
+ revision = feature/2.0.3-x11-createWindowFrom
+ depth = 1

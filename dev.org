@@ -1,0 +1,39 @@
+#+PROPERTY: header-args :session *s7-imgui* :var root=(projectile-project-root)
+* S7-Imgui
+  Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
+* TODO Linux
+  Optional: using an existing =SDL= repo
+  #+BEGIN_SRC sh
+ln -s `readlink -f ../SDL` subprojects/sdl2
+ls -alh subprojects/sdl2 # subprojects/sdl2 -> xxxx/SDL
+  #+END_SRC
+** Building
+#+BEGIN_SRC sh
+meson setup build
+ninja -C build
+
+# more commands
+meson setup --reconfigure build
+meson setup --wipe build
+rm -rf build
+   #+END_SRC
+** Running
+   #+BEGIN_SRC sh
+./build/s7-imgui
+   #+END_SRC
+* TODO Windows
+  Optional: using an existing =SDL= repo
+  =mklink /J subprojects\sdl2 ..\SDL=
+** Building
+#+BEGIN_SRC sh
+# visual studio command prompts
+cmd //k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+
+meson setup --backend vs build
+meson compile -C build
+
+# more commands
+meson setup --reconfigure build
+meson setup --wipe build
+rm -rf build
+   #+END_SRC
