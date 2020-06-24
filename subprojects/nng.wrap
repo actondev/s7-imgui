@@ -1,0 +1,4 @@
+[wrap-git]
+ url = https://github.com/nanomsg/nng.git
+ revision = v1.3.0
+ depth = 1

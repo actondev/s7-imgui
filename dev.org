@@ -2,13 +2,15 @@
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
 * TODO Linux
-  Optional: using existing repositories for subprojects
-  #+BEGIN_SRC sh
+** Optional: using existing repositories for subprojects
+   #+BEGIN_SRC sh
 ln -s `readlink -f ../SDL` subprojects/sdl2
 ls -alh subprojects/sdl2 # subprojects/sdl2 -> xxxx/SDL
 ln -s `readlink -f ../s7` subprojects/s7
 ls -alh subprojects/s7
-  #+END_SRC
+ln -s `readlink -f ../SDL_net` subprojects/sdl_net
+ls -alh subprojects/sdl_net # subprojects/sdl_net -> xxxx/SDL_net
+   #+END_SRC
 ** Building
    #+BEGIN_SRC sh
 meson setup build
@@ -33,6 +35,11 @@ rm -rf build
 cd build
 ./s7-imgui
    #+END_SRC
+
+*** Testing tcp socket
+    #+BEGIN_SRC sh :session *socket*
+telnet localhost 12345
+    #+END_SRC
 * TODO Windows
   Optional: using an existing =SDL= repo
   =mklink /J subprojects\sdl2 ..\SDL=
@@ -48,4 +55,53 @@ meson compile -C build
 meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
+   #+END_SRC
+* Examples
+** SDL_NET tcp socket
+   Yay it's working
+   #+BEGIN_SRC sh
+ninja -C build
+./build/examples/example-sdl-net
+   #+END_SRC
+
+   #+BEGIN_SRC sh :session *tcp*
+netcat localhost 1234
+
+hi there
+   #+END_SRC
+** nng
+   #+BEGIN_SRC sh
+ninja -C build
+./build/examples/example-nng 
+   #+END_SRC
+** DONE s7 repl.scm
+   Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)
+   #+BEGIN_SRC sh
+ninja -C build
+ln -s `pwd`/examples/scheme build/default/examples/scheme # for eclipse builds
+ln -s `pwd`/examples/scheme build/examples/scheme # for emacs/shell builds
+
+# this needs s7.h to work
+cp subprojects/s7/s7.h build/examples/
+./build/examples/s7-repl
+
+# clean:
+rm -r build/examples/*libc_*
+   #+END_SRC
+*** it's fast!
+    #+BEGIN_SRC sh
+time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-repl
+    #+END_SRC
+** wrapped TCP Server
+   Yay it's working
+   #+BEGIN_SRC sh
+ninja -C build
+./build/examples/tcp_server
+   #+END_SRC
+
+   #+BEGIN_SRC sh :session *tcp*
+netcat localhost 1234
+
+hi there
+
    #+END_SRC

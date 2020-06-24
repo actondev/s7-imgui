@@ -1,0 +1,4 @@
+[wrap-git]
+ url = https://github.com/actonDev/SDL_net.git
+ # WIP
+ revision = feature/meson

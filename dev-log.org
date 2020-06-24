@@ -6,8 +6,8 @@
 
   #+RESULTS:
 * DONE <2020-06-22 Mon> eclipse index
-    After adding a =.cproject= (copying from an existing one) the indexer worked
-    #+BEGIN_SRC xml
+  After adding a =.cproject= (copying from an existing one) the indexer worked
+  #+BEGIN_SRC xml
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
     	
@@ -45,5 +45,140 @@
     
 </cproject>
     
-    #+END_SRC
+  #+END_SRC
 * TODO tcp socket / repl
+  options for the networking
+  - sdl_net
+** nanomsg next generation (nng)
+   (nahh.. couldn't use simple/dummy AF_INET socket)
+   
+   - https://nng.nanomsg.org/man/v1.3.0/nng_recv.3.html
+   - https://github.com/nanomsg/nng/blob/master/demo/reqrep/reqrep.c
+   
+   huh! it reads everything into a buffer, don't have to deal with that myself
+
+   #+BEGIN_SRC c
+char *   buf = NULL;
+size_t   sz;
+uint64_t val;
+if ((rv = nng_recv(sock, &buf, &sz, NNG_FLAG_ALLOC)) != 0) {
+ fatal("nng_recv", rv);
+}      
+   #+END_SRC
+
+   #+BEGIN_QUOTE
+   NNG_FLAG_ALLOC
+
+   If this flag is present, then a “zero-copy” mode is used. In this
+   case the caller must set the value of data to the location of
+   another pointer (of type void *), and the sizep pointer must be
+   set to a location to receive the size of the message body. The
+   function will then allocate a message buffer (as if by
+   nng_alloc()), fill it with the message body, and store it at the
+   address referenced by data, and update the size referenced by
+   sizep. The caller is responsible for disposing of the received
+   buffer either by the nng_free() function or passing the message
+   (also with the NNG_FLAG_ALLOC flag) in a call to nng_send().
+
+   #+END_QUOTE
+   - https://nng.nanomsg.org/
+* s7 repl.scm
+  357aaa1 commit broke the =libc_s7.c= generation
+  (last working commit 7fb147f)
+
+  but how does all this work?
+  
+  
+  #+BEGIN_EXAMPLE scheme
+  ;; cload.scm
+  (define *cload-c-compiler* (if (provided? 'gcc) "gcc" (if (provided? 'clang) "clang" "cc")))
+  #+END_EXAMPLE
+* s7 remote socket repl
+  example dumb repl
+  #+BEGIN_SRC c
+// s7.c
+static void dumb_repl(s7_scheme *sc)
+{
+  while (true)
+    {
+      char buffer[512];
+      fprintf(stdout, "\n> ");
+      if (!fgets(buffer, 512, stdin)) break;  /* error or ctrl-D */
+      if (((buffer[0] != '\n') || (strlen(buffer) > 1)))
+	{
+	  char response[1024];
+	  snprintf(response, 1024, "(write %s)", buffer);
+	  s7_eval_c_string(sc, response);
+	}
+    }
+  fprintf(stdout, "\n");
+  if (ferror(stdin))
+    fprintf(stderr, "read error on stdin\n");
+}  
+  #+END_SRC
+* returning char*, string etc, formatting strings
+  - formatting
+    #+BEGIN_SRC cpp
+#include <sstream>
+#include <iostream>
+
+
+std::ostringstream stream;
+stream << "Foo" << "bar" << std::endl;
+std::string str = stream.str();
+    #+END_SRC
+
+  - returning strings
+    #+BEGIN_SRC cpp
+// returning char*
+
+char* returnChar(){
+  char* str = "blahblah";
+  return str;
+}
+// BAD! I return a dangling pointer
+
+char* returnC_str(){
+  std::string myString = "nice";
+  return myString.c_str();
+}
+
+// BAD! again, dangling pointer
+
+char* returnHeapChar(){
+  int lenght = 10;
+  char * new_string = new char[length + 1]; // +1 for the terminating the string with 0
+  std::string someString = "nice";
+  std::strcpy(new:string, someString.c_str());
+}
+
+// OK! but I have to run delete myself
+
+std::string returnStr(){
+  // all good, go wild
+}
+    #+END_SRC
+* c++ callbacks?
+  to use for the tcp server
+
+  Usage:
+  #+BEGIN_SRC cpp
+server.listen(1234, [](const char*) {
+		      // doing something with data?
+		    } )
+  #+END_SRC
+
+https://stackoverflow.com/questions/20353210/usage-and-syntax-of-stdfunction
+* <2020-06-24 Wed> app & repl?
+     #+BEGIN_SRC sh :session *s7-imgui*
+ninja -C build
+./build/s7-imgui
+   #+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+(run-scheme "netcat localhost 1234")
+#+END_SRC
+
+   #+BEGIN_SRC sh :session *tcp*
+netcat localhost 1234
+   #+END_SRC

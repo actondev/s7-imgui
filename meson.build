@@ -53,6 +53,19 @@ imgui = subproject('imgui',
 				    ])
 imgui_dep = imgui.get_variable('imgui_dep')
 
+# WIP/TODO.. use socket_cpp ??
+cmake = import('cmake')
+socket_cpp_proj = cmake.subproject('socket-cpp/Socket')
+# library: socket
+socket_cpp_lib = socket_cpp_proj.dependency('socket')
+
+nng_proj = cmake.subproject('nng')
+nng_dep = nng_proj.dependency('nng')
+
+
+sdl_net_proj = subproject('sdl_net')
+sdl_net_dep = sdl_net_proj.get_variable('sdl_net_dep')
+
 app = executable(
   's7-imgui',
   dependencies : [
@@ -60,8 +73,13 @@ app = executable(
     sdl2_dep,
     imgui_dep,
     s7_dep,
+    socket_cpp_lib,
+    sdl_net_dep,
   ],
   link_args: link_args,
   cpp_args: extra_args,
   install: true,
 )
+
+# TODO switch building the examples with a definition option
+subdir('examples')

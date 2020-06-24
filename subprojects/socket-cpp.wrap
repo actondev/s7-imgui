@@ -1,0 +1,4 @@
+[wrap-git]
+ url = https://github.com/embeddedmz/socket-cpp.git
+ # master as of 2020-06-22
+ revision = a8478f89d919fce215db0d9f5e716fbd62539171
