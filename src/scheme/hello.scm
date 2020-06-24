@@ -12,5 +12,7 @@
 
 (load "scheme/fib.scm")
 (display "fib 34\n")
-(display (time (fib 34)))
+(display
+ (time (fib 34))
+	 )
 (newline)

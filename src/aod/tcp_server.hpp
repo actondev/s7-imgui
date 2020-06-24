@@ -92,9 +92,11 @@ private:
 					std::string response = that->cb(buffer); // calling the callback
 
 					SDLNet_TCP_Send(csd, response.c_str(), response.length());
+					SDL_Delay(10);
 				}
 				SDLNet_TCP_Close(csd);
 			}
+			SDL_Delay(10);
 		}
 		return 0;
 	}
