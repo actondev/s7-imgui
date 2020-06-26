@@ -253,3 +253,55 @@ s7_pointer s7_read(s7_scheme *sc, s7_pointer port)
   #+BEGIN_SRC sh
 meson wrap install gtest
   #+END_SRC
+* buttons to compile run etc
+  #+BEGIN_SRC emacs-lisp :results silent
+(button-lock-mode 1)
+(defun button/compile ()
+  "Shout when clicked"
+  (interactive)
+  (message "compiling")
+  (comint-send-string "*s7-imgui*" "ninja -C build\r")
+  )
+
+(defun button/run ()
+  "Shout when clicked"
+  (interactive)
+  (message "running")
+  (comint-send-string "*s7-imgui*" "./build/s7-imgui\r")
+  )
+
+(defun button/stop ()
+  "Shout when clicked"
+  (interactive)
+  (message "stop")
+  (interrupt-process "*s7-imgui*" comint-ptyp)
+  )
+
+(defun button/test ()
+  "Shout when clicked"
+  (interactive)
+  (message "stop")
+  (comint-send-string "*s7-imgui*" "./build/test/gtest-all\r")
+  )
+
+(button-lock-set-button (regexp-quote ">compile")
+			'button/compile
+			:face 'link )
+
+(button-lock-set-button (regexp-quote ">run")
+			'button/run
+			:face 'link )
+
+(button-lock-set-button (regexp-quote ">stop")
+			'button/stop
+			:face 'link )
+
+(button-lock-set-button (regexp-quote ">test")
+			'button/test
+			:face 'link )
+  #+END_SRC
+
+  - >compile
+  - >run
+  - >stop
+  - >test
