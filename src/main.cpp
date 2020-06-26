@@ -14,6 +14,7 @@
 #include "SDL_opengl.h"
 #include "s7.h"
 #include "aod/s7.hpp"
+#include "aod/s7/repl.hpp"
 #include "aod/tcp_server.hpp"
 #include "aod/path.hpp"
 #include <sstream>
@@ -40,6 +41,7 @@ static void scm_load(s7_scheme *sc, const char *file) {
 int main(int, char**) {
 	SDL_CreateThread(sdl_net_demo, "sdl_net", (void*) NULL);
 	s7_scheme *sc = s7_init();
+	aod::s7::Repl repl(sc);
 
 	char *path = SDL_GetBasePath();
 	printf("base path is %s\n", path);
@@ -55,9 +57,13 @@ int main(int, char**) {
 	 * Socket REPL
 	 */
 	aod::TcpServer server;
-	aod::Callback cb = [sc](const char *data) -> std::string {
-		std::string res = aod::s7::eval_write(sc, data);
-		res += "\n> "; // new line and prompt >
+	aod::Callback cb = [&repl](const char *data) -> std::string {
+		std::string res;
+		if(repl.handleInput(data)){
+			res = repl.evalLastForm();
+			res += "\n>";
+			return res;
+		}
 		return res ;
 	};
 	server.listen(REPL_PORT, cb, "s7-imgui repl\n> ");

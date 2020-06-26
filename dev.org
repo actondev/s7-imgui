@@ -38,8 +38,14 @@ cd build
 
 *** Testing tcp socket
     #+BEGIN_SRC sh :session *socket*
-telnet localhost 12345
+netcat localhost 12345
     #+END_SRC
+
+** Testing
+   #+BEGIN_SRC sh
+ninja -C build
+./build/test/gtest-all
+   #+END_SRC
 * TODO Windows
   Optional: using an existing =SDL= repo
   =mklink /J subprojects\sdl2 ..\SDL=
@@ -56,6 +62,7 @@ meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
    #+END_SRC
+
 * Examples
 ** SDL_NET tcp socket
    Yay it's working

@@ -2,13 +2,13 @@
 
 #include <stdio.h>
 #include <functional>
-#include <string.h>
+#include <string>
 #include <sstream>
 #include <iostream>
 #include "SDL_net.h"
 #include "SDL.h"
 
-#define INIT_BUFFER_SIZE 2048
+#define INIT_BUFFER_SIZE 512
 
 namespace aod {
 typedef std::function<const std::string(const char*)> Callback;
@@ -76,19 +76,16 @@ private:
 			if ((csd = SDLNet_TCP_Accept(that->sd))) {
 				SDLNet_TCP_Send(csd, that->init_msg.c_str(),
 						that->init_msg.length());
-
 				// could I check SDLNet_Read32(&remoteIP->host) here to see if from allowed network?
 
-				int countRecv = 0;
+				int countRcv = 0;
 				for (;;) {
-					countRecv = SDLNet_TCP_Recv(csd, buffer, bufferSize);
-					if (countRecv <= 0) {
+					countRcv = SDLNet_TCP_Recv(csd, buffer, bufferSize-1);
+					if (countRcv <= 0) {
 						// disconnected or some other problem
 						break;
 					}
-					// buffer[countRecv-1] should be ascii 10 : LF (line feed)
-					buffer[countRecv] = 0; // terminating what we read
-
+					buffer[countRcv] = 0; // terminating what we read
 					std::string response = that->cb(buffer); // calling the callback
 
 					SDLNet_TCP_Send(csd, response.c_str(), response.length());

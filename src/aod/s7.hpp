@@ -1,6 +1,6 @@
 #pragma once
 #include "s7.h"
-#include <stdio.h>
+// #include <stdio>
 #include <sstream>
 #include <iostream>
 
@@ -16,6 +16,7 @@ void _print_temp(s7_scheme *sc, uint8_t c, s7_pointer port) {
 	_out_stream << c;
 }
 } // anonymous
+
 
 void set_print_stderr(s7_scheme *sc) {
 	s7_set_current_output_port(sc, s7_open_output_function(sc, _print_stderr));
@@ -35,6 +36,9 @@ std::string eval_write(s7_scheme *sc, const char *sexp) {
 	std::ostringstream wrapped_sexp;
 	// wrapping around begin as well to handle empty input (not enough arguments passed to write error)
 	wrapped_sexp << "(write (begin " << sexp << "))";
+
+//	printf("\nIncoming:\n%s\n", sexp);
+	printf("\nWill process:\n%s\n", wrapped_sexp.str().c_str());
 
 	s7_pointer old_port = s7_set_current_output_port(sc,
 			s7_open_output_function(sc, _print_temp));

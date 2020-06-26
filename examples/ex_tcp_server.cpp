@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include <sstream>
 #include <iostream>
+#include <string.h>
 
 int main(const int argc, const char **argv) {
 

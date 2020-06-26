@@ -168,17 +168,88 @@ server.listen(1234, [](const char*) {
 		    } )
   #+END_SRC
 
-https://stackoverflow.com/questions/20353210/usage-and-syntax-of-stdfunction
+  https://stackoverflow.com/questions/20353210/usage-and-syntax-of-stdfunction
 * <2020-06-24 Wed> app & repl?
-     #+BEGIN_SRC sh :session *s7-imgui*
+  #+BEGIN_SRC sh :session *s7-imgui*
 ninja -C build
 ./build/s7-imgui
-   #+END_SRC
+  #+END_SRC
 
-#+BEGIN_SRC emacs-lisp
+  #+BEGIN_SRC emacs-lisp :results silent
 (run-scheme "netcat localhost 1234")
-#+END_SRC
+  #+END_SRC
 
-   #+BEGIN_SRC sh :session *tcp*
+  #+BEGIN_SRC sh :session *scheme*
 netcat localhost 1234
+  #+END_SRC
+* TODO repl problems
+  #+BEGIN_SRC scheme
+(display ;;as
+ "hi" ;; 2nd line
+ )
+
+1
+  #+END_SRC
+
+** use read?
+   #+BEGIN_SRC c
+s7_pointer s7_read(s7_scheme *sc, s7_pointer port)
+{
+  if (is_input_port(port))
+    {
+      s7_pointer old_let;
+      declare_jump_info();
+
+      old_let = sc->curlet;
+      sc->curlet = sc->nil;
+      push_input_port(sc, port);
+
+      store_jump_info(sc);
+      set_jump_info(sc, READ_SET_JUMP);
+      if (jump_loc != NO_JUMP)
+	{
+	  if (jump_loc != ERROR_JUMP)
+	    eval(sc, sc->cur_op);
+	}
+      else
+	{
+	  push_stack_no_let_no_code(sc, OP_BARRIER, port);
+	  push_stack_direct(sc, OP_EVAL_DONE);
+
+	  eval(sc, OP_READ_INTERNAL);
+
+	  if (sc->tok == TOKEN_EOF)
+	    sc->value = eof_object;
+
+	  if ((sc->cur_op == OP_EVAL_DONE) &&
+	      (stack_op(sc->stack, s7_stack_top(sc) - 1) == OP_BARRIER))
+	    pop_stack(sc);
+	}
+      pop_input_port(sc);
+      sc->curlet = old_let;
+
+      restore_jump_info(sc);
+      return(sc->value);
+    }
+  return(simple_wrong_type_argument_with_type(sc, sc->read_symbol, port, an_input_port_string));
+}   
    #+END_SRC
+** Solution ?..
+   - upon socket data, append to a string stream
+   - try to "read" the  current stream string
+     - if it succeeds, perfect, just eval the string & emptry the stream
+     - if not, just wait until the next chunk of data. store the reader error
+
+   upon new data, if there is pending error, but plenty of time
+   (define ?) has passed, ignore the previous error and start reading
+   from scratch. probably also send something to the connected client?
+* TODO drawing from s7 draw function
+  - mimic the processing nomenclature
+    - =(define (setup) .. )=
+    - =(define (draw) .. )=
+  - ffi for the imgui functionality
+    - bind them to s7
+* TODO adding gtest
+  #+BEGIN_SRC sh
+meson wrap install gtest
+  #+END_SRC

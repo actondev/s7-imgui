@@ -8,8 +8,6 @@ if meson.get_compiler('cpp').get_id() == 'msvc'
   extra_args += ['/wd"4996"', '/wd"4250"', '/wd"4018"', '/wd"4267"', '/wd"4068"', '-D_DEBUG']
 endif
 
-subdir('src')
-
 link_args = []
 
 system = host_machine.system()
@@ -37,15 +35,17 @@ elif system == 'linux'
   extra_args += ['-fpermissive']
 endif
 
+s7_proj = subproject('s7')
+s7_dep = s7_proj.get_variable('s7_dep')
+# src uses s7
+subdir('src')
+
 sdl2_proj = subproject('sdl2')
 sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
 
 # imgui searched for sdl
 # https://mesonbuild.com/Reference-manual.html#dependency
 meson.override_dependency('sdl', sdl2_dep)
-
-s7_proj = subproject('s7')
-s7_dep = s7_proj.get_variable('s7_dep')
 
 imgui = subproject('imgui',
 		   default_options: ['sdl=enabled',
@@ -83,3 +83,4 @@ app = executable(
 
 # TODO switch building the examples with a definition option
 subdir('examples')
+subdir('test')
