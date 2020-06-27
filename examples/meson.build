@@ -2,6 +2,19 @@ includes = [include_directories('.')]
 
 includes += include_directories('../src')
 
+
+example_imgui = executable(
+  'example_imgui',
+  sources: files (
+ 'imgui.cpp',
+  ),
+  dependencies: [
+    sdl2_dep,
+    imgui_dep,
+    ],
+  install: true,
+  )
+
 example_sdl_net = executable(
   'example-sdl-net',
   sources: files (

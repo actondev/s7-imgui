@@ -1,7 +1,7 @@
 #+PROPERTY: header-args :session *s7-imgui* :var root=(projectile-project-root)
 * COMMENT quick dev buttons
   #+BEGIN_SRC emacs-lisp
-(aod.org-babel/generate-named-buttons)
+(aod.org-babel/generate-named-buttons-exc (rx (or "ex:" "demo:")))
   #+END_SRC
 
   #+RESULTS:
@@ -81,6 +81,20 @@ meson setup --wipe build
 rm -rf build
    #+END_SRC
 * Examples
+  #+BEGIN_SRC emacs-lisp
+(aod.org-babel/generate-named-buttons-inc "ex:")
+  #+END_SRC
+
+  #+RESULTS:
+  | [ex:imgui] |
+
+** imgui dmeo
+   #+NAME: ex:imgui
+   #+BEGIN_SRC sh
+ninja -C build
+./build/examples/example_imgui
+   #+END_SRC
+
 ** SDL_NET tcp socket
    Yay it's working
    #+BEGIN_SRC sh
@@ -93,11 +107,13 @@ netcat localhost 1234
 
 hi there
    #+END_SRC
+
 ** nng
    #+BEGIN_SRC sh
 ninja -C build
 ./build/examples/example-nng 
    #+END_SRC
+
 ** DONE s7 repl.scm
    Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)
    #+BEGIN_SRC sh
