@@ -17,6 +17,7 @@
 #include "aod/s7/repl.hpp"
 #include "aod/tcp_server.hpp"
 #include "aod/path.hpp"
+#include "aod/s7/imgui.hpp"
 #include <sstream>
 #include <iostream>
 
@@ -53,27 +54,40 @@ int main(int, char**) {
 	aod::s7::set_print_stderr(sc);
 	s7_eval_c_string(sc, "(display \"hello from s7 from cpp\n\"))");
 
+	/**
+	 * adds definitions for imgui under aod.imgui/...
+	 * eg
+	 * - (aod.imgui/begin WINDOW_TITLE)
+	 * - (aod.imgui/end)
+	 *
+	 * etc
+	 */
+	aod::s7::imgui::bind(sc);
+	scm_load(sc, "scheme/imgui.scm");
+
 	/*
 	 * Socket REPL
 	 */
 	aod::TcpServer server;
 	aod::Callback cb = [&repl](const char *data) -> std::string {
 		std::string res;
-		if(repl.handleInput(data)){
+		if (repl.handleInput(data)) {
 			res = repl.evalLastForm();
 			res += "\n>";
 			return res;
 		}
-		return res ;
+		return res;
 	};
 	server.listen(REPL_PORT, cb, "s7-imgui repl\n> ");
-	scm_load(sc, "scheme/hello.scm");
+
+	s7_pointer sc_imgui_setup = s7_name_to_value(sc, "setup");
+	s7_pointer sc_imgui_draw = s7_name_to_value(sc, "draw");
+	s7_gc_protect(sc, sc_imgui_setup);
+	s7_gc_protect(sc, sc_imgui_draw);
 
 	/*
 	 * Initializing sdl etc
 	 */
-
-
 
 	// Setup SDL
 	// (Some versions of SDL before <2.0.10 appears to have performance/stalling issues on a minority of Windows systems,
@@ -93,8 +107,7 @@ int main(int, char**) {
 	SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL
 			| SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
 	SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example",
-			SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
-			window_flags);
+	SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
 	SDL_GLContext gl_context = SDL_GL_CreateContext(window);
 	SDL_GL_MakeCurrent(window, gl_context);
 	SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -115,21 +128,6 @@ int main(int, char**) {
 	ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
 	ImGui_ImplOpenGL2_Init();
 
-	// Load Fonts
-	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-	// - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-	// - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-	// - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-	// - Read 'docs/FONTS.md' for more instructions and details.
-	// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-	//io.Fonts->AddFontDefault();
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-	//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-	//IM_ASSERT(font != NULL);
-
 	// Our state
 	bool show_demo_window = true;
 	bool show_another_window = false;
@@ -137,6 +135,8 @@ int main(int, char**) {
 
 	// Main loop
 	bool done = false;
+
+	s7_call(sc, sc_imgui_setup, s7_nil(sc));
 	while (!done) {
 		// Poll and handle events (inputs, window resize, etc.)
 		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -154,6 +154,8 @@ int main(int, char**) {
 		ImGui_ImplOpenGL2_NewFrame();
 		ImGui_ImplSDL2_NewFrame(window);
 		ImGui::NewFrame();
+
+		s7_call(sc, sc_imgui_draw, s7_nil(sc));
 
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		if (show_demo_window)

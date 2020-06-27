@@ -22,6 +22,8 @@ void set(char *path) {
 #ifdef __linux__
 	fprintf(stderr, "setting path to %s\n", path);
 	chdir(path);
+#else
+	fprintf(stderr, "aod::path::set not implemented in this platform\n");
 #endif
 }
 

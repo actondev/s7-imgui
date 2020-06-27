@@ -43,8 +43,7 @@ rm -rf build
 ** Running
    #+NAME: build & run
    #+BEGIN_SRC sh
-ninja -C build
-./build/s7-imgui
+ninja -C build && ./build/s7-imgui
    #+END_SRC
 
    That solves any problem with pwd
@@ -88,7 +87,7 @@ rm -rf build
   #+RESULTS:
   | [ex:imgui] |
 
-** imgui dmeo
+** imgui demo
    #+NAME: ex:imgui
    #+BEGIN_SRC sh
 ninja -C build

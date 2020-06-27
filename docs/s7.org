@@ -1,0 +1,118 @@
+* S7 Scheme quick documentation
+  Some notes while developing
+
+* FFI: c <-> scheme
+** Define a function in C
+   #+BEGIN_SRC c
+static s7_pointer add1(s7_scheme *sc, s7_pointer args)
+{
+  /* all added functions have this form, args is a list, 
+   ,*    s7_car(args) is the first arg, etc 
+   ,*/
+
+  /* the recommendation is to check every single argument yourself
+     and return an error to the scheme caller of this functions
+   ,*/
+  if (!s7_is_integer(s7_car(args)))
+    return(s7_wrong_type_arg_error(sc, "add1", 1, s7_car(args), "an integer"));
+
+  // after you do all the checks, return the proper result
+  return(s7_make_integer(sc, 1 + s7_integer(s7_car(args))));
+}
+
+void add1_init(s7_scheme *sc)
+{
+  s7_define_function(sc, "add1", add1, 1, 0, false, "(add1 int) adds 1 to int");
+}
+   #+END_SRC
+** arguments
+   #+BEGIN_SRC c
+s7_pointer s7_define_function(s7_scheme *sc,
+			      const char *name,
+			      s7_function fnc, 
+                              s7_int required_args,
+			      s7_int optional_args,
+			      bool rest_arg,
+			      const char *doc
+			      );
+   #+END_SRC
+
+** Checking s7_integer
+   The =s7_is_integer= check
+   #+BEGIN_SRC c
+bool s7_is_integer(s7_pointer p)
+{
+#if WITH_GMP
+  return((is_t_integer(p)) || (is_t_big_integer(p)));
+#else
+  return(is_t_integer(p));
+#endif
+}   
+   #+END_SRC
+
+   Interestingly enough, if we see the definition of =s7_make_integer=
+   #+BEGIN_SRC c
+s7_int s7_integer(s7_pointer p)
+{
+  if (is_t_integer(p))
+    return(integer(p));
+
+#if WITH_GMP
+  if (is_t_big_integer(p)) return(big_integer_to_s7_int(cur_sc, big_integer(p)));
+#endif
+
+  return(0);
+}   
+   #+END_SRC
+
+   So, both are checking the =is_t_integer=
+   However this check is cheap cause
+   #+BEGIN_SRC c
+#define is_t_integer(p)                (type(p) == T_INTEGER)
+   #+END_SRC
+** s7_string
+
+   #+BEGIN_SRC c
+bool s7_is_string(s7_pointer p)
+{
+  return(is_string(p));
+}   
+   #+END_SRC
+
+   #+BEGIN_SRC c
+const char *s7_string(s7_pointer p)
+{
+  return(string_value(p));
+}   
+   #+END_SRC
+
+** calling scheme function from c
+   #+BEGIN_SRC c
+s7_call(s7, 
+	s7_name_to_value(s7, "add1"), 
+	s7_cons(s7, s7_make_integer(s7, 2), s7_nil(s7)));
+   #+END_SRC
+
+   #+BEGIN_QUOTE
+      There is a built-in lag between the creation of a new object and
+      its first possible GC (the lag time is set indirectly by
+      GC_TEMPS_SIZE in s7.c), so you don't need to worry about very
+      short term temps such as the arguments to s7_cons in:
+   #+END_QUOTE
+
+   #+BEGIN_SRC c
+s7_cons(s7, s7_make_real(s7, 3.14), 
+	s7_cons(s7, s7_make_integer(s7, 123), s7_nil(s7)));
+
+   #+END_SRC
+
+* About GC
+     #+BEGIN_QUOTE
+   If you create an s7 object in C, that object needs to be GC
+   protected if there is any chance the GC might run without an
+   existing Scheme-level reference to it. s7_gc_protect places the
+   object in a vector that the GC always checks, returning the
+   object's location in that table. s7_gc_unprotect_at unprotects the
+   object (removes it from the vector) using the location passed to
+   it. s7_gc_protected_at returns the object at the given location
+   #+END_QUOTE
