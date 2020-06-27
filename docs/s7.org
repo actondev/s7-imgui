@@ -106,6 +106,46 @@ s7_cons(s7, s7_make_real(s7, 3.14),
 
    #+END_SRC
 
+** Load C defined stuff into a separate namespace
+
+   #+BEGIN_SRC c
+s7_pointer  new_env = s7_inlet(s7, s7_curlet(s7), s7_nil(s7));
+/* make a private environment for func1 and var1 below (this is our "namespace") */
+s7_gc_protect(s7, new_env);
+
+s7_define(s7, new_env, 
+	  s7_make_symbol(s7, "func1"),
+	  s7_make_function(s7, "func1", func1, 1, 0, false, "func1 adds 1 to its argument"));
+
+s7_define(s7, new_env, s7_make_symbol(s7, "var1"), s7_make_integer(s7, 32));
+
+// adding to s7
+s7_define_variable(s7, "lib-exports", s7_let_to_list(s7, new_env));
+   #+END_SRC
+   
+   #+BEGIN_SRC scheme
+> lib-exports
+((var1 . 32) (func1 . func1))
+
+> (define lib-env (apply sublet (curlet) lib-exports))
+lib-env
+> (with-let lib-env (func1 var))
+33
+
+;; or rename them to prepend "lib:"
+> (define lib-env (apply sublet 
+                         (curlet) 
+                         (map (lambda (binding) 
+                                (cons (string->symbol 
+                                        (string-append "lib:" (symbol->string (car binding)))) 
+                                      (cdr binding))) 
+                              lib-exports)))
+lib-env
+> (with-let lib-env (lib:func1 lib:var1))
+33
+
+   #+END_SRC
+   
 * About GC
      #+BEGIN_QUOTE
    If you create an s7 object in C, that object needs to be GC
