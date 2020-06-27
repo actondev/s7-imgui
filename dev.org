@@ -1,4 +1,12 @@
 #+PROPERTY: header-args :session *s7-imgui* :var root=(projectile-project-root)
+* COMMENT quick dev buttons
+  #+BEGIN_SRC emacs-lisp
+(aod.org-babel/generate-named-buttons)
+  #+END_SRC
+
+  #+RESULTS:
+  | [test] | [build & run] | [build] |
+
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
 * TODO Linux
@@ -12,10 +20,17 @@ ln -s `readlink -f ../SDL_net` subprojects/sdl_net
 ls -alh subprojects/sdl_net # subprojects/sdl_net -> xxxx/SDL_net
    #+END_SRC
 ** Building
+   Setting up
    #+BEGIN_SRC sh
 meson setup build
+   #+END_SRC
+
+   Build
+   #+NAME: build
+   #+BEGIN_SRC sh
 ninja -C build
    #+END_SRC
+
 *** Helpful commands
     #+BEGIN_SRC sh
 # for the scheme sources
@@ -26,7 +41,9 @@ meson setup --wipe build
 rm -rf build
     #+END_SRC
 ** Running
+   #+NAME: build & run
    #+BEGIN_SRC sh
+ninja -C build
 ./build/s7-imgui
    #+END_SRC
 
@@ -42,6 +59,7 @@ netcat localhost 12345
     #+END_SRC
 
 ** Testing
+   #+NAME: test
    #+BEGIN_SRC sh
 ninja -C build
 ./build/test/gtest-all
@@ -62,7 +80,6 @@ meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
    #+END_SRC
-
 * Examples
 ** SDL_NET tcp socket
    Yay it's working
