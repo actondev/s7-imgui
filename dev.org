@@ -1,11 +1,11 @@
-#+PROPERTY: header-args :session *s7-imgui* :var root=(projectile-project-root)
+#+PROPERTY: header-args:sh :session *s7-imgui* :var root=(projectile-project-root)
 * COMMENT quick dev buttons
   #+BEGIN_SRC emacs-lisp
 (aod.org-babel/generate-named-buttons-exc (rx (or "ex:" "demo:")))
   #+END_SRC
 
   #+RESULTS:
-  | [test] | [build & run] | [build] |
+  | [repl] | [test] | [build & run] | [build] |
 
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
@@ -63,6 +63,15 @@ netcat localhost 12345
 ninja -C build
 ./build/test/gtest-all
    #+END_SRC
+** TCP repl
+  #+NAME: repl
+  #+BEGIN_SRC emacs-lisp
+(save-selected-window
+  (run-scheme "netcat localhost 1234")
+  ;; sending something to see if the repl process is alive
+  (scheme-send-string ""))
+  #+END_SRC
+
 * TODO Windows
   Optional: using an existing =SDL= repo
   =mklink /J subprojects\sdl2 ..\SDL=
@@ -80,12 +89,13 @@ meson setup --wipe build
 rm -rf build
    #+END_SRC
 * Examples
-  #+BEGIN_SRC emacs-lisp
+** COMMENT examples buttons
+   #+BEGIN_SRC emacs-lisp
 (aod.org-babel/generate-named-buttons-inc "ex:")
-  #+END_SRC
+   #+END_SRC
 
-  #+RESULTS:
-  | [ex:imgui] |
+   #+RESULTS:
+   | [ex:imgui] |
 
 ** imgui demo
    #+NAME: ex:imgui

@@ -305,3 +305,32 @@ meson wrap install gtest
   - >run
   - >stop
   - >test
+* writing an inc! function
+  #+BEGIN_SRC scheme
+(define (inc! x)
+  (format #t "increasing x: ~A" x)
+  (set! x (+ 1 x))
+  (format #t "x is now ~A" x))
+
+(define x 0)
+(inc! x)
+(inc! x)
+;; not what I expected..
+
+  #+END_SRC
+
+  check
+  #+BEGIN_EXAMPLE scheme
+> (set! (lt 'a) 12)
+  #+END_EXAMPLE
+  in the documentation
+* ielm repl window.. it always asks for window
+  - exec-in-script
+    is true for shell, it doesn't ask anything
+    #+BEGIN_EXAMPLE emacs-lisp
+(defun eir-repl-start (repl-buffer-regexp fun-repl-start &optional exec-in-script)
+    #+END_EXAMPLE
+
+    in =eir-eval-in-ielm=
+    add a last argument =t= to the =eir-eval-in-repl-lisp= call
+

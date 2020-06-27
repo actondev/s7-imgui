@@ -7,26 +7,6 @@ namespace aod {
 namespace s7 {
 namespace imgui {
 
-namespace {
-
-static s7_pointer add1(s7_scheme *sc, s7_pointer args)
-{
-  /* all added functions have this form, args is a list,
-   ,*    s7_car(args) is the first arg, etc
-   ,*/
-
-  /* the recommendation is to check every single argument yourself
-     and return an error to the scheme caller of this functions
-   ,*/
-  if (!s7_is_integer(s7_car(args)))
-    return(s7_wrong_type_arg_error(sc, "add1", 1, s7_car(args), "an integer"));
-
-  // after you do all the checks, return the proper result
-  return(s7_make_integer(sc, 1 + s7_integer(s7_car(args))));
-}
-
-} // demo
-
 namespace { // anonymous namespace: the functions
 
 s7_pointer begin(s7_scheme *sc, s7_pointer args) {
@@ -49,10 +29,20 @@ s7_pointer text(s7_scheme *sc, s7_pointer args) {
 	s7_pointer text = s7_car(args);
 	if (!s7_is_string(text))
 		return (s7_wrong_type_arg_error(sc, "aod.s7/text", 1, text,
-				"test should get a string argument"));
+				"text should get a string argument"));
 
 	ImGui::Text("%s", s7_string(text));
 	return (s7_nil(sc));
+}
+
+s7_pointer button(s7_scheme *sc, s7_pointer args) {
+	s7_pointer text = s7_car(args);
+	if (!s7_is_string(text))
+		return (s7_wrong_type_arg_error(sc, "aod.s7/button", 1, text,
+				"button should get a string argument"));
+
+	bool clicked = ImGui::Button(s7_string(text));
+	return (s7_make_boolean(sc, clicked));
 }
 
 } // ! anonymous namespace: the functions
@@ -76,7 +66,12 @@ void bind(s7_scheme *sc) {
 			false, // rest args
 			"Draw a text label");
 
-	s7_define_function(sc, "add1", add1, 1, 0, false, "(add1 int) adds 1 to int");
+	s7_define_function(sc, "aod.imgui/button", button, // ..
+			1, // req args
+			// TODO apparently there are optional args, about the size?
+			0, // optional args
+			false, // rest args
+			"Draw a button. Returns a boolean, true if clicked");
 }
 
 

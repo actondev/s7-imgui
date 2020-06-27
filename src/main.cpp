@@ -21,6 +21,9 @@
 #include <sstream>
 #include <iostream>
 
+#define DRAW_FN "draw"
+#define SETUP_FN "setup"
+
 #define REPL_PORT 1234
 
 int sdl_net_demo(void *data) {
@@ -73,17 +76,12 @@ int main(int, char**) {
 		std::string res;
 		if (repl.handleInput(data)) {
 			res = repl.evalLastForm();
-			res += "\n>";
+			res += "\n> ";
 			return res;
 		}
 		return res;
 	};
 	server.listen(REPL_PORT, cb, "s7-imgui repl\n> ");
-
-	s7_pointer sc_imgui_setup = s7_name_to_value(sc, "setup");
-	s7_pointer sc_imgui_draw = s7_name_to_value(sc, "draw");
-	s7_gc_protect(sc, sc_imgui_setup);
-	s7_gc_protect(sc, sc_imgui_draw);
 
 	/*
 	 * Initializing sdl etc
@@ -136,7 +134,7 @@ int main(int, char**) {
 	// Main loop
 	bool done = false;
 
-	s7_call(sc, sc_imgui_setup, s7_nil(sc));
+	s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
 	while (!done) {
 		// Poll and handle events (inputs, window resize, etc.)
 		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -155,7 +153,7 @@ int main(int, char**) {
 		ImGui_ImplSDL2_NewFrame(window);
 		ImGui::NewFrame();
 
-		s7_call(sc, sc_imgui_draw, s7_nil(sc));
+		s7_call(sc, s7_name_to_value(sc, DRAW_FN), s7_nil(sc));
 
 		// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 		if (show_demo_window)
