@@ -1,0 +1,256 @@
+* S7 Scheme quick documentation
+  Some notes while developing
+
+* FFI: c <-> scheme
+** Define a function in C
+   #+BEGIN_SRC c
+static s7_pointer add1(s7_scheme *sc, s7_pointer args)
+{
+  /* all added functions have this form, args is a list, 
+   ,*    s7_car(args) is the first arg, etc 
+   ,*/
+
+  /* the recommendation is to check every single argument yourself
+     and return an error to the scheme caller of this functions
+   ,*/
+  if (!s7_is_integer(s7_car(args)))
+    return(s7_wrong_type_arg_error(sc, "add1", 1, s7_car(args), "an integer"));
+
+  // after you do all the checks, return the proper result
+  return(s7_make_integer(sc, 1 + s7_integer(s7_car(args))));
+}
+
+void add1_init(s7_scheme *sc)
+{
+  s7_define_function(sc, "add1", add1, 1, 0, false, "(add1 int) adds 1 to int");
+}
+   #+END_SRC
+** arguments
+   #+BEGIN_SRC c
+s7_pointer s7_define_function(s7_scheme *sc,
+			      const char *name,
+			      s7_function fnc, 
+                              s7_int required_args,
+			      s7_int optional_args,
+			      bool rest_arg,
+			      const char *doc
+			      );
+   #+END_SRC
+
+** Checking s7_integer
+   The =s7_is_integer= check
+   #+BEGIN_SRC c
+bool s7_is_integer(s7_pointer p)
+{
+#if WITH_GMP
+  return((is_t_integer(p)) || (is_t_big_integer(p)));
+#else
+  return(is_t_integer(p));
+#endif
+}   
+   #+END_SRC
+
+   Interestingly enough, if we see the definition of =s7_make_integer=
+   #+BEGIN_SRC c
+s7_int s7_integer(s7_pointer p)
+{
+  if (is_t_integer(p))
+    return(integer(p));
+
+#if WITH_GMP
+  if (is_t_big_integer(p)) return(big_integer_to_s7_int(cur_sc, big_integer(p)));
+#endif
+
+  return(0);
+}   
+   #+END_SRC
+
+   So, both are checking the =is_t_integer=
+   However this check is cheap cause
+   #+BEGIN_SRC c
+#define is_t_integer(p)                (type(p) == T_INTEGER)
+   #+END_SRC
+** s7_string
+
+   #+BEGIN_SRC c
+bool s7_is_string(s7_pointer p)
+{
+  return(is_string(p));
+}   
+   #+END_SRC
+
+   #+BEGIN_SRC c
+const char *s7_string(s7_pointer p)
+{
+  return(string_value(p));
+}   
+   #+END_SRC
+
+** calling scheme function from c
+   #+BEGIN_SRC c
+s7_call(s7, 
+	s7_name_to_value(s7, "add1"), 
+	s7_cons(s7, s7_make_integer(s7, 2), s7_nil(s7)));
+   #+END_SRC
+
+   #+BEGIN_QUOTE
+   There is a built-in lag between the creation of a new object and
+   its first possible GC (the lag time is set indirectly by
+   GC_TEMPS_SIZE in s7.c), so you don't need to worry about very
+   short term temps such as the arguments to s7_cons in:
+   #+END_QUOTE
+
+   #+BEGIN_SRC c
+s7_cons(s7, s7_make_real(s7, 3.14), 
+	s7_cons(s7, s7_make_integer(s7, 123), s7_nil(s7)));
+
+   #+END_SRC
+
+** Load C defined stuff into a separate namespace
+
+   #+BEGIN_SRC c
+s7_pointer  new_env = s7_inlet(s7, s7_curlet(s7), s7_nil(s7));
+/* make a private environment for func1 and var1 below (this is our "namespace") */
+s7_gc_protect(s7, new_env);
+
+s7_define(s7, new_env, 
+	  s7_make_symbol(s7, "func1"),
+	  s7_make_function(s7, "func1", func1, 1, 0, false, "func1 adds 1 to its argument"));
+
+s7_define(s7, new_env, s7_make_symbol(s7, "var1"), s7_make_integer(s7, 32));
+
+// adding to s7
+s7_define_variable(s7, "lib-exports", s7_let_to_list(s7, new_env));
+   #+END_SRC
+   
+   #+BEGIN_SRC scheme
+> lib-exports
+((var1 . 32) (func1 . func1))
+
+> (define lib-env (apply sublet (curlet) lib-exports))
+lib-env
+> (with-let lib-env (func1 var))
+33
+
+;; or rename them to prepend "lib:"
+> (define lib-env (apply sublet 
+                         (curlet) 
+                         (map (lambda (binding) 
+                                (cons (string->symbol 
+                                        (string-append "lib:" (symbol->string (car binding)))) 
+                                      (cdr binding))) 
+                              lib-exports)))
+lib-env
+> (with-let lib-env (lib:func1 lib:var1))
+33
+
+   #+END_SRC
+   
+** c-pointers
+   #+BEGIN_SRC c
+// s7.c
+/* (c-pointer (bignum "1234")) */   
+   #+END_SRC
+   
+   s7test.scm has some things, but I don't get it
+   #+BEGIN_SRC scheme
+(test-wi (let ((v (vector 1)))
+	   (let ((p (c-pointer 1 v)))
+	     (set! (v 0) p)
+	     (object->string p :readable)))
+	 "(let ((<1> #f)
+                (<2> (vector #f)))
+            (set! <1> (c-pointer 1 <2> #f))
+            (set! (<2> 0) <1>)
+            <1>)")
+   #+END_SRC
+
+
+   #+BEGIN_SRC scheme
+(unless (provided? 'windows)
+  (let ()
+    (require libc.scm)
+    (when (and (defined? '*libc*)
+	       (procedure? (*libc* 'passwd.pw_name)))
+      (with-let (sublet *libc*)
+
+	(test (let ((buf (make-string 20 #\null)))
+		(strcat buf "All ")
+		(strcat buf "for ")
+		(strcat buf "one.")
+		(substring buf 0 12))
+	      "All for one.")
+	(test (strcmp "a" "b") -1)
+	(test (strcmp "a" "a") 0)
+	(test (strncmp "1234" "1235" 3) 0)
+	(test (strcpy (make-string 3) "123") "123")
+	(test (strlen "123") 3)
+	(test (strchr "12345" (char->integer #\3)) "345")
+	(test (strspn "12345" "123") 3)
+	(test (isalpha (char->integer #\.)) 0)
+	(test (zero? (isdigit (char->integer #\2))) #f)
+	(test (integer->char (toupper (char->integer #\a))) #\A)
+	(test (let ((buf (malloc 3)))
+		(memset buf 90 3)
+		(let ((result (c-pointer->string buf 3)))
+		  (free buf)
+		  result))
+	      "ZZZ")
+	;; etc....
+	))))   
+   #+END_SRC
+
+
+** C-pointers (from documentation)
+   #+BEGIN_SRC c
+bool s7_is_c_pointer(s7_pointer arg);
+bool s7_is_c_pointer_of_type(s7_pointer arg, s7_pointer type);
+void *s7_c_pointer(s7_pointer p);
+s7_pointer s7_make_c_pointer(s7_scheme *sc, void *ptr);
+s7_pointer s7_make_c_pointer_with_type(s7_scheme *sc, void *ptr, s7_pointer type, s7_pointer info);
+s7_pointer s7_c_pointer_type(s7_pointer p);
+
+   #+END_SRC
+   #+BEGIN_QUOTE
+   These functions are equivalent to s7's c-pointer?, c-pointer, and
+   c-pointer-type. C-pointers in s7 are aimed primarily at passing
+   uninterpreted C pointers through s7 from one C function to
+   another. See, for example, libgtk_s7.c which passes gtk widget
+   pointers around as c-pointers in s7. The "type" field can hold a
+   type indication, useful in debugging. s7_c_pointer_of_type checks
+   that the c-pointer's type field matches the type passed as the
+   second argument. Nothing stops you from using these fields any way
+   you like, of course.
+   #+END_QUOTE
+   
+
+   #+BEGIN_SRC c
+static s7_pointer lg_make_GtkTextIter(s7_scheme *sc, s7_pointer args)
+{
+  GtkTextIter* result;
+  result = (GtkTextIter*)calloc(1, sizeof(GtkTextIter));
+  return(s7_make_c_pointer_with_type(sc, result, s7_make_symbol(sc, "GtkTextIter_"), make_xm_obj(sc, result)));
+}
+
+s7_define_function(sc, "GtkTextIter", lg_make_GtkTextIter, 0, 0, 0, "(GtkTextIter): a new GtkTextIter struct");
+   #+END_SRC
+
+
+   #+BEGIN_SRC c
+s7_pointer s7_make_c_object(s7_scheme *sc, s7_int type, void *value)
+{
+  return(s7_make_c_object_with_let(sc, type, value, sc->nil));
+}   
+   #+END_SRC
+
+
+* About GC
+  #+BEGIN_QUOTE
+  If you create an s7 object in C, that object needs to be GC
+  protected if there is any chance the GC might run without an
+  existing Scheme-level reference to it. s7_gc_protect places the
+  object in a vector that the GC always checks, returning the
+  object's location in that table. s7_gc_unprotect_at unprotects the
+  object (removes it from the vector) using the location passed to
+  it. s7_gc_protected_at returns the object at the given location
+  #+END_QUOTE

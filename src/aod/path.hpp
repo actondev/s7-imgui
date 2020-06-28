@@ -8,6 +8,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <string>
 //#include <stdlib.h>
 //#include <string.h>
 
@@ -15,13 +16,19 @@
 #include <unistd.h>
 #endif
 
+#ifdef __WIN32__
+#include <direct.h>
+#endif
+
 namespace aod {
 
 namespace path {
-void set(char *path) {
+void set(std::string path) {
 #ifdef __linux__
-	fprintf(stderr, "setting path to %s\n", path);
-	chdir(path);
+	fprintf(stderr, "setting path to %s\n", path.c_str());
+	chdir(path.c_str());
+#else
+	_chdir(path.c_str());
 #endif
 }
 
@@ -34,7 +41,7 @@ void print_cwd() {
 		perror("getcwd() error");
 	}
 #else
-	   printf(stderr, "print_cwd not implemented\n");
+	   fprintf(stderr, "print_cwd not implemented\n");
 #endif
 }
 

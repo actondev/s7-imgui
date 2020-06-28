@@ -1,6 +1,6 @@
 imgui.ini
 build*/
-
+.wg/
 subprojects/*
 !subprojects/*.wrap
 .settings/

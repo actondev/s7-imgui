@@ -1,7 +1,19 @@
-#+PROPERTY: header-args :session *s7-imgui* :var root=(projectile-project-root)
+#+PROPERTY: header-args:sh :session *s7-imgui* :var root=(projectile-project-root)
+# #+STARTUP: content
+* COMMENT quick dev buttons
+   #+NAME: buttons
+   #+BEGIN_SRC emacs-lisp
+;; TODO  that not any is.. well wrong
+;; (aod.org-babel/generate-named-buttons-inc (rx (and ">" (not (any ">win")))))
+(aod.org-babel/generate-named-buttons-inc ">")
+   #+END_SRC
+
+   #+RESULTS: buttons
+   | [>clean_libc] | [>win:build] | [>repl] | [>test] | [>run] | [>build & run] | [>build] |
+
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
-* TODO Linux
+* Linux
 ** Optional: using existing repositories for subprojects
    #+BEGIN_SRC sh
 ln -s `readlink -f ../SDL` subprojects/sdl2
@@ -12,10 +24,17 @@ ln -s `readlink -f ../SDL_net` subprojects/sdl_net
 ls -alh subprojects/sdl_net # subprojects/sdl_net -> xxxx/SDL_net
    #+END_SRC
 ** Building
+   Setting up
    #+BEGIN_SRC sh
 meson setup build
+   #+END_SRC
+
+   Build
+   #+NAME: >build
+   #+BEGIN_SRC sh
 ninja -C build
    #+END_SRC
+
 *** Helpful commands
     #+BEGIN_SRC sh
 # for the scheme sources
@@ -25,63 +44,110 @@ meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
     #+END_SRC
-** Running
+** COMMENT Running
+   #+NAME: >build & run
+   #+BEGIN_SRC sh
+ninja -C build && ./build/s7-imgui
+   #+END_SRC
+
+   #+NAME: >run
    #+BEGIN_SRC sh
 ./build/s7-imgui
    #+END_SRC
 
-   That solves any problem with pwd
-   #+BEGIN_SRC sh :session *s7-in-build*
-cd build
-./s7-imgui
-   #+END_SRC
-
-*** Testing tcp socket
-    #+BEGIN_SRC sh :session *socket*
-netcat localhost 12345
-    #+END_SRC
-
-** Testing
+** Running the tests
+   #+NAME: >test
    #+BEGIN_SRC sh
 ninja -C build
 ./build/test/gtest-all
    #+END_SRC
-* TODO Windows
-  Optional: using an existing =SDL= repo
-  =mklink /J subprojects\sdl2 ..\SDL=
+
+** TCP repl
+   You can just connect from your terminal to the running instance
+   #+BEGIN_SRC sh :session *socket*
+netcat localhost 12345
+   #+END_SRC
+
+   However, using emacs is the way to go
+  #+NAME: >repl
+  #+BEGIN_SRC emacs-lisp
+(save-selected-window
+  (run-scheme "netcat localhost 1234")
+  ;; sending something to see if the repl process is alive
+  (scheme-send-string "\n"))
+  #+END_SRC
+
+* Windows
+** Optional: using existing repositories for subprojects
+   #+BEGIN_SRC sh :session *s7-imgui-cmd*
+cmd
+mklink /J subprojects\sdl2 ..\SDL
+# etc..
+   #+END_SRC
 ** Building
-   #+BEGIN_SRC sh
-# visual studio command prompts
+   
+   Preparting the project, building & some notes
+   #+BEGIN_SRC sh :session *s7-imgui-vs-build*
 cmd //k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 
 meson setup --backend vs build
 meson compile -C build
 
-# more commands
+# useful commands
 meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
+
+# scheme scripts
+mklink /J build\scheme src\scheme
+   #+END_SRC
+** COMMENT buttons
+   Just building (runnable src block)
+   #+NAME: >win:build
+   #+BEGIN_SRC sh :session *s7-imgui-vs-build*
+# the -z .. part is to run this command once, from msys2
+# once we are into the cmd.exe we should not run this again
+[[ -z "$home" ]] && cmd //k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+meson compile -C build   
    #+END_SRC
 
-* Examples
-** SDL_NET tcp socket
-   Yay it's working
+* COMMENT Temp
+** s7: libc
+   Getting some scheme files from s7
+   Not sure if I can use this on windows though
+   #+BEGIN_SRC sh
+mkdir src/scheme/s7
+cp subprojects/s7/libc.scm src/scheme/s7/libc.scm
+cp subprojects/s7/r7rs.scm src/scheme/s7/r7rs.scm
+cp subprojects/s7/cload.scm src/scheme/s7/cload.scm
+cp subprojects/s7/s7.h src/scheme/s7/
+ls src/scheme/s7/
+   #+END_SRC
+
+   Clearing out the generated/compile libc
+
+   #+NAME: >clean_libc
+   #+BEGIN_SRC sh
+rm src/scheme/s7/libc_s7*
+   #+END_SRC
+
+* Bundled examples
+** COMMENT examples buttons
+   #+BEGIN_SRC emacs-lisp
+(aod.org-babel/generate-named-buttons-inc "ex:")
+   #+END_SRC
+
+   #+RESULTS:
+   | [ex:imgui] |
+
+** imgui demo
+   #+NAME: ex:imgui
    #+BEGIN_SRC sh
 ninja -C build
-./build/examples/example-sdl-net
+./build/examples/example_imgui
    #+END_SRC
 
-   #+BEGIN_SRC sh :session *tcp*
-netcat localhost 1234
-
-hi there
-   #+END_SRC
-** nng
-   #+BEGIN_SRC sh
-ninja -C build
-./build/examples/example-nng 
-   #+END_SRC
-** DONE s7 repl.scm
+** COMMENT s7 repl.scm
    Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)
    #+BEGIN_SRC sh
 ninja -C build
@@ -99,16 +165,12 @@ rm -r build/examples/*libc_*
     #+BEGIN_SRC sh
 time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-repl
     #+END_SRC
-** wrapped TCP Server
-   Yay it's working
-   #+BEGIN_SRC sh
-ninja -C build
-./build/examples/tcp_server
-   #+END_SRC
 
-   #+BEGIN_SRC sh :session *tcp*
-netcat localhost 1234
+* COMMENT Local variables
+  Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything
+  The cursor, upon opening the file, stays at the beginning
 
-hi there
-
-   #+END_SRC
+# Local Variables:
+# eval: (aod.org-babel/eval-named-block "buttons")
+# eval: (org-babel-goto-named-result "buttons")
+# End:  

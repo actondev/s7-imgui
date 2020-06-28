@@ -1,4 +1,7 @@
 project('s7-imgui', 'cpp', 'c',
+	default_options: [
+	  'default_library=static',
+	]
        )
 
 extra_args = []
@@ -13,13 +16,8 @@ link_args = []
 system = host_machine.system()
 if system == 'windows'
   # just copied that from the provided examples
-  link_args += '/DYNAMICBASE "dsound.lib" "winmm.lib" "wininet.lib" "comctl32.lib" "Shlwapi.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib"'
-  link_args += '/TLBID:1'
-
-  # so turns out that imgui subproject builds a library
-  # and it has to be linked against opengl32.lib
-  # it dones't just work if I add this link arg in my vst/exe target
-  add_global_link_arguments('/DYNAMICBASE "opengl32.lib"', language: 'cpp')
+  # link_args += '/DYNAMICBASE "dsound.lib" "winmm.lib" "wininet.lib" "comctl32.lib" "Shlwapi.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib"'
+  # link_args += '/TLBID:1'
 elif system == 'linux'
   link_args += ['-lpthread',
 		'-lxcb',
@@ -42,6 +40,7 @@ subdir('src')
 
 sdl2_proj = subproject('sdl2')
 sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
+sdl2main_dep = sdl2_proj.get_variable('sdl2main_dep')
 
 # imgui searched for sdl
 # https://mesonbuild.com/Reference-manual.html#dependency
@@ -53,31 +52,22 @@ imgui = subproject('imgui',
 				    ])
 imgui_dep = imgui.get_variable('imgui_dep')
 
-# WIP/TODO.. use socket_cpp ??
-cmake = import('cmake')
-socket_cpp_proj = cmake.subproject('socket-cpp/Socket')
-# library: socket
-socket_cpp_lib = socket_cpp_proj.dependency('socket')
-
-nng_proj = cmake.subproject('nng')
-nng_dep = nng_proj.dependency('nng')
-
-
 sdl_net_proj = subproject('sdl_net')
 sdl_net_dep = sdl_net_proj.get_variable('sdl_net_dep')
 
 app = executable(
   's7-imgui',
   dependencies : [
-    app_dep,
-    sdl2_dep,
+    sdl2_dep, # the main library
+    sdl2main_dep, # abstracts out the main thing: windos needs WinMain
+    sdl_net_dep,
     imgui_dep,
     s7_dep,
-    socket_cpp_lib,
-    sdl_net_dep,
+    app_dep,
   ],
   link_args: link_args,
   cpp_args: extra_args,
+  gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
   install: true,
 )
 
