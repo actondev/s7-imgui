@@ -73,14 +73,15 @@ int main(int, char**) {
      *
      * etc
      */
-    aod::s7::imgui::bind(sc);
-    // libc etc magic: it creates a .c file
-    aod::path::set(scheme_s7_path);
-    scm_load(sc, "r7rs.scm");
+    
+    // aod::s7::imgui::bind(sc);
+    // // libc etc magic: it creates a .c file
+    // aod::path::set(scheme_s7_path);
+    // scm_load(sc, "r7rs.scm");
 
-    aod::path::set(scheme_path);
-    scm_load(sc, "imgui.scm");
-    aod::path::set(base_path);
+    // aod::path::set(scheme_path);
+    // scm_load(sc, "imgui.scm");
+    // aod::path::set(base_path);
 
 
 
@@ -122,6 +123,10 @@ int main(int, char**) {
 						      | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example",
 					  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+    if (window == NULL) {
+        fprintf(stderr, "Could not create SDL window");
+        return -1;
+    }
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
     SDL_GL_SetSwapInterval(1); // Enable vsync
@@ -163,7 +168,7 @@ int main(int, char**) {
     // Main loop
     bool done = false;
 
-    s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
+    // s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
     while (!done) {
 	// Poll and handle events (inputs, window resize, etc.)
 	// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -182,7 +187,7 @@ int main(int, char**) {
 	ImGui_ImplSDL2_NewFrame(window);
 	ImGui::NewFrame();
 
-	s7_call(sc, s7_name_to_value(sc, DRAW_FN), s7_nil(sc));
+	// s7_call(sc, s7_name_to_value(sc, DRAW_FN), s7_nil(sc));
 
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (show_demo_window)

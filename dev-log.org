@@ -359,3 +359,91 @@ x ;; x is still 0
     (test (string=? (object->string e) "(inlet 'type box-type 'value 2)") #t))
 
    #+END_SRC
+* DONE <2020-06-28 Sun> building on windows
+  - https://github.com/actonDev/SDL/commit/2da3b23c429c923cc38763d47626aa473f8013cf
+    #+BEGIN_SRC meson
+# wrong
+sdl2 = library('sdl2',
+	       link_args: core_ldflags,
+	       # ...
+	       )
+# correct
+sdl2_dep = declare_dependency(link_with : sdl2,
+			      include_directories : core_inc,
+			      link_args : core_ldflags)
+
+
+# link arguments are in the dependency, not in the library! ugh
+    #+END_SRC
+
+  - https://github.com/actonDev/SDL/commit/3e11ce100ef74d11ef57f7d1ee837d67c7e2ab2c
+    added the following defines on windows
+    - SDL_VIDEO_OPENGL
+    - SDL_VIDEO_OPENGL_WGL
+** DONE cannot get window with opengl
+   fixed in https://github.com/actonDev/SDL/commit/3e11ce100ef74d11ef57f7d1ee837d67c7e2ab2c
+   in CMakeLists
+   #+BEGIN_EXAMPLE
+  if(SDL_VIDEO)
+    if(VIDEO_OPENGL)
+      set(SDL_VIDEO_OPENGL 1)
+      set(SDL_VIDEO_OPENGL_WGL 1)
+      set(SDL_VIDEO_RENDER_OGL 1)
+      set(HAVE_VIDEO_OPENGL TRUE)
+    endif()
+  endif()
+   #+END_EXAMPLE
+
+   see also subprojects/sdl2/premake/VisualC/VS2008/SDL_config_premake.h
+   #+BEGIN_EXAMPLE
+
+#define SDL_VIDEO_DRIVER_WINDOWS 1
+#define SDL_VIDEO_RENDER_OGL 1
+
+   #endif
+#ifndef SDL_VIDEO_RENDER_OGL
+#define SDL_VIDEO_RENDER_OGL 1
+#endif
+#ifndef SDL_VIDEO_OPENGL
+#define SDL_VIDEO_OPENGL 1
+#endif
+#ifndef SDL_VIDEO_OPENGL_WGL
+#define SDL_VIDEO_OPENGL_WGL 1
+#endif
+   #+END_EXAMPLE
+
+   #+BEGIN_EXAMPLE
+   #mesondefine SDL_VIDEO_RENDER_D3D11 // it's on in premake
+   #mesondefine SDL_VIDEO_RENDER_OGL // on premake
+   #+END_EXAMPLE
+** library: shared vs static
+   #+BEGIN_QUOTE
+  LINK : fatal error LNK1181: cannot open input file '..\subprojects\imgui-1.76\imgui.lib'
+   #+END_QUOTE
+   
+   Solved by adding this in the project
+
+   #+BEGIN_SRC meson
+project('s7-imgui', 'cpp', 'c',
+	default_options: [
+	  'default_library=static', # this fixed it
+	]
+       )   
+   #+END_SRC
+
+   the =default_library=static= did the trick
+* main function & windows
+  Windows wants a WinMain function
+  #+BEGIN_SRC c
+// https://stackoverflow.com/a/58819006/8720686
+#ifdef _WIN32
+int APIENTRY WinMain(HINSTANCE hInstance,
+   HINSTANCE hPrevInstance,
+   LPSTR lpCmdLine, int nCmdShow)
+{
+   return main(__argc, __argv);
+}
+#endif  
+  #+END_SRC
+
+  But, instead of that, if we link against the =sdl2_main= library, this is taken care of

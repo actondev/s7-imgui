@@ -8,7 +8,7 @@
 #include "SDL_net.h"
 #include "SDL.h"
 
-#define INIT_BUFFER_SIZE 512
+#define BUFFER_SIZE 512
 
 namespace aod {
 typedef std::function<const std::string(const char*)> Callback;
@@ -64,11 +64,10 @@ private:
 	static int listenLoop(void *data) {
 		TcpServer *that = (TcpServer*) data;
 		TCPsocket csd; /* Client socket descriptor */
-		int bufferSize = INIT_BUFFER_SIZE;
 
 		// TODO grow if I get something that doesn't return in LF ?
 		// but for now that will do
-		char buffer[bufferSize];
+		char buffer[BUFFER_SIZE];
 
 		printf("started listening\n");
 		while (that->running) {
@@ -80,7 +79,7 @@ private:
 
 				int countRcv = 0;
 				for (;;) {
-					countRcv = SDLNet_TCP_Recv(csd, buffer, bufferSize-1);
+					countRcv = SDLNet_TCP_Recv(csd, buffer, BUFFER_SIZE -1);
 					if (countRcv <= 0) {
 						// disconnected or some other problem
 						break;

@@ -1,17 +1,26 @@
 #+PROPERTY: header-args:sh :session *s7-imgui* :var root=(projectile-project-root)
 # #+STARTUP: content
 * COMMENT quick dev buttons
-  #+NAME: buttons
-  #+BEGIN_SRC emacs-lisp
-(aod.org-babel/generate-named-buttons-inc ">")
-  #+END_SRC
+** linux
+   #+NAME: buttons
+   #+BEGIN_SRC emacs-lisp
+;; TODO  that not any is.. well wrong
+(aod.org-babel/generate-named-buttons-inc (rx (and ">" (not (any ">win")))))
+   #+END_SRC
 
-  #+RESULTS: buttons
-  | [>clean_libc] | [>repl] | [>test] | [>build & run] | [>build] |
+   #+RESULTS: buttons
+   | [>clean_libc] | [>repl] | [>test] | [>run] | [>build & run] | [>build] |
+** windows
+    #+BEGIN_SRC emacs-lisp
+(aod.org-babel/generate-named-buttons-inc ">win")
+   #+END_SRC
+
+   #+RESULTS:
+   | [>win:build] |
 
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
-* TODO Linux
+* Linux
 ** Optional: using existing repositories for subprojects
    #+BEGIN_SRC sh
 ln -s `readlink -f ../SDL` subprojects/sdl2
@@ -48,6 +57,11 @@ rm -rf build
 ninja -C build && ./build/s7-imgui
    #+END_SRC
 
+   #+NAME: >run
+   #+BEGIN_SRC sh
+./build/s7-imgui
+   #+END_SRC
+
    That solves any problem with pwd
    #+BEGIN_SRC sh :session *s7-in-build*
 cd build
@@ -74,40 +88,58 @@ ninja -C build
   (scheme-send-string "\n"))
   #+END_SRC
 
-* TODO Windows
-  Optional: using an existing =SDL= repo
-  =mklink /J subprojects\sdl2 ..\SDL=
+* Windows
+** Optional: using existing repositories for subprojects
+   #+BEGIN_SRC sh :session *s7-imgui-cmd*
+cmd
+mklink /J subprojects\sdl2 ..\SDL
+# etc..
+   #+END_SRC
 ** Building
-   #+BEGIN_SRC sh
-# visual studio command prompts
+   
+   Preparting the project, building & some notes
+   #+BEGIN_SRC sh *s7-imgui-vs-build*
 cmd //k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 
 meson setup --backend vs build
 meson compile -C build
 
-# more commands
+# useful commands
 meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
    #+END_SRC
-* Some scripts
-  Getting some scheme files from s7
-  #+BEGIN_SRC sh
+
+   Just building (runnable src block)
+   #+NAME: >win:build
+   #+BEGIN_SRC sh :session *s7-imgui-vs-build*
+# the -z .. part is to run this command once, from msys2
+# once we are into the cmd.exe we should not run this again
+[[ -z "$home" ]] && cmd //k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
+meson compile -C build   
+   #+END_SRC
+
+* COMMENT Temp
+** s7: libc
+   Getting some scheme files from s7
+   Not sure if I can use this on windows though
+   #+BEGIN_SRC sh
 mkdir src/scheme/s7
 cp subprojects/s7/libc.scm src/scheme/s7/libc.scm
 cp subprojects/s7/r7rs.scm src/scheme/s7/r7rs.scm
 cp subprojects/s7/cload.scm src/scheme/s7/cload.scm
 cp subprojects/s7/s7.h src/scheme/s7/
 ls src/scheme/s7/
-  #+END_SRC
+   #+END_SRC
 
-  Clearing out the generated/compile libc
+   Clearing out the generated/compile libc
 
-  #+NAME: >clean_libc
-  #+BEGIN_SRC sh
+   #+NAME: >clean_libc
+   #+BEGIN_SRC sh
 rm src/scheme/s7/libc_s7*
-  #+END_SRC
-* Examples
+   #+END_SRC
+
+* Examples (Linux)
 ** COMMENT examples buttons
    #+BEGIN_SRC emacs-lisp
 (aod.org-babel/generate-named-buttons-inc "ex:")
@@ -173,7 +205,9 @@ netcat localhost 1234
 hi there
 
    #+END_SRC
-* COMMENT Notes
+* COMMENT Local variables
+  Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything
+  The cursor, upon opening the file, stays at the beginning
 
 # Local Variables:
 # eval: (aod.org-babel/eval-named-block "buttons")

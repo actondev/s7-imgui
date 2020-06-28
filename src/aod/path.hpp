@@ -37,7 +37,7 @@ void print_cwd() {
 		perror("getcwd() error");
 	}
 #else
-	   printf(stderr, "print_cwd not implemented\n");
+	   fprintf(stderr, "print_cwd not implemented\n");
 #endif
 }
 
