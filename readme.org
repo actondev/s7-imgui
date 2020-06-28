@@ -1,0 +1,50 @@
+* S7 & ImGui
+  Using [[https://ccrma.stanford.edu/software/snd/snd/s7.html][s7 scheme]] alongside [[https://github.com/ocornut/imgui][ImGui]].
+
+  What's more, you can get a remote repl (over TCP) to change the GUI while the app is running.
+
+  Cross platform build: linux & windows with [[https://mesonbuild.com/][meson]] build system
+  
+  Tested under
+  - Windows 10 x64
+    using =msys2= for =meson= & =ninja= but I guess normal windows builds exist
+  - Ubuntu 20.04
+
+* Building
+  See [[file:dev.org][dev.org]]
+  
+  If you use emacs I recommend the [[https://github.com/diadochos/org-babel-eval-in-repl][org-babel-eval-in-repl]] package to make the most out of the snippets in that file.
+
+** Windows
+   Meson can generate the =visual studio= project for you, so you can build/run/debug there.
+
+** Linux
+   Eclips CDT has meson support which without too much fuss I got it working. The [[file:.cproject][.cproject]] file is in the repo cause I couldn't get eclipse to generate it automatically. The [[file:.project][.project]] could be omitted. Generally, what was needed to do was to manually add the following =natures= in the project
+   - meson
+   - c
+   - c++
+
+   Again, the =.cproject= was needed for the indexer to work. I copied it from a new generated meson project.
+
+** TODO macOS
+   Feel free to test it & make a PR. I don't have any mac/hackintosh.
+
+** TODO Cross compiling
+   Meson has cross compiling support. Haven't tested it at all though.
+
+* Rationale
+  After discovering =clojure= and enjoying the satisfaction of working with a REPL, I wanted to have something like this for native desktop applications (and specifically with c/c++ for specific applications, so no java/clojure).
+
+  Also, building things is still not fun for c/c++ projects. Some short-lived explorations with =Juce= got me scratching my head: you have to use an tool (named =projucer=) to generate the visual studio/xcode project files.. I didn't like this process, confused me.
+
+  Recently I stumbled upon =meson= and, without having done anything with c++ since 2013, I was glad to see how quickly I could use some libraries & even write build definitions for existing projects. It was a nice opportunity to see how things work & not use ready frameworks.
+
+  So there you go.
+
+* Roadmap
+  - [X] proof of concept
+    - embed =s7= and draw something with imgui from =s7=
+    - open a tcp REPL and work with =cmuscheme= in =emacs=
+  - [ ] (semi)complete the bindings of imgui for s7: checkboxes, lists, menubar etc
+  - [ ] video demonstration / getting started: windows and/or linux
+
