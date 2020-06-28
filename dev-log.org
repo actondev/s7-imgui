@@ -308,14 +308,21 @@ meson wrap install gtest
 * writing an inc! function
   #+BEGIN_SRC scheme
 (define (inc! x)
-  (format #t "increasing x: ~A" x)
-  (set! x (+ 1 x))
-  (format #t "x is now ~A" x))
+  (format #t "increasing x: ~A ~A" x (symbol->value x))
+  ((outlet (curlet)) x)
+
+  ;; (set! ((outlet (curlet)) x) 2)
+;;  (set! x (+ 1 x))
+  ;; (format #t "x is now ~A" x)
+)
 
 (define x 0)
 (inc! x)
+(inc! 'x)
+(symbol? 'x)
+(symbol->value 'x)
 (inc! x)
-;; not what I expected..
+x ;; x is still 0
 
   #+END_SRC
 
@@ -334,3 +341,21 @@ meson wrap install gtest
     in =eir-eval-in-ielm=
     add a last argument =t= to the =eir-eval-in-repl-lisp= call
 
+* r7rs.scm
+** TODO windows? is it working?
+   in linux there is plenty of magic
+   - generates a c file
+   - compiles it
+   - dynamically loads it
+
+** box
+   #+BEGIN_SRC scheme
+  (let ((e (box 1)))
+    (test (box? e) #t)
+    (test (unbox e) 1)
+    (test (e 'value) 1)
+    (set-box! e 2)
+    (test (unbox e) 2)
+    (test (string=? (object->string e) "(inlet 'type box-type 'value 2)") #t))
+
+   #+END_SRC

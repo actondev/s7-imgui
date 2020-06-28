@@ -27,16 +27,16 @@ example_sdl_net = executable(
   install: true,
   )
 
-example_nng = executable(
-  'example-nng',
-  sources: files (
-    'nng-tcp-socket.c',
-  ),
-  dependencies: [
-    nng_dep,
-    ],
-  install: true,
-  )
+# example_nng = executable(
+#   'example-nng',
+#   sources: files (
+#     'nng-tcp-socket.c',
+#   ),
+#   dependencies: [
+#     nng_dep,
+#     ],
+#   install: true,
+#   )
 
 if system == 'linux'
 example_s7_rel = executable(

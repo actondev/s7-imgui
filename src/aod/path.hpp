@@ -8,6 +8,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <string>
 //#include <stdlib.h>
 //#include <string.h>
 
@@ -18,10 +19,10 @@
 namespace aod {
 
 namespace path {
-void set(char *path) {
+void set(std::string path) {
 #ifdef __linux__
-	fprintf(stderr, "setting path to %s\n", path);
-	chdir(path);
+	fprintf(stderr, "setting path to %s\n", path.c_str());
+	chdir(path.c_str());
 #else
 	fprintf(stderr, "aod::path::set not implemented in this platform\n");
 #endif

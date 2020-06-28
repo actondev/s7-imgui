@@ -1,0 +1,14 @@
+* Window size/position etc
+  see https://retifrav.github.io/blog/2019/05/26/sdl-imgui/
+  #+BEGIN_SRC cpp
+// position the controls widget in the top-right corner with some margin
+ImGui::SetNextWindowPos(ImVec2(10, 10), ImGuiCond_Always);
+// here we set the calculated width and also make the height to be
+// be the height of the main window also with some margin
+ImGui::SetNextWindowSize(
+			 ImVec2(static_cast<float>(controls_width), static_cast<float>(sdl_height - 20)),
+			 ImGuiCond_Always
+			 );
+// create a window and append into it
+ImGui::Begin("Controls", NULL, ImGuiWindowFlags_NoResize);
+  #+END_SRC

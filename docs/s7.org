@@ -94,10 +94,10 @@ s7_call(s7,
    #+END_SRC
 
    #+BEGIN_QUOTE
-      There is a built-in lag between the creation of a new object and
-      its first possible GC (the lag time is set indirectly by
-      GC_TEMPS_SIZE in s7.c), so you don't need to worry about very
-      short term temps such as the arguments to s7_cons in:
+   There is a built-in lag between the creation of a new object and
+   its first possible GC (the lag time is set indirectly by
+   GC_TEMPS_SIZE in s7.c), so you don't need to worry about very
+   short term temps such as the arguments to s7_cons in:
    #+END_QUOTE
 
    #+BEGIN_SRC c
@@ -146,13 +146,111 @@ lib-env
 
    #+END_SRC
    
-* About GC
-     #+BEGIN_QUOTE
-   If you create an s7 object in C, that object needs to be GC
-   protected if there is any chance the GC might run without an
-   existing Scheme-level reference to it. s7_gc_protect places the
-   object in a vector that the GC always checks, returning the
-   object's location in that table. s7_gc_unprotect_at unprotects the
-   object (removes it from the vector) using the location passed to
-   it. s7_gc_protected_at returns the object at the given location
+** c-pointers
+   #+BEGIN_SRC c
+// s7.c
+/* (c-pointer (bignum "1234")) */   
+   #+END_SRC
+   
+   s7test.scm has some things, but I don't get it
+   #+BEGIN_SRC scheme
+(test-wi (let ((v (vector 1)))
+	   (let ((p (c-pointer 1 v)))
+	     (set! (v 0) p)
+	     (object->string p :readable)))
+	 "(let ((<1> #f)
+                (<2> (vector #f)))
+            (set! <1> (c-pointer 1 <2> #f))
+            (set! (<2> 0) <1>)
+            <1>)")
+   #+END_SRC
+
+
+   #+BEGIN_SRC scheme
+(unless (provided? 'windows)
+  (let ()
+    (require libc.scm)
+    (when (and (defined? '*libc*)
+	       (procedure? (*libc* 'passwd.pw_name)))
+      (with-let (sublet *libc*)
+
+	(test (let ((buf (make-string 20 #\null)))
+		(strcat buf "All ")
+		(strcat buf "for ")
+		(strcat buf "one.")
+		(substring buf 0 12))
+	      "All for one.")
+	(test (strcmp "a" "b") -1)
+	(test (strcmp "a" "a") 0)
+	(test (strncmp "1234" "1235" 3) 0)
+	(test (strcpy (make-string 3) "123") "123")
+	(test (strlen "123") 3)
+	(test (strchr "12345" (char->integer #\3)) "345")
+	(test (strspn "12345" "123") 3)
+	(test (isalpha (char->integer #\.)) 0)
+	(test (zero? (isdigit (char->integer #\2))) #f)
+	(test (integer->char (toupper (char->integer #\a))) #\A)
+	(test (let ((buf (malloc 3)))
+		(memset buf 90 3)
+		(let ((result (c-pointer->string buf 3)))
+		  (free buf)
+		  result))
+	      "ZZZ")
+	;; etc....
+	))))   
+   #+END_SRC
+
+
+** C-pointers (from documentation)
+   #+BEGIN_SRC c
+bool s7_is_c_pointer(s7_pointer arg);
+bool s7_is_c_pointer_of_type(s7_pointer arg, s7_pointer type);
+void *s7_c_pointer(s7_pointer p);
+s7_pointer s7_make_c_pointer(s7_scheme *sc, void *ptr);
+s7_pointer s7_make_c_pointer_with_type(s7_scheme *sc, void *ptr, s7_pointer type, s7_pointer info);
+s7_pointer s7_c_pointer_type(s7_pointer p);
+
+   #+END_SRC
+   #+BEGIN_QUOTE
+   These functions are equivalent to s7's c-pointer?, c-pointer, and
+   c-pointer-type. C-pointers in s7 are aimed primarily at passing
+   uninterpreted C pointers through s7 from one C function to
+   another. See, for example, libgtk_s7.c which passes gtk widget
+   pointers around as c-pointers in s7. The "type" field can hold a
+   type indication, useful in debugging. s7_c_pointer_of_type checks
+   that the c-pointer's type field matches the type passed as the
+   second argument. Nothing stops you from using these fields any way
+   you like, of course.
    #+END_QUOTE
+   
+
+   #+BEGIN_SRC c
+static s7_pointer lg_make_GtkTextIter(s7_scheme *sc, s7_pointer args)
+{
+  GtkTextIter* result;
+  result = (GtkTextIter*)calloc(1, sizeof(GtkTextIter));
+  return(s7_make_c_pointer_with_type(sc, result, s7_make_symbol(sc, "GtkTextIter_"), make_xm_obj(sc, result)));
+}
+
+s7_define_function(sc, "GtkTextIter", lg_make_GtkTextIter, 0, 0, 0, "(GtkTextIter): a new GtkTextIter struct");
+   #+END_SRC
+
+
+   #+BEGIN_SRC c
+s7_pointer s7_make_c_object(s7_scheme *sc, s7_int type, void *value)
+{
+  return(s7_make_c_object_with_let(sc, type, value, sc->nil));
+}   
+   #+END_SRC
+
+
+* About GC
+  #+BEGIN_QUOTE
+  If you create an s7 object in C, that object needs to be GC
+  protected if there is any chance the GC might run without an
+  existing Scheme-level reference to it. s7_gc_protect places the
+  object in a vector that the GC always checks, returning the
+  object's location in that table. s7_gc_unprotect_at unprotects the
+  object (removes it from the vector) using the location passed to
+  it. s7_gc_protected_at returns the object at the given location
+  #+END_QUOTE
