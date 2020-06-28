@@ -1,12 +1,12 @@
 * S7 & ImGui
-  Using [[https://ccrma.stanford.edu/software/snd/snd/s7.html][s7 scheme]] alongside [[https://github.com/ocornut/imgui][ImGui]].
+  Using [[https://ccrma.stanford.edu/software/snd/snd/s7.html][s7 scheme]] alongside [[https://github.com/ocornut/imgui][ImGui]] to (interactively) build (cross platform) GUI apps.
 
-  What's more, you can get a remote repl (over TCP) to change the GUI while the app is running.
+  You can connect to a remote repl (over TCP) while the app is running to change the application behavior.
 
   Cross platform build: linux & windows with [[https://mesonbuild.com/][meson]] build system
   
   Tested under
-  - Windows 10 x64
+  - Windows 10 x64 \\
     using =msys2= for =meson= & =ninja= but I guess normal windows builds exist
   - Ubuntu 20.04
 

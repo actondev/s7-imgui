@@ -44,7 +44,7 @@ meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
     #+END_SRC
-** Running
+** COMMENT Running
    #+NAME: >build & run
    #+BEGIN_SRC sh
 ninja -C build && ./build/s7-imgui
@@ -55,24 +55,20 @@ ninja -C build && ./build/s7-imgui
 ./build/s7-imgui
    #+END_SRC
 
-   That solves any problem with pwd
-   #+BEGIN_SRC sh :session *s7-in-build*
-cd build
-./s7-imgui
-   #+END_SRC
-
-*** Testing tcp socket
-    #+BEGIN_SRC sh :session *socket*
-netcat localhost 12345
-    #+END_SRC
-
-** Testing
+** Running the tests
    #+NAME: >test
    #+BEGIN_SRC sh
 ninja -C build
 ./build/test/gtest-all
    #+END_SRC
+
 ** TCP repl
+   You can just connect from your terminal to the running instance
+   #+BEGIN_SRC sh :session *socket*
+netcat localhost 12345
+   #+END_SRC
+
+   However, using emacs is the way to go
   #+NAME: >repl
   #+BEGIN_SRC emacs-lisp
 (save-selected-window
@@ -105,7 +101,7 @@ rm -rf build
 # scheme scripts
 mklink /J build\scheme src\scheme
    #+END_SRC
-
+** COMMENT buttons
    Just building (runnable src block)
    #+NAME: >win:build
    #+BEGIN_SRC sh :session *s7-imgui-vs-build*
@@ -135,7 +131,7 @@ ls src/scheme/s7/
 rm src/scheme/s7/libc_s7*
    #+END_SRC
 
-* Examples (Linux)
+* Bundled examples
 ** COMMENT examples buttons
    #+BEGIN_SRC emacs-lisp
 (aod.org-babel/generate-named-buttons-inc "ex:")
@@ -151,26 +147,7 @@ ninja -C build
 ./build/examples/example_imgui
    #+END_SRC
 
-** SDL_NET tcp socket
-   Yay it's working
-   #+BEGIN_SRC sh
-ninja -C build
-./build/examples/example-sdl-net
-   #+END_SRC
-
-   #+BEGIN_SRC sh :session *tcp*
-netcat localhost 1234
-
-hi there
-   #+END_SRC
-
-** nng
-   #+BEGIN_SRC sh
-ninja -C build
-./build/examples/example-nng 
-   #+END_SRC
-
-** DONE s7 repl.scm
+** COMMENT s7 repl.scm
    Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)
    #+BEGIN_SRC sh
 ninja -C build
@@ -188,19 +165,7 @@ rm -r build/examples/*libc_*
     #+BEGIN_SRC sh
 time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-repl
     #+END_SRC
-** wrapped TCP Server
-   Yay it's working
-   #+BEGIN_SRC sh
-ninja -C build
-./build/examples/tcp_server
-   #+END_SRC
 
-   #+BEGIN_SRC sh :session *tcp*
-netcat localhost 1234
-
-hi there
-
-   #+END_SRC
 * COMMENT Local variables
   Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything
   The cursor, upon opening the file, stays at the beginning
