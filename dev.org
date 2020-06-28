@@ -1,22 +1,15 @@
 #+PROPERTY: header-args:sh :session *s7-imgui* :var root=(projectile-project-root)
 # #+STARTUP: content
 * COMMENT quick dev buttons
-** linux
    #+NAME: buttons
    #+BEGIN_SRC emacs-lisp
 ;; TODO  that not any is.. well wrong
-(aod.org-babel/generate-named-buttons-inc (rx (and ">" (not (any ">win")))))
+;; (aod.org-babel/generate-named-buttons-inc (rx (and ">" (not (any ">win")))))
+(aod.org-babel/generate-named-buttons-inc ">")
    #+END_SRC
 
    #+RESULTS: buttons
-   | [>clean_libc] | [>repl] | [>test] | [>run] | [>build & run] | [>build] |
-** windows
-    #+BEGIN_SRC emacs-lisp
-(aod.org-babel/generate-named-buttons-inc ">win")
-   #+END_SRC
-
-   #+RESULTS:
-   | [>win:build] |
+   | [>clean_libc] | [>win:build] | [>repl] | [>test] | [>run] | [>build & run] | [>build] |
 
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
@@ -98,7 +91,7 @@ mklink /J subprojects\sdl2 ..\SDL
 ** Building
    
    Preparting the project, building & some notes
-   #+BEGIN_SRC sh *s7-imgui-vs-build*
+   #+BEGIN_SRC sh :session *s7-imgui-vs-build*
 cmd //k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 
 meson setup --backend vs build
@@ -108,6 +101,9 @@ meson compile -C build
 meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
+
+# scheme scripts
+mklink /J build\scheme src\scheme
    #+END_SRC
 
    Just building (runnable src block)

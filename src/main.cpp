@@ -43,6 +43,9 @@ static void scm_load(s7_scheme *sc, const char *file) {
 
 // Main code
 int main(int, char**) {
+#ifdef __WIN32__
+    // AllocConsole();
+#endif
     SDL_CreateThread(sdl_net_demo, "sdl_net", (void*) NULL);
     s7_scheme *sc = s7_init();
     aod::s7::Repl repl(sc);
@@ -54,12 +57,12 @@ int main(int, char**) {
     scheme_path += base_path + "scheme/";
     std::string scheme_s7_path;
     scheme_s7_path += scheme_path+ "s7/";
-    printf("base path is %s\n", base_path.c_str());
+    fprintf(stderr, "base path is %s\n", base_path.c_str());
 
     aod::path::set(base_path);
 
     aod::s7::set_print_stderr(sc);
-//    s7_add_to_load_path(sc, "scheme");
+    s7_add_to_load_path(sc, "scheme");
     s7_add_to_load_path(sc, "s7");
 
     aod::s7::set_print_stderr(sc);
@@ -74,14 +77,14 @@ int main(int, char**) {
      * etc
      */
     
-    // aod::s7::imgui::bind(sc);
-    // // libc etc magic: it creates a .c file
-    // aod::path::set(scheme_s7_path);
+    aod::s7::imgui::bind(sc);
+    // libc etc magic: it creates a .c file
+    aod::path::set(scheme_path);
     // scm_load(sc, "r7rs.scm");
 
     // aod::path::set(scheme_path);
-    // scm_load(sc, "imgui.scm");
-    // aod::path::set(base_path);
+    scm_load(sc, "imgui.scm");
+    aod::path::set(base_path);
 
 
 
@@ -168,7 +171,7 @@ int main(int, char**) {
     // Main loop
     bool done = false;
 
-    // s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
+    s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
     while (!done) {
 	// Poll and handle events (inputs, window resize, etc.)
 	// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -187,7 +190,7 @@ int main(int, char**) {
 	ImGui_ImplSDL2_NewFrame(window);
 	ImGui::NewFrame();
 
-	// s7_call(sc, s7_name_to_value(sc, DRAW_FN), s7_nil(sc));
+	s7_call(sc, s7_name_to_value(sc, DRAW_FN), s7_nil(sc));
 
 	// 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
 	if (show_demo_window)

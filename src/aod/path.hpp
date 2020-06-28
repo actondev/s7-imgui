@@ -16,6 +16,10 @@
 #include <unistd.h>
 #endif
 
+#ifdef __WIN32__
+#include <direct.h>
+#endif
+
 namespace aod {
 
 namespace path {
@@ -24,7 +28,7 @@ void set(std::string path) {
 	fprintf(stderr, "setting path to %s\n", path.c_str());
 	chdir(path.c_str());
 #else
-	fprintf(stderr, "aod::path::set not implemented in this platform\n");
+	_chdir(path.c_str());
 #endif
 }
 
