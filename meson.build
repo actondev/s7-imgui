@@ -19,18 +19,19 @@ if system == 'windows'
   # link_args += '/DYNAMICBASE "dsound.lib" "winmm.lib" "wininet.lib" "comctl32.lib" "Shlwapi.lib" "kernel32.lib" "user32.lib" "gdi32.lib" "winspool.lib" "comdlg32.lib" "advapi32.lib" "shell32.lib" "ole32.lib" "oleaut32.lib" "uuid.lib" "odbc32.lib" "odbccp32.lib"'
   # link_args += '/TLBID:1'
 elif system == 'linux'
-  link_args += ['-lpthread',
-		'-lxcb',
-		'-ldl',
-		'-lGL',
-		'-lfontconfig',
-		# '-lGLU',
-		'-lpulse',
-		'-lpulse-simple',
+  link_args += [
+    # '-lpthread',
+    # '-lxcb',
+    # '-ldl',
+    # '-lGL',
+    # '-lfontconfig',
+    # '-lGLU',
+    # '-lpulse',
+    # '-lpulse-simple',
 	       ]
-  # needed for compiling subprojects/imgui-1.76/examples/imgui_impl_opengl2.cpp
-  add_global_link_arguments('-lGL', language: 'cpp')
-  extra_args += ['-fpermissive']
+  # added -lGL in sdl2 project
+  # add_global_link_arguments('-lGL', language: 'cpp')
+  # extra_args += ['-fpermissive']
 endif
 
 s7_proj = subproject('s7')

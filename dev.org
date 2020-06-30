@@ -9,7 +9,7 @@
    #+END_SRC
 
    #+RESULTS: buttons
-   | [>clean_libc] | [>win:build] | [>repl] | [>test] | [>run] | [>build & run] | [>build] |
+   | [>clean_libc] | [>win:build] | [>repl] | [>test] | [>run] | [>build & run] | [>clean] | [>build] |
 
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
@@ -33,6 +33,12 @@ meson setup build
    #+NAME: >build
    #+BEGIN_SRC sh
 ninja -C build
+   #+END_SRC
+
+   Clean
+   #+NAME: >clean
+   #+BEGIN_SRC sh
+ninja -C build -t clean
    #+END_SRC
 
 *** Helpful commands

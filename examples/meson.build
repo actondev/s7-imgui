@@ -10,7 +10,7 @@ example_sdl_opengl = executable(
   dependencies: [
     sdl2_dep,
     sdl2main_dep,
-    ],
+  ],
   install: true,
   gui_app: true,
   )

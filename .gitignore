@@ -4,3 +4,6 @@ build*/
 subprojects/*
 !subprojects/*.wrap
 .settings/
+
+# kdevelop files
+*.kdev4

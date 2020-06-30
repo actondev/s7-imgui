@@ -5,15 +5,6 @@
 #include <SDL_opengl.h>
 #include <GL/gl.h>
 
-#pragma comment(lib, "secur32.lib")
-#pragma comment(lib, "winmm.lib")
-#pragma comment(lib, "dmoguids.lib")
-#pragma comment(lib, "wmcodecdspuuid.lib")
-#pragma comment(lib, "msdmo.lib")
-#pragma comment(lib, "Strmiids.lib")
-#pragma comment(lib, "Version.lib")
-#pragma comment(lib, "Imm32.lib")
-
 typedef int32_t i32;
 typedef uint32_t u32;
 typedef int32_t b32;
