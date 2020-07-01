@@ -45,6 +45,8 @@ ninja -C build -t clean
     #+BEGIN_SRC sh
 # for the scheme sources
 ln -s `readlink -f src/scheme` build/scheme
+# eclipse debug build
+ln -s `readlink -f src/scheme` build/meson.debug.linux.x86_64/scheme
 
 meson setup --reconfigure build
 meson setup --wipe build

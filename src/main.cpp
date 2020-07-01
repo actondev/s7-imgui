@@ -20,6 +20,7 @@
 #include "aod/s7/imgui.hpp"
 #include <sstream>
 #include <iostream>
+#include "aod/s7/c_primitives.hpp"
 
 #define DRAW_FN "draw"
 #define SETUP_FN "setup"
@@ -78,6 +79,9 @@ int main(int, char**) {
      */
     
     aod::s7::imgui::bind(sc);
+    // (*c-primitives* 'bool) etc, for heap allocated c primitives
+    // that I can pass around as a reference
+    aod::s7::bind_primitives(sc);
     // libc etc magic: it creates a .c file
     aod::path::set(scheme_path);
     // scm_load(sc, "r7rs.scm");
