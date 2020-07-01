@@ -18,6 +18,7 @@ gtest_all = executable(
   dependencies : [
     gtest_main_dep,
     aod_dep,
+    s7_dep,
   ],
 )
 test('gtest tests', gtest_all)
