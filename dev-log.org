@@ -449,15 +449,38 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   But, instead of that, if we link against the =sdl2_main= library, this is taken care of
 * TODO opengl screenshot
   https://stackoverflow.com/questions/5862097/sdl-opengl-screenshot-is-black#5867170
-* DONE <2020-07-01 Wed> more bindings: checkbox, color-edit, clear-color
-  wrote some ffi utils, creating c-objects and sharing between c<->scheme
+* DONE <2020-07-01 Wed> windows: cannot build
+  #+BEGIN_QUOTE
+[3/16] Linking target examples/example_imgui.exe
+FAILED: examples/example_imgui.exe 
+c++ @examples/example_imgui.exe.rsp
+c++.exe: error: winmm.lib: No such file or directory
+c++.exe: error: version.lib: No such file or directory
+c++.exe: error: imm32.lib: No such file or directory
+c++.exe: error: opengl32.lib: No such file or directory
+c++.exe: error: iphlpapi.lib: No such file or directory  
+  #+END_QUOTE
 
-  TODO
-  - slider
-  - layout (same line etc)
-  - scheme macros for begin
-    something like
-    #+BEGIN_SRC scheme
+  aaah, aha! it was using gcc. not msvc
+  - wipe
+  - setup build --backend vs
+
+** checking windows compiler
+   added a check in meson.build
+   #+BEGIN_SRC sh
+meson setup build-mingw
+ninja -C build-mingw
+   #+END_SRC
+* TODO <2020-07-01 Wed> todo list: more bindings, mutex
+** TODO bindings
+   wrote some ffi utils, creating c-objects and sharing between c<->scheme
+
+   TODO
+   - slider
+   - layout (same line etc)
+   - scheme macros for begin
+     something like
+     #+BEGIN_SRC scheme
 (defmacro* imgui/m-window (:title title
 				  :open open
 				  ) . body
@@ -467,9 +490,16 @@ int APIENTRY WinMain(HINSTANCE hInstance,
      (imgui/end)
      )
   )
-    #+END_SRC
+     #+END_SRC
 
-  also check out the layout. how is it?
-  #+BEGIN_SRC c
+   also check out the layout. how is it?
+   #+BEGIN_SRC c
 ImGui::SameLine();
-  #+END_SRC
+   #+END_SRC
+** TODO mutex
+   I can crash the application when sending quickly from the repl the =(draw)= definition. expected :)
+   - use a mutex around the main loop
+** TODO s7 ffi: free functions
+   delete void* isn't very smart.. fix this :)
+   but.. why wasn't the compiler complaining??
+** TODO gc in float_arr not called

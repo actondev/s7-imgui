@@ -1,5 +1,3 @@
-message('in aod')
-
 # TODO as this grows, I should add conditionals:
 # if s7 found, add these files
 # if imgui found, ... and so on
@@ -15,7 +13,6 @@ aod_lib = library(
   # sources: aod_sources,
   include_directories: include_directories('..'),
   sources: aod_sources,
-  links_width: imgui,
   dependencies : [
     dependency('s7', required: true),
     dependency('imgui', required: true),

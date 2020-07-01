@@ -3,17 +3,22 @@ project('s7-imgui', 'cpp', 'c',
        )
 
 extra_args = []
-if meson.get_compiler('cpp').get_id() == 'msvc'
+system = host_machine.system()
+compiler_id = meson.get_compiler('cpp').get_id()
+if compiler_id == 'msvc'
   message('visual studio')
   # these flags are copied from an example project, don't know what's what
   # should comment later on what's what
   extra_args += ['/wd"4996"', '/wd"4250"', '/wd"4018"', '/wd"4267"', '/wd"4068"', '-D_DEBUG']
 endif
 
+if system == 'windows' and compiler_id != 'msvc'
+  error('Building on windows requires the MSVC compiler. Other compilers are not supported at the moment.')
+endif
+
 link_args = []
 
 # host or build machine?
-system = host_machine.system()
 
 # --- dependencies
 s7_proj = subproject('s7')

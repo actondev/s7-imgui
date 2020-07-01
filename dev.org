@@ -73,7 +73,7 @@ ninja -C build
    To run specific tests:
 
    #+BEGIN_SRC sh
-./build/test/gtest-all --gtest_filter=c_primitives.*
+./build/test/gtest-all --gtest_filter=c_primitives.float_arr
    #+END_SRC
 
 ** TCP repl
@@ -104,11 +104,11 @@ mklink /J subprojects\sdl2 ..\SDL
    #+BEGIN_SRC sh :session *s7-imgui-vs-build*
 cmd //k "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvarsall.bat" x64
 
-meson setup --backend vs build
+meson setup build --backend vs
 meson compile -C build
 
 # useful commands
-meson setup --reconfigure build
+meson setup build --reconfigure --backend vs
 meson setup --wipe build
 rm -rf build
 
