@@ -129,7 +129,7 @@ int main(int, char**) {
     SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL
 						      | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example",
-					  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720, window_flags);
+					  SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, window_flags);
     if (window == NULL) {
         fprintf(stderr, "Could not create SDL window");
         return -1;
@@ -168,7 +168,7 @@ int main(int, char**) {
     ImGui_ImplOpenGL2_Init();
 
     // Our state
-    bool show_demo_window = true;
+    bool show_demo_window = false;
     bool show_another_window = false;
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 

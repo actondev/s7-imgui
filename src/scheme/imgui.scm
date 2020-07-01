@@ -8,23 +8,24 @@
   (display "initializing imgui.scm: in setup\n"))
 
 (define (draw)
-  (aod.imgui/begin "s7 window")
-  (aod.imgui/text "I like scheme :)")
+  (imgui/begin "s7 window")
+  (imgui/text "I like scheme :)")
 
-  (if (aod.imgui/button (format #f "Click ~A times" click-counter))
+  (if (imgui/button (format #f "Click ~A times" click-counter))
       (begin
 	(set! click-counter (+ 1 click-counter))
 	(format *stdout* "new counter ~A\n" click-counter)))
   (when (not (window1-open))
-      (when (aod.imgui/button "Open the closeable window")
+      (when (imgui/button "Open the closeable window")
 	(set! (window1-open) #t)))
 
-  (aod.imgui/text "another one")
-  (aod.imgui/end)
+  (imgui/text "another one")
+  (imgui/checkbox "show that other window" window1-open)
+  (imgui/end)
 
   (when (window1-open)
-    (aod.imgui/begin "s7 closable window" window1-open)
-    (aod.imgui/text "I like scheme as well :)")
-    (aod.imgui/end))
+    (imgui/begin "s7 closable window" window1-open)
+    (imgui/text "I like scheme as well :)")
+    (imgui/end))
   ;; done drawing
   )
