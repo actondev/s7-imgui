@@ -7,6 +7,8 @@
 (define (setup)
   (display "initializing imgui.scm: in setup\n"))
 
+(define color-4 ((*c-primitives* 'float-arr) 0.5 0.4 0.2))
+
 (define (draw)
   (imgui/begin "s7 window")
   (imgui/text "I like scheme :)")
@@ -21,11 +23,17 @@
 
   (imgui/text "another one")
   (imgui/checkbox "show that other window" window1-open)
-  (imgui/end)
+
 
   (when (window1-open)
     (imgui/begin "s7 closable window" window1-open)
     (imgui/text "I like scheme as well :)")
     (imgui/end))
+
+  (imgui/color-edit-3 "Here's a color"
+		      color-4)
+
+  (imgui/end)
   ;; done drawing
   )
+

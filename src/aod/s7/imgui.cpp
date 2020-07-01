@@ -1,5 +1,6 @@
 #include "imgui.h"
 #include "s7.h"
+#include "aod/s7/c_primitives.hpp"
 
 namespace aod {
 namespace s7 {
@@ -67,6 +68,25 @@ s7_pointer button(s7_scheme *sc, s7_pointer args) {
 	return (s7_make_boolean(sc, clicked));
 }
 
+s7_pointer color_edit_3(s7_scheme* sc, s7_pointer args){
+	s7_pointer text = s7_car(args);
+	if (!s7_is_string(text)) {
+		return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 1, text,
+				"Expecting a string (title)"));
+	}
+
+
+	s7_pointer obj = s7_cadr(args);
+	if (!s7_is_c_object(obj)) {
+		return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 2, obj,
+				"Expecting a c-object pointing to a c float* array"));
+	}
+
+	float_arr* arr = (float_arr*) s7_c_object_value(obj);
+	ImGui::ColorEdit3(s7_string(text), arr->elements);
+
+}
+
 } // ! anonymous namespace: the functions
 
 void bind(s7_scheme *sc) {
@@ -104,6 +124,13 @@ void bind(s7_scheme *sc) {
 			0, // optional args
 			false, // rest args
 			"Checkbox");
+
+	s7_define_function(sc, "imgui/color-edit-3", color_edit_3, // ..
+			2, // req args
+			0, // optional args
+			false, // rest args
+			"ColorEdit3");
+
 }
 
 } // imgui
