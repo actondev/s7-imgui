@@ -9,6 +9,8 @@
 #include "s7.h"
 #include "aod/s7/c_primitives.hpp"
 #include "aod/s7.hpp"
+#include <string>
+#include <stdio.h>
 
 void sc_modify_bool_ref(s7_scheme *sc, s7_pointer args) {
 
@@ -109,4 +111,35 @@ TEST(c_primitives, styles_of_call) {
 			"(define x2 ((*c-primitives* 'int) 20))");
 	int *data2 = (int*) s7_c_object_value(obj2);
 	ASSERT_EQ(20, *data2);
+}
+
+
+TEST(c_primitives, float_arr) {
+	s7_scheme *sc = s7_init();
+	aod::s7::set_print_stderr(sc);
+	aod::s7::bind_primitives(sc);
+
+	s7_pointer obj = s7_eval_c_string(sc, //
+			"(define x (with-let *c-primitives* (float-arr 10 11 12)))" //
+			);
+	aod::s7::float_arr* data = (aod::s7::float_arr*) s7_c_object_value(obj);
+	ASSERT_EQ(3, data->size);
+	ASSERT_EQ(10, data->elements[0]);
+	ASSERT_EQ(11, data->elements[1]);
+	ASSERT_EQ(12, data->elements[2]);
+
+	s7_eval_c_string(sc, "(set! (x 0) 100)");
+	s7_eval_c_string(sc, "(set! (x 1) 101)");
+	s7_eval_c_string(sc, "(set! (x 2) 102)");
+	ASSERT_EQ(100, data->elements[0]);
+	ASSERT_EQ(101, data->elements[1]);
+	ASSERT_EQ(102, data->elements[2]);
+
+	// should throw error
+	s7_eval_c_string(sc, "(set! (x 3) 103)");
+	std::string res = aod::s7::eval_write(sc, "(set! (x 3) 103)");
+//	printf("res is %s\n", res.c_str());
+	ASSERT_NE(std::string::npos, res.find("float-arr-set! argument 2, 3, is out of range (Index should be less than float-arr length)"));
+
+
 }

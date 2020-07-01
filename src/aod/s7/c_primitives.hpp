@@ -5,6 +5,11 @@
 namespace aod {
 namespace s7 {
 
+typedef struct {
+	size_t size;
+	float* elements;
+} float_arr;
+
 /**
  * Created the *c-bindings* environment (sublet?) which can be used to create
  * heap allocated c-objects.
@@ -29,6 +34,8 @@ namespace s7 {
  * Writing:
  * - (set! (data-b) #t)
  * - (set! (data-i) 10)
+ *
+ *
  */
 void bind_primitives(s7_scheme *sc);
 

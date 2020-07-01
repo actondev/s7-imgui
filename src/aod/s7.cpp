@@ -35,9 +35,6 @@ std::string eval_write(s7_scheme *sc, const char *sexp) {
 	// wrapping around begin as well to handle empty input (not enough arguments passed to write error)
 	wrapped_sexp << "(write (begin " << sexp << "))";
 
-//	printf("\nIncoming:\n%s\n", sexp);
-	printf("\nWill process:\n%s\n", wrapped_sexp.str().c_str());
-
 	s7_pointer old_port = s7_set_current_output_port(sc,
 			s7_open_output_function(sc, _print_temp));
 
