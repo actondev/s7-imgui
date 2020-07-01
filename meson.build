@@ -37,6 +37,7 @@ endif
 s7_proj = subproject('s7')
 s7_dep = s7_proj.get_variable('s7_dep')
 # src uses s7
+meson.override_dependency('s7', s7_dep)
 subdir('src')
 
 sdl2_proj = subproject('sdl2')

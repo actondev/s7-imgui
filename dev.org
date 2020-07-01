@@ -68,6 +68,12 @@ ninja -C build
 ./build/test/gtest-all
    #+END_SRC
 
+   To run specific tests:
+
+   #+BEGIN_SRC sh
+./build/test/gtest-all --gtest_filter=c_primitives.*
+   #+END_SRC
+
 ** TCP repl
    You can just connect from your terminal to the running instance
    #+BEGIN_SRC sh :session *socket*

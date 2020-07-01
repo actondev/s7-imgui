@@ -13,6 +13,8 @@
 
 namespace aod {
 namespace s7 {
+
+// Keeping everything in the header for now
 class Repl {
 private:
 	const char *UNEXPECTED_CLOSE_PAREN = "unexpected close paren";

@@ -447,3 +447,5 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   #+END_SRC
 
   But, instead of that, if we link against the =sdl2_main= library, this is taken care of
+* TODO opengl screenshot
+  https://stackoverflow.com/questions/5862097/sdl-opengl-screenshot-is-black#5867170

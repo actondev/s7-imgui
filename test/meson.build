@@ -6,6 +6,10 @@ gtest_main_dep = gtest_proj.get_variable('gtest_main_dep')
 # gmock_dep = gtest_proj.get_variable('gmock_dep')
 test_src += files(
   'aod/s7/repl_test.cpp',
+  'aod/s7/c_primitives_test.cpp',
+  # ---
+  # getting to know how things work, maybe useful for later reference
+  # 'aod/s7/ffi_test_raw.cpp',
   )
 
 gtest_all = executable(

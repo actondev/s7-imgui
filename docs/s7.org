@@ -243,7 +243,55 @@ s7_pointer s7_make_c_object(s7_scheme *sc, s7_int type, void *value)
 }   
    #+END_SRC
 
+** c-types
+   #+BEGIN_QUOTE
+    c-object? returns #t is its argument is a c-object. c-object-type
+    returns the object's type tag (otherwise #f of course). This tag
+    is also the position of the object's type in the (*s7* 'c-types)
+    list. (*s7* 'c-types) returns a list of the types created by
+    s7_make_c_type.
+   #+END_QUOTE
 
+   #+BEGIN_SRC scheme
+(*s7* 'c-types)
+   #+END_SRC
+
+   #+BEGIN_SRC c
+s7_int s7_make_c_type(s7_scheme *sc, const char *name)
+{
+  s7_int tag;
+  c_object_t *c_type;
+  tag = sc->num_c_object_types++;
+  if (tag >= sc->c_object_types_size)
+    {
+      if (sc->c_object_types_size == 0)
+	{
+	  sc->c_object_types_size = 8;
+	  sc->c_object_types = (c_object_t **)Calloc(sc->c_object_types_size, sizeof(c_object_t *));
+	}
+      else
+	{
+	  sc->c_object_types_size = tag + 8;
+	  sc->c_object_types = (c_object_t **)Realloc((void *)(sc->c_object_types), sc->c_object_types_size * sizeof(c_object_t *));
+	}
+    }
+  c_type = (c_object_t *)Calloc(1, sizeof(c_object_t));
+  sc->c_object_types[tag] = c_type;
+  c_type->type = tag;
+  c_type->scheme_name = s7_make_permanent_string(sc, name);
+  c_type->getter = sc->F;
+  c_type->setter = sc->F;
+  c_type->free = fallback_free;
+  c_type->mark = fallback_mark;
+  c_type->ref = fallback_ref;
+  c_type->set = fallback_set;
+  c_type->outer_type = T_C_OBJECT;
+  c_type->length = fallback_length;
+  /* all other fields are NULL */
+  return(tag);
+}
+
+   #+END_SRC
 * About GC
   #+BEGIN_QUOTE
   If you create an s7 object in C, that object needs to be GC
