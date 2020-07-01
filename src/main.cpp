@@ -170,7 +170,17 @@ int main(int, char**) {
     // Our state
     bool show_demo_window = false;
     bool show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+//    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    float clear_color[] = {0.45f, 0.55f, 0.60f, 1.00f};
+    aod::s7::float_arr arr;
+    arr.size = 4;
+    arr.elements = clear_color;
+
+    // binding the clear color to imgui/clear-color
+    s7_define(sc,s7_nil(sc),
+    		s7_make_symbol(sc, "imgui/clear-color"),
+			s7_make_c_object(sc, aod::s7::float_arr_type(sc),
+					(void* )&arr));
 
     // Main loop
     bool done = false;
@@ -237,8 +247,10 @@ int main(int, char**) {
 	// Rendering
 	ImGui::Render();
 	glViewport(0, 0, (int) io.DisplaySize.x, (int) io.DisplaySize.y);
-	glClearColor(clear_color.x, clear_color.y, clear_color.z,
-		     clear_color.w);
+//	glClearColor(clear_color.x, clear_color.y, clear_color.z,
+//		     clear_color.w);
+	glClearColor(clear_color[0], clear_color[1], clear_color[2],
+			     clear_color[3]);
 	glClear(GL_COLOR_BUFFER_BIT);
 	//glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
 	ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());

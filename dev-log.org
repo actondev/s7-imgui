@@ -449,3 +449,27 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   But, instead of that, if we link against the =sdl2_main= library, this is taken care of
 * TODO opengl screenshot
   https://stackoverflow.com/questions/5862097/sdl-opengl-screenshot-is-black#5867170
+* DONE <2020-07-01 Wed> more bindings: checkbox, color-edit, clear-color
+  wrote some ffi utils, creating c-objects and sharing between c<->scheme
+
+  TODO
+  - slider
+  - layout (same line etc)
+  - scheme macros for begin
+    something like
+    #+BEGIN_SRC scheme
+(defmacro* imgui/m-window (:title title
+				  :open open
+				  ) . body
+  `(begin
+     (imgui/begin title open?)
+     ,body
+     (imgui/end)
+     )
+  )
+    #+END_SRC
+
+  also check out the layout. how is it?
+  #+BEGIN_SRC c
+ImGui::SameLine();
+  #+END_SRC

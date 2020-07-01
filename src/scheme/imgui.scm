@@ -9,9 +9,19 @@
 
 (define color-4 ((*c-primitives* 'float-arr) 0.5 0.4 0.2))
 
+(define (adjust-color!)
+  (when (defined? 'imgui/clear-color)
+    (let ((new-val (imgui/clear-color 0)))
+      (if (>= new-val 1)
+	  (set! new-val 0))
+      (set! (imgui/clear-color 0) (+ 0.01 new-val)))
+    )
+  )
+
 (define (draw)
   (imgui/begin "s7 window")
   (imgui/text "I like scheme :)")
+  (adjust-color!)
 
   (if (imgui/button (format #f "Click ~A times" click-counter))
       (begin

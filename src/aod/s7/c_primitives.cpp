@@ -116,6 +116,9 @@ s7_pointer float_set(s7_scheme *sc, s7_pointer args) {
 }
 } // ! float impl
 
+s7_int float_arr_type(s7_scheme *sc){
+	return s7_integer(s7_eval_c_string(sc, "(*c-primitives* 'type-float-arr)"));
+}
 namespace { // float-arr impl
 
 void float_arr_free(void *raw_data) {
@@ -140,8 +143,7 @@ s7_pointer float_arr_make(s7_scheme *sc, s7_pointer args) {
 		p = s7_cdr(p);
 	}
 
-	float type = s7_integer(
-			s7_eval_c_string(sc, "(*c-primitives* 'type-float-arr)"));
+	float type = float_arr_type(sc);
 
 	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
 

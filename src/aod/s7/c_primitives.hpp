@@ -38,6 +38,7 @@ typedef struct {
  *
  */
 void bind_primitives(s7_scheme *sc);
+s7_int float_arr_type(s7_scheme* sc);
 
 } // ! s7
 } // ! aod
