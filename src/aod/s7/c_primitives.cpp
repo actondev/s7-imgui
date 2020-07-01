@@ -6,7 +6,7 @@ namespace aod {
 namespace s7 {
 
 void primitive_free(void *data) {
-//	fprintf(stderr, "free called\n");
+	fprintf(stderr, "free called\n");
 	delete data;
 }
 
@@ -121,7 +121,8 @@ s7_int float_arr_type(s7_scheme *sc){
 }
 namespace { // float-arr impl
 
-void float_arr_free(void *raw_data) {
+ void float_arr_free(void *raw_data) {
+	fprintf(stderr, "free called in float_arr\n");
 	float_arr *data = (float_arr*) raw_data;
 	float *elements = data->elements;
 	delete[] elements;
@@ -130,6 +131,7 @@ void float_arr_free(void *raw_data) {
 
 s7_pointer float_arr_make(s7_scheme *sc, s7_pointer args) {
 	int len = s7_list_length(sc, args);
+	fprintf(stderr, "making array with %d elements\n", len);
 	if (len == 0) {
 		return (s7_wrong_number_of_args_error(sc,
 				"float_arr_make takes >0 arguments: ~S", args));
