@@ -1,5 +1,5 @@
-#include "./imgui_addons.hpp"
-#include "aod/imgui/knob.hpp"
+#include "aod/imgui/addons.hpp"
+#include "s7.h"
 
 namespace aod {
 namespace s7 {
@@ -22,6 +22,7 @@ s7_pointer knob(s7_scheme *sc, s7_pointer args) {
     float min = s7_number_to_real(sc, s7_caddr(args));
     float max = s7_number_to_real(sc, s7_cadddr(args));
     aod::imgui::Knob(title_char, value, min, max);
+    return s7_nil(sc);
 }
 
 void bind_knob(s7_scheme *sc) {

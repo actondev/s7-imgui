@@ -6,6 +6,7 @@
 // **Prefer using the code in the example_sdl_opengl3/ folder**
 // See imgui_impl_sdl.cpp for details.
 
+#include <aod/imgui/addons.hpp>
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl2.h"
@@ -21,11 +22,13 @@
 #include <sstream>
 #include <iostream>
 #include "aod/s7/c_primitives.hpp"
-#include "aod/imgui/knob.hpp"
 #include "aod/s7/imgui_addons.hpp"
 
 #define DRAW_FN "draw"
 #define SETUP_FN "setup"
+
+#define SDL_WIDTH 1000
+#define SDL_HEIGHT 600
 
 #define REPL_PORT 1234
 
@@ -139,7 +142,7 @@ int main(int, char**) {
     SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL
             | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example",
-    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 600, 400, window_flags);
+    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WIDTH, SDL_HEIGHT, window_flags);
     if (window == NULL) {
         fprintf(stderr, "Could not create SDL window");
         return -1;

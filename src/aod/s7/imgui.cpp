@@ -133,44 +133,60 @@ s7_pointer menu_item(s7_scheme *sc, s7_pointer args) {
 
 void bind(s7_scheme *sc) {
     s7_define_function(sc, "imgui/begin-main-menu-bar", begin_main_menu_bar, // ..
-                0, // req args
-                0, // optional args
-                false, // rest args
-                "ImGui::BeginMainMenuBar");
+            0, // req args
+            0, // optional args
+            false, // rest args
+            "ImGui::BeginMainMenuBar");
 
     s7_define_function(sc, "imgui/end-main-menu-bar", end_main_menu_bar, // ..
-                    0, // req args
-                    0, // optional args
-                    false, // rest args
-                    "ImGui::EndMainMenuBar");
+            0, // req args
+            0, // optional args
+            false, // rest args
+            "ImGui::EndMainMenuBar");
 
     s7_define_function(sc, "imgui/begin-menu", begin_menu, // ..
-                    1, // req args
-                    0, // optional args
-                    false, // rest args
-                    "Menu group (eg File)");
+            1, // req args
+            0, // optional args
+            false, // rest args
+            "Menu group (eg File)");
 
     s7_define_function(sc, "imgui/end-menu", end_menu, // ..
-                    0, // req args
-                    0, // optional args
-                    false, // rest args
-                    "Ends the menu group (eg File)");
+            0, // req args
+            0, // optional args
+            false, // rest args
+            "Ends the menu group (eg File)");
 
     s7_define_function(sc, "imgui/separator", separator, // ..
-                        0, // req args
-                        0, // optional args
-                        false, // rest args
-                        "Separator (eg between menu items)");
+            0, // req args
+            0, // optional args
+            false, // rest args
+            "Separator (eg between menu items)");
 
     s7_define_function(sc, "imgui/menu-item", menu_item, // ..
-                            1, // req args
-                            0, // optional args
-                            false, // rest args
-                            "Menu item. TODO add more args (kbd shortcut, enabled, selected))");
+            1, // req args
+            0, // optional args
+            false, // rest args
+            "Menu item. TODO add more args (kbd shortcut, enabled, selected))");
 
 }
 
 } // ! menus
+
+namespace layout {
+s7_pointer same_line(s7_scheme *sc, s7_pointer args) {
+    ImGui::SameLine();
+
+    return s7_nil(sc);
+}
+
+void bind(s7_scheme *sc){
+    s7_define_function(sc, "imgui/same-line", same_line, // ..
+            0, // req args
+            0, // optional args (the open boolean pointer)
+            false, // rest args
+            "Puts the next element in the same line as the previous one");
+}
+}
 
 void bind(s7_scheme *sc) {
     using namespace menus;
@@ -217,6 +233,7 @@ void bind(s7_scheme *sc) {
             "ColorEdit3");
 
     menus::bind(sc);
+    layout::bind(sc);
 
 }
 

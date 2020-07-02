@@ -1,20 +1,12 @@
-/*
- * knob.hpp
- *
- *  Created on: Jul 2, 2020
- *      Author: actondev
- *
- * as seen on https://github.com/ocornut/imgui/issues/942
- */
-
-#ifndef SRC_AOD_IMGUI_KNOB_HPP_
-#define SRC_AOD_IMGUI_KNOB_HPP_
-
 #include "imgui.h"
 #include "imgui_internal.h"
 
 namespace aod {
 namespace imgui {
+
+/**
+ * as seen on https://github.com/ocornut/imgui/issues/942
+ */
 bool Knob(const char *label, float *value_p, float minv, float maxv) {
     ImGuiStyle &style = ImGui::GetStyle();
     float line_height = ImGui::GetTextLineHeight();
@@ -67,5 +59,3 @@ bool Knob(const char *label, float *value_p, float minv, float maxv) {
 
 }
 }
-
-#endif /* SRC_AOD_IMGUI_KNOB_HPP_ */

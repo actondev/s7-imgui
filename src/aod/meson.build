@@ -7,8 +7,7 @@ aod_sources = files(
   's7/imgui.cpp',
   's7/imgui_addons.cpp',
   's7/repl.cpp',
-  # hpp ?
-  'imgui/knob.hpp',
+  'imgui/addons.cpp',
 )
 
 aod_lib = library(

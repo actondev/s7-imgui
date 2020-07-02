@@ -90,11 +90,24 @@
    ("knobs")
    (imgui/text "here come the knobs")
    (do ((i 0 (+ i 1)))
-       ((= i 10))
+       ((= i 3))
      (imgui/knob (format #f "knob ~A" i) *knob-value 0 1)
      )
-
-   ))
+   (imgui/text "here come the horizontal knobs")
+   ;; that works
+   '(apply
+    imgui/m-horizontal
+    `((imgui/knob (format #f "knob 1") ,*knob-value 0 1)
+      (imgui/knob (format #f "knob 1") ,*knob-value 0 1))
+    )
+   (apply
+    imgui/m-horizontal
+    (map
+     (lambda (i)
+       (list
+	 imgui/knob (format #f "knob ~A" i) *knob-value 0 1)
+       )
+     '(a b c)))))
 
 (define (draw)
   (draw-menu)
