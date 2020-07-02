@@ -206,7 +206,8 @@ void float_arr_gc2__free(void* raw_data) {
 }
 
 /**
- * S7 doesn't have a precise garbage collector
+ * "S7 doesn't have a precise garbage collector"
+ * (from Kjetil Matheussen in cmdist, snd/s7 mail list)
  */
 TEST ( c_primitives, float_arr_gc2 ) {
     s7_scheme *sc = s7_init();

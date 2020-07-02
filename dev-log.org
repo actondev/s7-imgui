@@ -46,7 +46,7 @@
 </cproject>
     
   #+END_SRC
-* TODO tcp socket / repl
+* DONE tcp socket / repl
   options for the networking
   - sdl_net
 ** nanomsg next generation (nng)
@@ -182,7 +182,7 @@ ninja -C build
   #+BEGIN_SRC sh :session *scheme*
 netcat localhost 1234
   #+END_SRC
-* TODO repl problems
+* DONE repl problems
   #+BEGIN_SRC scheme
 (display ;;as
  "hi" ;; 2nd line
@@ -243,13 +243,13 @@ s7_pointer s7_read(s7_scheme *sc, s7_pointer port)
    upon new data, if there is pending error, but plenty of time
    (define ?) has passed, ignore the previous error and start reading
    from scratch. probably also send something to the connected client?
-* TODO drawing from s7 draw function
+* DONE drawing from s7 draw function
   - mimic the processing nomenclature
     - =(define (setup) .. )=
     - =(define (draw) .. )=
   - ffi for the imgui functionality
     - bind them to s7
-* TODO adding gtest
+* DONE adding gtest
   #+BEGIN_SRC sh
 meson wrap install gtest
   #+END_SRC
@@ -471,18 +471,23 @@ c++.exe: error: iphlpapi.lib: No such file or directory
 meson setup build-mingw
 ninja -C build-mingw
    #+END_SRC
-* TODO <2020-07-01 Wed> todo list: more bindings, mutex
+* TODO <2020-07-01 Wed> todo list: more bindings, mutex [3/7]
 ** TODO bindings
    wrote some ffi utils, creating c-objects and sharing between c<->scheme
 
    TODO
    - slider
    - layout (same line 
-** TODO layout
+** DONE layout
    check out the layout. how is it?
    #+BEGIN_SRC c
 ImGui::SameLine();
    #+END_SRC
+
+   create macro: m-horizontal
+   - first element just gets drawn
+   - subsequent elements have the =same-line= call prepended
+
 ** DONE scheme macros for begin
      something like
      #+BEGIN_SRC scheme
@@ -556,4 +561,17 @@ ImGui::SameLine();
 ** TODO s7 ffi: free functions
    delete void* isn't very smart.. fix this :)
    but.. why wasn't the compiler complaining??
-** TODO gc in float_arr not called
+
+   oor.. could be that for internal types it's ok.hmm..
+** DONE gc in float_arr not called
+   S7 doesn't have a precise garbage collector
+
+   updated the test, indeed the =free= gets called
+** TODO gfx like calls
+   SCHEDULED: <2020-07-03 Fri>
+
+   - circle
+   - line
+   - text
+   - triangle
+   - ..etc
