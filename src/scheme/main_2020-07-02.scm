@@ -1,11 +1,14 @@
-(display "loading imgui.scm\n")
+(display "loading main.scm\n")
+
+;; (load "imgui_macros.scm")
+
 
 (define click-counter 0)
 (define window1-open ((*c-primitives* 'bool) #t))
 
 ;; the exposed functions
 (define (setup)
-  (display "initializing imgui.scm: in setup\n"))
+  (display "initializing main.scm: in setup\n"))
 
 (define color-4 ((*c-primitives* 'float-arr) 0.5 0.4 0.2))
 
@@ -35,15 +38,18 @@
   (imgui/checkbox "show that other window" window1-open)
 
 
-  (when (window1-open)
-    (imgui/begin "s7 closable window" window1-open)
-    (imgui/text "I like scheme as well :)")
-    (imgui/end))
+
 
   (imgui/color-edit-3 "Here's a color"
 		      color-4)
 
   (imgui/end)
+
+  (when (window1-open)
+    
+    (imgui/begin "s7 closable window" window1-open)
+    (imgui/text "I like scheme as well :)")
+    (imgui/end))
   ;; done drawing
   )
 

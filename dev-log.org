@@ -477,8 +477,13 @@ ninja -C build-mingw
 
    TODO
    - slider
-   - layout (same line etc)
-   - scheme macros for begin
+   - layout (same line 
+** TODO layout
+   check out the layout. how is it?
+   #+BEGIN_SRC c
+ImGui::SameLine();
+   #+END_SRC
+** DONE scheme macros for begin
      something like
      #+BEGIN_SRC scheme
 (defmacro* imgui/m-window (:title title
@@ -492,10 +497,15 @@ ninja -C build-mingw
   )
      #+END_SRC
 
-   also check out the layout. how is it?
-   #+BEGIN_SRC c
-ImGui::SameLine();
-   #+END_SRC
+     ok, actual solution
+     don't know if I can use define-macro* and pass the rest . body
+     #+BEGIN_SRC scheme
+(define-macro (imgui/m-begin args . body)
+  `(begin
+     (imgui/begin ,@args)
+     ,@body
+     (imgui/end)))
+     #+END_SRC
 ** TODO mutex
    I can crash the application when sending quickly from the repl the =(draw)= definition. expected :)
    - use a mutex around the main loop
