@@ -131,7 +131,6 @@ namespace { // float-arr impl
 
 s7_pointer float_arr_make(s7_scheme *sc, s7_pointer args) {
 	int len = s7_list_length(sc, args);
-	fprintf(stderr, "making array with %d elements\n", len);
 	if (len == 0) {
 		return (s7_wrong_number_of_args_error(sc,
 				"float_arr_make takes >0 arguments: ~S", args));

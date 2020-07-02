@@ -154,7 +154,7 @@ void float_arr_gc__free(void* raw_data) {
 }
 
 TEST ( c_primitives, float_arr_gc ) {
-
+    float_arr_gc__free_called = false;
 
     s7_scheme *sc = s7_init();
     aod::s7::bind_primitives(sc);
@@ -191,4 +191,52 @@ TEST ( c_primitives, float_arr_gc ) {
     s7_eval_c_string(sc, "(gc)");
     s7_eval_c_string(sc, "(gc)");
     ASSERT_TRUE(float_arr_gc__free_called);
+}
+
+bool float_arr_gc2__free_called = false;
+int float_arr_gc2__free_count = 0;
+void float_arr_gc2__free(void* raw_data) {
+//    printf("float_arr_gc2__free called\n");
+    float_arr_gc2__free_called = true;
+    float_arr_gc2__free_count++;
+    aod::s7::float_arr* data = (aod::s7::float_arr*) raw_data;
+    float *elements = data->elements;
+    delete[] elements;
+    delete data;
+}
+
+/**
+ * S7 doesn't have a precise garbage collector
+ */
+TEST ( c_primitives, float_arr_gc2 ) {
+    s7_scheme *sc = s7_init();
+    aod::s7::bind_primitives(sc);
+
+    s7_int float_arr_type = s7_number_to_integer(sc,
+            s7_eval_c_string(sc, "(*c-primitives* 'type-float-arr)"));
+
+    s7_c_type_set_free(sc, float_arr_type, float_arr_gc2__free);
+
+    s7_eval_c_string(sc,
+            "(do ((i 0 (+ i 1)))"
+            "((= i 100))"
+            "(let ((arr ((*c-primitives* 'float-arr) 0 1 2 3 4 5 6 7 8 9)))"
+            "(set! (arr 0) i)"
+            "(format #t \"~A \" i )"
+            "))");
+
+    s7_eval_c_string(sc, "(gc)");
+    ASSERT_TRUE(float_arr_gc2__free_count > 0);
+    int calls1 = float_arr_gc2__free_count;
+    printf("\nfloat_arr_gc2__free_called times %d\n", float_arr_gc2__free_count);
+    s7_eval_c_string(sc, "(gc)");
+    ASSERT_TRUE(float_arr_gc2__free_count > calls1);
+    printf("\nfloat_arr_gc2__free_called times %d\n", float_arr_gc2__free_count);
+    printf("\nfloat_arr_gc2__free_called times %d\n", float_arr_gc2__free_count);
+
+    ASSERT_TRUE(float_arr_gc2__free_called);
+
+    // for some reason 99 calls are done, not 100
+    ASSERT_TRUE(float_arr_gc2__free_count >= 99 && float_arr_gc2__free_count <= 100);
+
 }
