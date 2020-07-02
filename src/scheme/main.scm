@@ -82,9 +82,24 @@
     (imgui/m-window ("s7 closeable" window1-open)
 		   (imgui/text "I like scheme.")
 		   (imgui/text "I am a closable window"))))
+
+(define *knob-value ((*c-primitives* 'float) 0.5))
+;; (define window1-open ((*c-primitives* 'bool) #t))
+(define (draw-knobs)
+  (imgui/m-window
+   ("knobs")
+   (imgui/text "here come the knobs")
+   (do ((i 0 (+ i 1)))
+       ((= i 10))
+     (imgui/knob (format #f "knob ~A" i) *knob-value 0 1)
+     )
+
+   ))
+
 (define (draw)
   (draw-menu)
   (draw-window-always-on)
   (draw-window-closeable)
+  (draw-knobs)
   )
 

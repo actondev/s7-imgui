@@ -87,7 +87,7 @@ namespace { // float impl
 
 s7_pointer float_make(s7_scheme *sc, s7_pointer args) {
 	float *data = new float;
-	*data = (float) s7_number_to_integer(sc, s7_car(args));
+	*data = (float) s7_number_to_real(sc, s7_car(args));
 	float type = s7_integer(
 			s7_eval_c_string(sc, "(*c-primitives* 'type-float)"));
 	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);

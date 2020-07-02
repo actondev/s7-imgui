@@ -21,6 +21,8 @@
 #include <sstream>
 #include <iostream>
 #include "aod/s7/c_primitives.hpp"
+#include "aod/imgui/knob.hpp"
+#include "aod/s7/imgui_addons.hpp"
 
 #define DRAW_FN "draw"
 #define SETUP_FN "setup"
@@ -78,23 +80,24 @@ int main(int, char**) {
      * etc
      */
 
-    aod::s7::imgui::bind(sc);
     // (*c-primitives* 'bool) etc, for heap allocated c primitives
     // that I can pass around as a reference
     aod::s7::bind_primitives(sc);
-    // libc etc magic: it creates a .c file
-    aod::path::set(scheme_path);
-    // scm_load(sc, "r7rs.scm");
 
-    // aod::path::set(scheme_path);
-//    s7_autoload_set_names(sc, snd_names, 5924);
-    static const char *autoloads[4] = {
+    // imgui bindings
+    aod::s7::imgui::bind(sc);
+    aod::s7::imgui::bind_knob(sc);
+
+    aod::path::set(scheme_path);
+
+#define AOD_S7_AUTOLOADS_TIMES_2 4
+    static const char *autoloads[AOD_S7_AUTOLOADS_TIMES_2] = {
     // each pair of entries is entity name + file name
             "clj.scm", "clj.scm", //
             "imgui-macros.scm", "imgui_macros.scm", //
             };
 
-    s7_autoload_set_names(sc, autoloads, 2);
+    s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOADS_TIMES_2 / 2);
 
     scm_load(sc, "main.scm");
     aod::path::set(base_path);
@@ -176,7 +179,6 @@ int main(int, char**) {
 
     // Our state
     bool show_demo_window = true;
-    bool show_another_window = false;
 //    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     float clear_color[] = { 0.45f, 0.55f, 0.60f, 1.00f };
     aod::s7::float_arr arr;
@@ -189,6 +191,7 @@ int main(int, char**) {
 
     // Main loop
     bool done = false;
+    float knob_value = 0.5;
 
     s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
     while (!done) {
@@ -214,6 +217,19 @@ int main(int, char**) {
         // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
+
+        {
+            // testing custom widgets
+            ImGui::Begin("custom widgets");
+            ImGui::Text("knobs");
+
+            aod::imgui::Knob("knob 1", &knob_value, 0, 1);
+            ImGui::SameLine();
+            aod::imgui::Knob("knob 2", &knob_value, 0, 1);
+            ImGui::SameLine();
+            aod::imgui::Knob("knob 3", &knob_value, 0, 1);
+            ImGui::End();
+        }
 
         // Rendering
         ImGui::Render();
