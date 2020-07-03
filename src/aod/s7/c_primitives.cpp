@@ -98,7 +98,7 @@ s7_pointer float_make(s7_scheme *sc, s7_pointer args) {
 s7_pointer float_ref(s7_scheme *sc, s7_pointer args) {
 	float *data = (float*) s7_c_object_value(s7_car(args));
 
-	return s7_make_integer(sc, *data);
+	return s7_make_real(sc, *data);
 }
 
 s7_pointer float_set(s7_scheme *sc, s7_pointer args) {
