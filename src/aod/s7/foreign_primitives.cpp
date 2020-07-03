@@ -12,7 +12,6 @@ namespace aod {
 	       delete data;
 	  }
 	       
-	    // bool
 	  
 	  // ------------------------------ bool ------------------------------
 	  
@@ -44,8 +43,6 @@ namespace aod {
 	  	return (s7_new_value);
 	  }
 	  
-	  // ! ---------------------------- bool ------------------------------
-	  
 	  void bind_bool(s7_scheme* sc, s7_pointer env) {
 	       /* s7_pointer env = s7_inlet(sc, s7_nil(sc)); */
 	       /* s7_gc_protect(sc, env); */
@@ -62,8 +59,9 @@ namespace aod {
 	       s7_bool_set_free(sc, type, primitive_free);
 	  }
 	  
+	  // ! ---------------------------- bool ------------------------------
+	  
 
-	    // int
 	  
 	  // ------------------------------ int ------------------------------
 	  
@@ -95,8 +93,6 @@ namespace aod {
 	  	return (s7_new_value);
 	  }
 	  
-	  // ! ---------------------------- int ------------------------------
-	  
 	  void bind_int(s7_scheme* sc, s7_pointer env) {
 	       /* s7_pointer env = s7_inlet(sc, s7_nil(sc)); */
 	       /* s7_gc_protect(sc, env); */
@@ -113,9 +109,10 @@ namespace aod {
 	       s7_int_set_free(sc, type, primitive_free);
 	  }
 	  
+	  // ! ---------------------------- int ------------------------------
+	  
 
-	    // float
-	    // note: s7_make_real gets a double argument, not float. hope it gets automatically casted
+	  // note: s7_make_real gets a double argument, not float. hope it gets automatically casted
 	  
 	  // ------------------------------ float ------------------------------
 	  
@@ -147,8 +144,6 @@ namespace aod {
 	  	return (s7_new_value);
 	  }
 	  
-	  // ! ---------------------------- float ------------------------------
-	  
 	  void bind_float(s7_scheme* sc, s7_pointer env) {
 	       /* s7_pointer env = s7_inlet(sc, s7_nil(sc)); */
 	       /* s7_gc_protect(sc, env); */
@@ -164,6 +159,8 @@ namespace aod {
 	       s7_float_set_set(sc, type, set_float);
 	       s7_float_set_free(sc, type, primitive_free);
 	  }
+	  
+	  // ! ---------------------------- float ------------------------------
 	  
 
 	  void bind_primitives(s7_scheme *sc) {
