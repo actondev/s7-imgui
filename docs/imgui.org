@@ -46,3 +46,23 @@ static void ShowExampleAppMainMenuBar()
   #+BEGIN_SRC cpp
 ImGui::SameLine();
   #+END_SRC
+* TODO full .. window?
+  https://ruurdsdevlog.wordpress.com/2020/03/07/c-desktop-application-with-dear-imgui/
+  #+BEGIN_SRC cpp
+ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+  #+END_SRC
+
+  #+BEGIN_SRC cpp
+ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+if (opt_fullscreen)
+  {
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+  }  
+  #+END_SRC
