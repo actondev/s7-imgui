@@ -1,6 +1,7 @@
 #include "imgui.h"
 #include "s7.h"
-#include "aod/s7/c_primitives.hpp"
+#include "aod/s7/foreign_primitives_arr.hpp"
+#include "aod/s7/foreign_primitives.hpp"
 
 namespace aod {
 namespace s7 {
@@ -15,12 +16,14 @@ s7_pointer begin(s7_scheme *sc, s7_pointer args) {
                 "First argument is title, should be a string"));
 
     const char *str = s7_string(title);
-    s7_pointer bool_open = s7_cadr(args);
-    if (s7_is_c_object(bool_open)) {
-        bool *p_open = (bool*) s7_c_object_value(bool_open);
-        ImGui::Begin(str, p_open);
-    } else {
+    s7_pointer obj = s7_cadr(args);
+    bool *p_open = (bool*) s7_c_object_value_checked(obj,
+            s7::foreign::tag_bool(sc));
+    if (p_open == NULL) {
+        // we don't throw an error. begin has multiple arity
         ImGui::Begin(str);
+    } else {
+        ImGui::Begin(str, p_open);
     }
 
     return (s7_nil(sc));
@@ -33,14 +36,16 @@ s7_pointer checkbox(s7_scheme *sc, s7_pointer args) {
                 "First argument is title, should be a string"));
     }
 
-    s7_pointer bool_open = s7_cadr(args);
-    if (!s7_is_c_object(bool_open)) {
-        return (s7_wrong_type_arg_error(sc, "imgui/checkbox", 2, bool_open,
-                "Second argument should be a c-object pointing to a c bool*"));
+    s7_pointer obj = s7_cadr(args);
+    bool *p_check = (bool*) s7_c_object_value_checked(obj,
+            aod::s7::foreign::tag_bool(sc));
+    if (p_check == NULL) {
+        return (s7_wrong_type_arg_error(sc, "imgui/checkbox", 2, obj,
+                "expecting bool*"));
     }
 
-    bool *p_check = (bool*) s7_c_object_value(bool_open);
     ImGui::Checkbox(s7_string(text), p_check);
+    return s7_nil(sc);
 }
 
 s7_pointer end(s7_scheme *sc, s7_pointer args) {
@@ -76,14 +81,15 @@ s7_pointer color_edit_3(s7_scheme *sc, s7_pointer args) {
     }
 
     s7_pointer obj = s7_cadr(args);
-    if (!s7_is_c_object(obj)) {
+    float *arr = (float*) s7_c_object_value_checked(obj,
+            aod::s7::foreign::tag_float_arr(sc));
+    if (arr == NULL) {
         return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 2, obj,
-                "Expecting a c-object pointing to a c float* array"));
+                "float* array"));
     }
 
-    float_arr *arr = (float_arr*) s7_c_object_value(obj);
-    ImGui::ColorEdit3(s7_string(text), arr->elements);
-
+    ImGui::ColorEdit3(s7_string(text), arr);
+    return s7_nil(sc);
 }
 
 } // ! anonymous namespace: the functions
@@ -179,7 +185,7 @@ s7_pointer same_line(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
-void bind(s7_scheme *sc){
+void bind(s7_scheme *sc) {
     s7_define_function(sc, "imgui/same-line", same_line, // ..
             0, // req args
             0, // optional args (the open boolean pointer)

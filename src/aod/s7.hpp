@@ -23,5 +23,14 @@ void load_file(s7_scheme *sc, const char *file);
  */
 std::string eval_write(s7_scheme *sc, const char *sexp);
 
+inline s7_pointer make_env(s7_scheme *sc){
+    // either passing s7_curlet or s7_nil works..
+    // ..ugh still don't know what happens with environments
+     s7_pointer env = s7_inlet(sc, s7_nil(sc));
+     s7_gc_protect(sc, env);
+
+     return env;
+}
+
 } // ! s7
 } // ! aod

@@ -14,13 +14,19 @@
 
 
 (define click-counter 0)
-(define window1-open ((*c-primitives* 'bool) #t))
+(define *win-open ((*foreign* 'new-bool) #t))
+(format #t "win open is ~A\n" (*win-open))
+(set! (*win-open) #f)
+(format #t "win open is ~A\n" (*win-open))
+;; (define b ((*foreign* 'new-bool) #t))
 
 ;; the exposed functions
 (define (setup)
   (display "initializing main.scm: in setup\n"))
 
-(define color-4 ((*c-primitives* 'float-arr) 0.5 0.4 0.2))
+(define color-4 ((*foreign* 'new-float[]) 4))
+;; that should not crash the program, there should be checks
+;; (define color-4 ((*foreign* 'new-bool[]) 4))
 
 (define (adjust-color!)
   (when (defined? 'imgui/clear-color)
@@ -60,31 +66,37 @@
 			 (format #t "Load settings clicked\n"))))))
 
 (define (draw-window-always-on)
-  (imgui/m-window ("s7 window")
-   (adjust-color!)
-
+  (imgui/m-window
+   ("s7 window")
    (if (imgui/button (format #f "Click ~A times" click-counter))
        (begin
 	 (set! click-counter (+ 1 click-counter))
 	 (format *stdout* "new counter ~A\n" click-counter)))
-   (when (not (window1-open))
+   (when (not (*win-open))
      (when (imgui/button "Open the closeable window")
-       (set! (window1-open) #t)))
-
+	  (set! (*win-open) #t)))
    (imgui/text "another one")
-   (imgui/checkbox "show that other window" window1-open)
-
+   (imgui/checkbox "show that other window" *win-open)
    (imgui/color-edit-3 "Here's a color"
 		       color-4)))
 
+(define (draw-color-3)
+  (imgui/begin "color window")
+  (imgui/text "colors:")
+  (display "here 1\n")
+  (imgui/color-edit-3 "Here's a color"
+		      color-4)
+  (display "here 2\n")
+  (imgui/end))
+
 (define (draw-window-closeable)
-  (when (window1-open)
-    (imgui/m-window ("s7 closeable" window1-open)
+  (when (*win-open)
+    (imgui/m-window ("s7 closeable" *win-open)
 		   (imgui/text "I like scheme.")
 		   (imgui/text "I am a closable window"))))
 
-(define *knob-value ((*c-primitives* 'float) 0.5))
-;; (define window1-open ((*c-primitives* 'bool) #t))
+(define *knob-value ((*foreign* 'new-float) 0.5))
+
 (define (draw-knobs)
   (imgui/m-window
    ("knobs")
@@ -112,6 +124,7 @@
 (define (draw)
   (draw-menu)
   (draw-window-always-on)
+  ;; (draw-color-3)
   (draw-window-closeable)
   (draw-knobs)
   )

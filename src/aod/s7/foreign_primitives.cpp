@@ -9,17 +9,24 @@
 namespace aod {
      namespace s7 {
 	  namespace foreign {
-	  void primitive_free(void *data) {
-	       delete data;
-	  }
 	       
 	  
 	  // ------------------------------ bool ------------------------------
 	  
+	  void free_bool(void* raw_data) {
+	       bool* data = (bool*) raw_data;
+	       delete data;
+	  }
+	  
+	  int tag_bool(s7_scheme *sc) {
+	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-bool)"));
+	       return type;
+	  }
+	  
 	  s7_pointer make_bool(s7_scheme *sc, s7_pointer args) {
 	       bool* data = new bool;
 	       *data = (bool) s7_boolean(sc, s7_car(args));
-	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-bool)"));
+	       int type = tag_bool(sc);
 	       s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
 	       return obj;
 	  }
@@ -57,7 +64,7 @@ namespace aod {
 	  				"creates a heap allocated bool (c-object)"));
 	       s7_c_type_set_ref(sc, type, ref_bool);
 	       s7_c_type_set_set(sc, type, set_bool);
-	       s7_c_type_set_free(sc, type, primitive_free);
+	       s7_c_type_set_free(sc, type, free_bool);
 	  }
 	  
 	  // ! ---------------------------- bool ------------------------------
@@ -66,10 +73,20 @@ namespace aod {
 	  
 	  // ------------------------------ int ------------------------------
 	  
+	  void free_int(void* raw_data) {
+	       int* data = (int*) raw_data;
+	       delete data;
+	  }
+	  
+	  int tag_int(s7_scheme *sc) {
+	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-int)"));
+	       return type;
+	  }
+	  
 	  s7_pointer make_int(s7_scheme *sc, s7_pointer args) {
 	       int* data = new int;
 	       *data = (int) s7_number_to_integer(sc, s7_car(args));
-	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-int)"));
+	       int type = tag_int(sc);
 	       s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
 	       return obj;
 	  }
@@ -107,7 +124,7 @@ namespace aod {
 	  				"creates a heap allocated int (c-object)"));
 	       s7_c_type_set_ref(sc, type, ref_int);
 	       s7_c_type_set_set(sc, type, set_int);
-	       s7_c_type_set_free(sc, type, primitive_free);
+	       s7_c_type_set_free(sc, type, free_int);
 	  }
 	  
 	  // ! ---------------------------- int ------------------------------
@@ -117,10 +134,20 @@ namespace aod {
 	  
 	  // ------------------------------ float ------------------------------
 	  
+	  void free_float(void* raw_data) {
+	       float* data = (float*) raw_data;
+	       delete data;
+	  }
+	  
+	  int tag_float(s7_scheme *sc) {
+	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-float)"));
+	       return type;
+	  }
+	  
 	  s7_pointer make_float(s7_scheme *sc, s7_pointer args) {
 	       float* data = new float;
 	       *data = (float) s7_number_to_real(sc, s7_car(args));
-	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-float)"));
+	       int type = tag_float(sc);
 	       s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
 	       return obj;
 	  }
@@ -158,17 +185,17 @@ namespace aod {
 	  				"creates a heap allocated float (c-object)"));
 	       s7_c_type_set_ref(sc, type, ref_float);
 	       s7_c_type_set_set(sc, type, set_float);
-	       s7_c_type_set_free(sc, type, primitive_free);
+	       s7_c_type_set_free(sc, type, free_float);
 	  }
 	  
 	  // ! ---------------------------- float ------------------------------
 	  
 
-	  void bind_primitives(s7_scheme *sc) {
+	  void bind_primitives(s7_scheme *sc, s7_pointer env) {
 	       // either passing s7_curlet or s7_nil works..
 	       // ..ugh still don't know what happens with environments
-	       s7_pointer env = s7_inlet(sc, s7_nil(sc));
-	       s7_gc_protect(sc, env);
+	       // s7_pointer env = s7_inlet(sc, s7_nil(sc));
+	       // s7_gc_protect(sc, env);
 
 	       // the bindings
 	       bind_bool(sc, env);

@@ -21,7 +21,8 @@
 #include "aod/s7/imgui.hpp"
 #include <sstream>
 #include <iostream>
-#include "aod/s7/c_primitives.hpp"
+#include "aod/s7/foreign_primitives.hpp"
+#include "aod/s7/foreign_primitives_arr.hpp"
 #include "aod/s7/imgui_addons.hpp"
 
 #define DRAW_FN "draw"
@@ -83,9 +84,11 @@ int main(int, char**) {
      * etc
      */
 
-    // (*c-primitives* 'bool) etc, for heap allocated c primitives
+    // (*foreign* 'new-bool) (*foreign* 'new-bool[]) etc
     // that I can pass around as a reference
-    aod::s7::bind_primitives(sc);
+    s7_pointer primitives_env = aod::s7::make_env(sc);
+    aod::s7::foreign::bind_primitives(sc, primitives_env);
+    aod::s7::foreign::bind_primitives_arr(sc, primitives_env);
 
     // imgui bindings
     aod::s7::imgui::bind(sc);
@@ -184,13 +187,10 @@ int main(int, char**) {
     bool show_demo_window = true;
 //    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     float clear_color[] = { 0.45f, 0.55f, 0.60f, 1.00f };
-    aod::s7::float_arr arr;
-    arr.size = 4;
-    arr.elements = clear_color;
 
     // binding the clear color to imgui/clear-color
     s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "imgui/clear-color"),
-            s7_make_c_object(sc, aod::s7::float_arr_type(sc), (void*) &arr));
+            s7_make_c_object(sc, aod::s7::foreign::tag_float_arr(sc), (void*) &clear_color));
 
     // Main loop
     bool done = false;

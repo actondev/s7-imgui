@@ -1,8 +1,15 @@
 (require clj.scm) ;; the (comment) macro is there
+(define-macro (imgui/m-safe . body)
+  `(catch #t
+	   (lambda ()
+	     ,@body)
+	   (lambda args
+	     (apply format #t (cadr args)))))
+
 (define-macro (imgui/m-window args . body)
   `(begin
      (imgui/begin ,@args)
-     ,@body
+     (imgui/m-safe ,@body)
      (imgui/end)))
 
 ;; the top bar, full window, menu
@@ -13,14 +20,16 @@
   ;; where args are applied to that first call
   `(begin
      (imgui/begin-main-menu-bar)
-     ,@body
+     ;; ,@body
+     (imgui/m-safe ,@body)
      (imgui/end-main-menu-bar)
      ))
 
 ;; a menu (eg File)
 (define-macro (imgui/m-menu args . body)
   `(when (imgui/begin-menu ,@args)
-     ,@body
+     ;; ,@body
+     (imgui/m-safe ,@body)
      (imgui/end-menu)))
 
 (define-macro (imgui/m-menu-item args . body)

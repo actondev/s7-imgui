@@ -1,0 +1,164 @@
+* Structs demonstration
+  TODO
+* COMMENT Arrays in struct.. (bool[], int[], float[], double[])
+** primite-arr-template (make,ref,set,free,bind)
+   #+NAME: struct-template
+   #+BEGIN_SRC c
+typedef struct {
+	size_t size;
+	C_TYPE* elements;
+} C_TYPE_arr;
+   #+END_SRC
+
+   #+NAME: primitive-arr-struct-template
+   #+BEGIN_SRC c
+
+// ------------------------------ C_TYPE-arr ------------------------------
+
+/**
+defined in the header
+
+typedef struct {
+	size_t size;
+	C_TYPE* elements;
+} C_TYPE_arr;
+ ,**/
+
+void free_C_TYPE_arr(void *raw_data) {
+      C_TYPE* data = (C_TYPE*) raw_data;
+      C_TYPE *elements = data->elements;
+      delete[] elements;
+      delete data;
+}
+
+s7_pointer make_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
+	int len = s7_list_length(sc, args);
+	if (len == 0) {
+		return (s7_wrong_number_of_args_error(sc,
+				"C_TYPE_arr creating needs >0 arguments: ~S", args));
+	}
+	s7_pointer p = args;
+	C_TYPE_arr* data = new C_TYPE_arr;
+	data->size = len;
+	data->elements = new C_TYPE[len];
+	for (int i = 0; i < len; i++) {
+		data->elements[i] = (C_TYPE) S7_READ(sc, s7_car(p));
+		p = s7_cdr(p);
+	}
+
+	int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE-arr)"));
+
+	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
+
+	return obj;
+}
+
+s7_pointer ref_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
+	C_TYPE_arr* data = (C_TYPE_arr*) s7_c_object_value(s7_car(args));
+	int index = s7_integer(s7_cadr(args));
+	if (index >= data->size) {
+		return (s7_out_of_range_error(sc, "float-arr-ref", 2, s7_cadr(args),
+				"should be less than float-arr length"));
+	}
+
+	return S7_WRITE(sc, data->elements[index]);
+}
+
+s7_pointer set_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
+	// 3 args: (block-set! data index value)
+	if (s7_list_length(sc, args) != 3)
+		return (s7_wrong_number_of_args_error(sc,
+				"float-set! takes 3 arguments: ~S", args));
+
+	C_TYPE_arr* data = (C_TYPE_arr*) s7_c_object_value(s7_car(args));
+	int index = s7_integer(s7_cadr(args));
+	if (index >= data->size) {
+		return (s7_out_of_range_error(sc, "C_TYPE-arr-set!", 2, s7_cadr(args),
+				"Index should be less than C_TYPE-arr length"));
+	}
+
+	C_TYPE new_value = S7_READ(sc, s7_caddr(args));
+
+	data->elements[index] = new_value;
+
+	return (s7_cadr(args));
+}
+
+void bind_C_TYPE_arr(s7_scheme* sc, s7_pointer env) {
+     /* s7_pointer env = s7_inlet(sc, s7_nil(sc)); */
+     /* s7_gc_protect(sc, env); */
+
+     // --- bool ----
+     s7_int type = s7_make_c_type(sc, "<C_TYPE-arr>");
+     s7_define(sc, env, s7_make_symbol(sc, "type-C_TYPE-arr"),
+	       s7_make_integer(sc, type_C_TYPE));
+     s7_define(sc, env, s7_make_symbol(sc, "new-C_TYPE-arr"),
+	       s7_make_function(sc, "new-C_TYPE-arr", make_C_TYPE, 1, 0, false,
+				"creates a heap allocated C_TYPE-arr (c-object)"));
+     s7_c_type_set_ref(sc, type, ref_C_TYPE_arr);
+     s7_c_type_set_set(sc, type, set_C_TYPE_arr);
+     s7_c_type_set_free(sc, type, free_C_TYPE_arr);
+}
+
+// ! ---------------------------- C_TYPE-arr ------------------------------
+   #+END_SRC
+** Generating src
+  We use the render src block defined above.
+
+  Demo expansion (run C-c above it)
+  #+CALL: render(template="primitive-arr-struct-template",type="bool",s7_read="s7_boolean",s7_write="s7_make_boolean")
+
+** foreign_primitives_arr.hpp
+  #+BEGIN_SRC cpp :tangle "foreign_primitives_arr.hpp" :noweb yes
+#include "s7.h"
+
+namespace aod {
+     namespace s7 {
+	  <<render(template="struct-template",type="bool")>>
+	  <<render(template="struct-template",type="int")>>
+	  <<render(template="struct-template",type="float")>>
+
+	  void bind_primitives_arr(s7_scheme *sc);
+     }
+}
+  #+END_SRC
+** foreign_primitives_arr.cpp
+  #+BEGIN_SRC cpp :tangle "foreign_primitives_arr.cpp" :noweb yes
+/**
+ ,* This file was auto-generated with org-babel tangle.
+ ,* See foreign_types.org for more info
+ ,* I would suggest to not edit this by hand.
+ ,**/
+
+#include "s7.h"
+#include "foreign_primitives_arr.hpp"
+
+namespace aod {
+     namespace s7 {
+	  <<render(template="primitive-arr-struct-template",type="bool",s7_read="s7_boolean",s7_write="s7_make_boolean")>>
+
+	  <<render(template="primitive-arr-struct-template",type="int",s7_read="s7_number_to_integer",s7_write="s7_make_integer")>>
+
+	  // note: s7_make_real gets a double argument, not float. hope it gets automatically casted
+	  <<render(template="primitive-arr-struct-template",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")>>
+
+	  void bind_primitives_arr(s7_scheme *sc) {
+	       // either passing s7_curlet or s7_nil works..
+	       // ..ugh still don't know what happens with environments
+	       s7_pointer env = s7_inlet(sc, s7_nil(sc));
+	       s7_gc_protect(sc, env);
+
+	       // the bindings
+	       bind_bool_arr(sc, env);
+	       bind_int_arr(sc, env);
+	       bind_float_arr(sc, env);
+	  }
+
+     } // s7
+} // aod
+  #+END_SRC
+
+** demo
+   #+CALL: render(template="primitive-arr-struct-template",type="bool",s7_read="s7_boolean",s7_write="s7_make_boolean")
+
+   #+CALL: render(template="primitive-arr-struct-template",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")
