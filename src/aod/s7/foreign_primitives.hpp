@@ -2,6 +2,8 @@
 
 namespace aod {
      namespace s7 {
-	  void bind_primitives(s7_scheme *sc);
+	  namespace foreign {
+	       void bind_primitives(s7_scheme *sc);
+	  }
      }
 }

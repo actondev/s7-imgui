@@ -8,6 +8,7 @@
 
 namespace aod {
      namespace s7 {
+	  namespace foreign {
 	  void primitive_free(void *data) {
 	       delete data;
 	  }
@@ -17,7 +18,7 @@ namespace aod {
 	  
 	  s7_pointer make_bool(s7_scheme *sc, s7_pointer args) {
 	       bool* data = new bool;
-	       *data = (bool*) s7_boolean(sc, s7_car(args));
+	       *data = (bool) s7_boolean(sc, s7_car(args));
 	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-bool)"));
 	       s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
 	       return obj;
@@ -48,15 +49,15 @@ namespace aod {
 	       /* s7_gc_protect(sc, env); */
 	  
 	       // --- bool ----
-	       s7_int type = s7_make_bool(sc, "<bool>");
+	       s7_int type = s7_make_c_type(sc, "<bool>");
 	       s7_define(sc, env, s7_make_symbol(sc, "type-bool"),
-	  	       s7_make_integer(sc, type_bool));
+	  	       s7_make_integer(sc, type));
 	       s7_define(sc, env, s7_make_symbol(sc, "new-bool"),
 	  	       s7_make_function(sc, "bool", make_bool, 1, 0, false,
 	  				"creates a heap allocated bool (c-object)"));
-	       s7_bool_set_ref(sc, type, ref_bool);
-	       s7_bool_set_set(sc, type, set_bool);
-	       s7_bool_set_free(sc, type, primitive_free);
+	       s7_c_type_set_ref(sc, type, ref_bool);
+	       s7_c_type_set_set(sc, type, set_bool);
+	       s7_c_type_set_free(sc, type, primitive_free);
 	  }
 	  
 	  // ! ---------------------------- bool ------------------------------
@@ -67,7 +68,7 @@ namespace aod {
 	  
 	  s7_pointer make_int(s7_scheme *sc, s7_pointer args) {
 	       int* data = new int;
-	       *data = (int*) s7_number_to_integer(sc, s7_car(args));
+	       *data = (int) s7_number_to_integer(sc, s7_car(args));
 	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-int)"));
 	       s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
 	       return obj;
@@ -98,15 +99,15 @@ namespace aod {
 	       /* s7_gc_protect(sc, env); */
 	  
 	       // --- bool ----
-	       s7_int type = s7_make_int(sc, "<int>");
+	       s7_int type = s7_make_c_type(sc, "<int>");
 	       s7_define(sc, env, s7_make_symbol(sc, "type-int"),
-	  	       s7_make_integer(sc, type_int));
+	  	       s7_make_integer(sc, type));
 	       s7_define(sc, env, s7_make_symbol(sc, "new-int"),
 	  	       s7_make_function(sc, "int", make_int, 1, 0, false,
 	  				"creates a heap allocated int (c-object)"));
-	       s7_int_set_ref(sc, type, ref_int);
-	       s7_int_set_set(sc, type, set_int);
-	       s7_int_set_free(sc, type, primitive_free);
+	       s7_c_type_set_ref(sc, type, ref_int);
+	       s7_c_type_set_set(sc, type, set_int);
+	       s7_c_type_set_free(sc, type, primitive_free);
 	  }
 	  
 	  // ! ---------------------------- int ------------------------------
@@ -118,7 +119,7 @@ namespace aod {
 	  
 	  s7_pointer make_float(s7_scheme *sc, s7_pointer args) {
 	       float* data = new float;
-	       *data = (float*) s7_number_to_real(sc, s7_car(args));
+	       *data = (float) s7_number_to_real(sc, s7_car(args));
 	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-float)"));
 	       s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
 	       return obj;
@@ -149,15 +150,15 @@ namespace aod {
 	       /* s7_gc_protect(sc, env); */
 	  
 	       // --- bool ----
-	       s7_int type = s7_make_float(sc, "<float>");
+	       s7_int type = s7_make_c_type(sc, "<float>");
 	       s7_define(sc, env, s7_make_symbol(sc, "type-float"),
-	  	       s7_make_integer(sc, type_float));
+	  	       s7_make_integer(sc, type));
 	       s7_define(sc, env, s7_make_symbol(sc, "new-float"),
 	  	       s7_make_function(sc, "float", make_float, 1, 0, false,
 	  				"creates a heap allocated float (c-object)"));
-	       s7_float_set_ref(sc, type, ref_float);
-	       s7_float_set_set(sc, type, set_float);
-	       s7_float_set_free(sc, type, primitive_free);
+	       s7_c_type_set_ref(sc, type, ref_float);
+	       s7_c_type_set_set(sc, type, set_float);
+	       s7_c_type_set_free(sc, type, primitive_free);
 	  }
 	  
 	  // ! ---------------------------- float ------------------------------
@@ -173,7 +174,10 @@ namespace aod {
 	       bind_bool(sc, env);
 	       bind_int(sc, env);
 	       bind_float(sc, env);
-	  }
 
+	       s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*foreign*"),
+			 s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
+	  }
+	  } // foreign
      } // s7
 } // aod
