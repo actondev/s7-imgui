@@ -155,6 +155,13 @@ rm src/scheme/s7/libc_s7*
    #+END_SRC
 
 * Bundled examples
+     #+BEGIN_SRC emacs-lisp
+(aod.org-babel/generate-named-buttons-inc "ex:")
+   #+END_SRC
+
+   #+RESULTS:
+   | [ex:imgui] |
+
 ** COMMENT examples buttons
    #+BEGIN_SRC emacs-lisp
 (aod.org-babel/generate-named-buttons-inc "ex:")

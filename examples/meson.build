@@ -19,7 +19,7 @@ example_sdl_opengl = executable(
 example_imgui = executable(
   'example_imgui',
   sources: files (
- 'imgui.cpp',
+ 'ex_imgui.cpp',
   ),
   dependencies: [
     sdl2_dep,

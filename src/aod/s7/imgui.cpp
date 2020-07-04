@@ -7,7 +7,7 @@ namespace aod {
 namespace s7 {
 namespace imgui {
 
-namespace { // anonymous namespace: the functions
+namespace general { // anonymous namespace: the functions
 
 s7_pointer begin(s7_scheme *sc, s7_pointer args) {
     s7_pointer title = s7_car(args);
@@ -92,6 +92,45 @@ s7_pointer color_edit_3(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
+void bind(s7_scheme *sc) {
+    s7_define_function(sc, "imgui/begin", begin, // ..
+            1, // req args
+            1, // optional args (the open boolean pointer)
+            false, // rest args
+            "Begin a window");
+
+    s7_define_function(sc, "imgui/end", end, // ..
+            0, // req args
+            0, // optional args
+            false, // rest args
+            "End a window");
+
+    s7_define_function(sc, "imgui/text", text, // ..
+            1, // req args
+            0, // optional args
+            false, // rest args
+            "Draw a text label");
+
+    s7_define_function(sc, "imgui/button", button, // ..
+            1, // req args
+               // TODO apparently there are optional args, about the size?
+            0, // optional args
+            false, // rest args
+            "Draw a button. Returns a boolean, true if clicked");
+
+    s7_define_function(sc, "imgui/checkbox", checkbox, // ..
+            2, // req args
+            0, // optional args
+            false, // rest args
+            "Checkbox");
+
+    s7_define_function(sc, "imgui/color-edit-3", color_edit_3, // ..
+            2, // req args
+            0, // optional args
+            false, // rest args
+            "ColorEdit3");
+
+}
 } // ! anonymous namespace: the functions
 
 namespace menus {
@@ -185,61 +224,169 @@ s7_pointer same_line(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
+//s7_pointer collumns(s7_scheme *sc, s7_pointer args) {
+//    ImGui::Columns(1);
+//
+//    return s7_nil(sc);
+//}
+
+s7_pointer begin_child(s7_scheme *sc, s7_pointer args) {
+    s7_pointer title = s7_car(args);
+    if (!s7_is_string(title))
+        return (s7_wrong_type_arg_error(sc, "imgui/begin-child", 1, title,
+                "First argument is title, should be a string"));
+    // only automatic width for now
+    ImGui::BeginChild(s7_string(title), ImVec2(0, 0));
+
+    return s7_nil(sc);
+}
+
+s7_pointer end_child(s7_scheme *sc, s7_pointer args) {
+    ImGui::EndChild();
+
+    return s7_nil(sc);
+}
+
+s7_pointer begin_group(s7_scheme *sc, s7_pointer args) {
+    ImGui::BeginGroup();
+
+    return s7_nil(sc);
+}
+
+s7_pointer end_group(s7_scheme *sc, s7_pointer args) {
+    ImGui::EndGroup();
+
+    return s7_nil(sc);
+}
+
+s7_pointer dummy(s7_scheme *sc, s7_pointer args) {
+    float w = s7_number_to_real(sc, s7_car(args));
+    float h = s7_number_to_real(sc, s7_cadr(args));
+
+    ImGuiStyle &style = ImGui::GetStyle();
+    ImGui::Dummy(
+            ImVec2(w + style.ItemInnerSpacing.x, h + style.ItemInnerSpacing.y));
+
+    return s7_nil(sc);
+}
+
 void bind(s7_scheme *sc) {
     s7_define_function(sc, "imgui/same-line", same_line, // ..
             0, // req args
             0, // optional args (the open boolean pointer)
             false, // rest args
             "Puts the next element in the same line as the previous one");
+
+    s7_define_function(sc, "imgui/begin-child", begin_child, // ..
+            1, // req args
+            0, // optional args (the open boolean pointer)
+            false, // rest args
+            "BeginChild");
+
+    s7_define_function(sc, "imgui/end-child", end_child, // ..
+            0, // req args
+            0, // optional args (the open boolean pointer)
+            false, // rest args
+            "EndChild");
+
+    s7_define_function(sc, "imgui/begin-group", begin_group, 0, 0, false,
+            "BeginGroup");
+    s7_define_function(sc, "imgui/end-group", end_group, 0, 0, false,
+            "EndGroup");
+
+    s7_define_function(sc, "imgui/dummy", dummy, 2, 0, false,
+            "Dummy - a container (for eg drawing - think of it as a canvas)");
 }
 }
 
+namespace draw {
+
+s7_pointer circle(s7_scheme *sc, s7_pointer args) {
+    ImVec2 p = ImGui::GetCursorScreenPos();
+
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+    float cx = s7_number_to_real(sc, s7_car(args));
+    float cy = s7_number_to_real(sc, s7_cadr(args));
+    float r = s7_number_to_real(sc, s7_caddr(args));
+    unsigned int col = (unsigned int) s7_number_to_real(sc, s7_cadddr(args));
+    float thickness = 1;
+    int segments = 32;
+    s7_pointer sc_segments = s7_car(s7_cddddr(args));
+    s7_pointer sc_thickness = s7_cadr(s7_cddddr(args));
+    if (s7_is_number(sc_segments)) {
+        segments = s7_number_to_integer(sc, sc_segments);
+
+        if (s7_is_number(sc_thickness)) {
+            thickness = s7_number_to_real(sc, sc_thickness);
+        }
+    }
+
+    ImGuiStyle &style = ImGui::GetStyle();
+    ImU32 col32line = ImGui::GetColorU32(ImGuiCol_SliderGrabActive);
+
+    draw_list->AddCircle(ImVec2(p.x + cx, p.y + cy), r, col, segments, thickness);
+    return s7_nil(sc);
+}
+
+void bind(s7_scheme *sc) {
+    s7_define_function(sc, "imgui.draw/circle", circle, // ..
+            4, // req args: cx cy r col
+            2, // optional args: segments, thickness
+            false, // rest args
+            "(cx cy r col &optional segments thickness)");
+}
+}
+
+namespace colors {
+
+s7_pointer float_rgb_to_u32(s7_scheme *sc, s7_pointer args) {
+    ImU32 r = (ImU32) (255 * s7_number_to_real(sc, s7_car(args)));
+    ImU32 g = (ImU32) (255 * s7_number_to_real(sc, s7_cadr(args)));
+    ImU32 b = (ImU32) (255 * s7_number_to_real(sc, s7_caddr(args)));
+    ImU32 res = IM_COL32(r, g, b, 255);
+
+    return s7_make_integer(sc, (int) res);
+}
+
+s7_pointer int_rgb_to_u32(s7_scheme *sc, s7_pointer args) {
+    int r = s7_number_to_integer(sc, s7_car(args));
+    int g = s7_number_to_integer(sc, s7_car(args));
+    int b = s7_number_to_integer(sc, s7_car(args));
+    unsigned int res = IM_COL32(r, g, b, 255);
+
+    return s7_make_integer(sc, res);
+}
+
+void bind(s7_scheme *sc) {
+    s7_define_function(sc, "imgui.color/frgb->u32",
+            float_rgb_to_u32, // ..
+            3, // req args
+            0, // optional args (the open boolean pointer)
+            false, // rest args
+            "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0.0 to 1.0");
+
+    s7_define_function(sc, "imgui.color/rgb->u32",
+            int_rgb_to_u32, // ..
+            3, // req args
+            0, // optional args (the open boolean pointer)
+            false, // rest args
+            "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0 to 255.");
+}
+}
+
+// exposed function (inc in header)
 void bind(s7_scheme *sc) {
     using namespace menus;
 
     s7_pointer env = s7_inlet(sc, s7_nil(sc));
     s7_gc_protect(sc, env);
 
-// TODO env
-    s7_define_function(sc, "imgui/begin", begin, // ..
-            1, // req args
-            1, // optional args (the open boolean pointer)
-            false, // rest args
-            "Begin a window");
-
-    s7_define_function(sc, "imgui/end", end, // ..
-            0, // req args
-            0, // optional args
-            false, // rest args
-            "End a window");
-
-    s7_define_function(sc, "imgui/text", text, // ..
-            1, // req args
-            0, // optional args
-            false, // rest args
-            "Draw a text label");
-
-    s7_define_function(sc, "imgui/button", button, // ..
-            1, // req args
-               // TODO apparently there are optional args, about the size?
-            0, // optional args
-            false, // rest args
-            "Draw a button. Returns a boolean, true if clicked");
-
-    s7_define_function(sc, "imgui/checkbox", checkbox, // ..
-            2, // req args
-            0, // optional args
-            false, // rest args
-            "Checkbox");
-
-    s7_define_function(sc, "imgui/color-edit-3", color_edit_3, // ..
-            2, // req args
-            0, // optional args
-            false, // rest args
-            "ColorEdit3");
-
+    general::bind(sc);
     menus::bind(sc);
     layout::bind(sc);
+    draw::bind(sc);
+    colors::bind(sc);
 
 }
 

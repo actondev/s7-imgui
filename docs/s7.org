@@ -1,6 +1,48 @@
 * S7 Scheme quick documentation
   Some notes while developing
+* Looping
+  #+BEGIN_SRC scheme
+(do ((i 0 (+ i 1)))
+    ((= i 10))
+  (format #t "i is ~A\n" i))
+  #+END_SRC
 
+  #+BEGIN_SRC scheme
+(define-macro (dotimes spec . body)	;; spec = (var end . return)
+	(let ((e (gensym))
+	      (n (car spec)))
+	  `(do ((,e ,(cadr spec))
+		(,n 0 (+ ,n 1)))
+	       ((>= ,n ,e) ,@(cddr spec))
+	     ,@body)))
+
+(comment
+ (dotimes (i 3)
+   (format *stderr* "i is ~A\n" i)
+   )
+ ;; this printes
+ "
+i is 0
+i is 1
+i is 2
+"
+ ;; and returns
+ #t
+
+ (dotimes (i 3 (format #f "finished with i ~A" i)) ;; <= the 3rd i is the return statement. could be anything
+   ;; (display "here")
+   (format *stderr* "i is ~A\n" i)
+   )
+ ;; this prints
+ "i is 0
+i is 1
+i is 2
+"
+ ;; and returns
+ "finished with i 3"
+ )
+  
+  #+END_SRC
 * FFI: c <-> scheme
 ** Define a function in C
    #+BEGIN_SRC c

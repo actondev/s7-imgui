@@ -184,7 +184,7 @@ int main(int, char**) {
     ImGui_ImplOpenGL2_Init();
 
     // Our state
-    bool show_demo_window = true;
+    bool show_demo_window = false;
 //    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     float clear_color[] = { 0.45f, 0.55f, 0.60f, 1.00f };
 
@@ -221,18 +221,18 @@ int main(int, char**) {
         if (show_demo_window)
             ImGui::ShowDemoWindow(&show_demo_window);
 
-        {
-            // testing custom widgets
-            ImGui::Begin("custom widgets");
-            ImGui::Text("knobs");
-
-            aod::imgui::Knob("knob 1", &knob_value, 0, 1);
-            ImGui::SameLine();
-            aod::imgui::Knob("knob 2", &knob_value, 0, 1);
-            ImGui::SameLine();
-            aod::imgui::Knob("knob 3", &knob_value, 0, 1);
-            ImGui::End();
-        }
+//        {
+//            // testing custom widgets
+//            ImGui::Begin("custom widgets");
+//            ImGui::Text("knobs");
+//
+//            aod::imgui::Knob("knob 1", &knob_value, 0, 1);
+//            ImGui::SameLine();
+//            aod::imgui::Knob("knob 2", &knob_value, 0, 1);
+//            ImGui::SameLine();
+//            aod::imgui::Knob("knob 3", &knob_value, 0, 1);
+//            ImGui::End();
+//        }
 
         // Rendering
         ImGui::Render();

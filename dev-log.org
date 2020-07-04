@@ -576,4 +576,34 @@ ImGui::SameLine();
    - triangle
    - ..etc
 * TODO org-mode literate programming: creating foreign types
+* TODO Drawing (gfx style)
+  see
+  - [[file:../subprojects/imgui-1.76/imgui_demo.cpp]]
+  - [[file:../src/aod/imgui/addons.cpp::Knob]]
 
+  make a call style like =SDL2_gfxPrimitives.h=
+  - circleColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 rad, Uint32 color);
+  - filledCircleColor(SDL_Renderer * renderer, Sint16 x, Sint16 y, Sint16 r, Uint32 color);
+
+  or like https://learn.adafruit.com/adafruit-gfx-graphics-library/graphics-primitives
+  #+BEGIN_SRC c
+ImVec2 p = ImGui::GetCursorScreenPos();
+
+ImDrawList *draw_list = ImGui::GetWindowDrawList();
+float cx = 0;
+float cy = 0;
+float r = 50;
+float thickness = 2;
+float line_height = ImGui::GetTextLineHeight();
+ImGuiStyle &style = ImGui::GetStyle();
+//    style.ItemInnerSpacing.y
+ImGui::Dummy(
+     ImVec2(2 * r + style.ItemInnerSpacing.x,
+	    2 * r + style.ItemInnerSpacing.y));
+
+int segments = 16;
+ImU32 col32line = ImGui::GetColorU32(ImGuiCol_SliderGrabActive);
+
+draw_list->AddCircle(ImVec2(p.x + cx + r, p.y + cy + r), r, col32line, 32,
+		     thickness);
+  #+END_SRC

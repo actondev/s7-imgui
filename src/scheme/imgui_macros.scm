@@ -4,13 +4,26 @@
 	   (lambda ()
 	     ,@body)
 	   (lambda args
-	     (apply format #t (cadr args)))))
+	     (apply format #t (cadr args))
+	     (newline))))
 
 (define-macro (imgui/m-window args . body)
   `(begin
      (imgui/begin ,@args)
      (imgui/m-safe ,@body)
      (imgui/end)))
+
+(define-macro (imgui/m-child args . body)
+  `(begin
+     (imgui/begin-child ,@args)
+     (imgui/m-safe ,@body)
+     (imgui/end-child)))
+
+(define-macro (imgui/m-group args . body)
+  `(begin
+     (imgui/begin-group ,@args)
+     (imgui/m-safe ,@body)
+     (imgui/end-group)))
 
 ;; the top bar, full window, menu
 (define-macro (imgui/m-main-menu-bar args . body)

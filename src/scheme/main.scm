@@ -78,8 +78,13 @@
    (imgui/text "another one")
    (imgui/checkbox "show that other window" *win-open)
    (imgui/color-edit-3 "Here's a color"
-		       color-4)))
-
+		       color-4)
+   ;; todo
+   (imgui/m-horizontal
+    (imgui.draw/circle)
+    (imgui/text "after circle horizontal"))
+   (imgui/text "after circle vertical")
+   ))
 (define (draw-color-3)
   (imgui/begin "color window")
   (imgui/text "colors:")
@@ -88,6 +93,47 @@
 		      color-4)
   (display "here 2\n")
   (imgui/end))
+
+(define (draw-shapes)
+  (imgui/m-window
+   ("shapes")
+   ;; (imgui.draw/circle)
+   (let ((color (imgui.color/frgb->u32 1 1 1)))
+     (imgui/m-horizontal
+      (imgui/m-group
+       ()
+       (imgui/text "circles:")
+       (imgui/text "circles:")
+       (imgui/text "circles:")
+       (imgui/text "circles:"))
+      (imgui/m-group
+       ()
+       (imgui/text "lo & behold")
+       ;; (imgui/dummy 100 100)
+       (imgui.draw/circle 50 50 50 color 32 1)
+       (imgui/dummy 100 100)
+       (imgui/text "after circle")
+       )
+      (imgui/m-group
+       ()
+       (imgui/text "lo & behold 2")
+       (imgui.draw/circle 50 50 50 color 10 5)
+       (imgui/dummy 100 100)
+       (imgui/text "after circle")
+       )
+      (imgui/m-group
+       ()
+       (imgui/text "homocentric")
+       (dotimes (i 5)
+	 (let ((col (imgui.color/frgb->u32 1.0 0.0 (* 1.0 (/ i 4)))))
+	   ;; going from red to red+blue
+	   (imgui.draw/circle 50 50 (- 50 (* i 10)) col)))
+       (imgui/dummy 100 100)
+       (imgui/text "after circle")
+       )
+      ))
+   )
+  )
 
 (define (draw-window-closeable)
   (when (*win-open)
@@ -123,9 +169,10 @@
 
 (define (draw)
   (draw-menu)
-  (draw-window-always-on)
+  ;; (draw-window-always-on)
   ;; (draw-color-3)
-  (draw-window-closeable)
-  (draw-knobs)
+  ;; (draw-window-closeable)
+  ;; (draw-knobs)
+  (draw-shapes)
   )
 
