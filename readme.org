@@ -41,6 +41,8 @@
 
   So there you go.
 
+* Examples
+  See the =.scm= files in the [[file:src/scheme/examples/]] directory and their equivalent screenshots under the [[file:gallery/]] directory.
 * Roadmap
   - [X] proof of concept
     - embed =s7= and draw something with imgui from =s7=

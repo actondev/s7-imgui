@@ -1,5 +1,6 @@
 #include "s7.h"
 #include "aod/gl/gl.hpp"
+#include <stdio.h>
 
 namespace aod {
 namespace s7 {
@@ -11,7 +12,11 @@ s7_pointer save_screenshot(s7_scheme *sc, s7_pointer args) {
         return (s7_wrong_type_arg_error(sc, "gl/save-screenshot", 1, filename,
                 "Expecting string (filename)"));
     }
-    aod::gl::save_screenshot(s7_string(filename));
+    const char *char_filename = s7_string(filename);
+    int res = aod::gl::save_screenshot(char_filename);
+    if (res != 1) {
+        fprintf(stderr, "could not save screenshot at %s\n", char_filename);
+    }
     return s7_nil(sc);
 }
 

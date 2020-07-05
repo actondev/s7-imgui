@@ -45,19 +45,25 @@ void scm_print(s7_scheme *sc, uint8_t c, s7_pointer port) {
     fprintf(stderr, "%c", c);
 }
 
-static void scm_load(s7_scheme *sc, const char *file) {
-    if (!s7_load(sc, file)) {
-        fprintf(stderr, "can't load %s\n", file);
-    }
+// Main loop
+bool main_loop_running = true;
+
+// a way to exit the application from the scheme file
+// or.. no need to? 'exit is defined in s7 and.. it's callable heh
+s7_pointer sc_exit(s7_scheme *sc, s7_pointer args) {
+    main_loop_running = false;
+    fprintf(stderr, "called (exit) from s7, quitting main loop\n");
+    return s7_nil(sc);
 }
 
 // Main code
-int main(int, char**) {
+int main(int argc, char *argv[]) {
 #ifdef __WIN32__
     // AllocConsole();
 #endif
     SDL_CreateThread(sdl_net_demo, "sdl_net", (void*) NULL);
     s7_scheme *sc = s7_init();
+    s7_define_function(sc, "exit", sc_exit, 0, 0, 0, "exits the main loop");
     aod::s7::Repl repl(sc);
 
     char *path = SDL_GetBasePath();
@@ -100,7 +106,9 @@ int main(int, char**) {
     // gl bindings (eg gl/save-screenshot)
     aod::s7::gl::bind(sc);
 
-    aod::path::set(scheme_path);
+    // TODO can i use base_path in windows? do the s7_add_to_load_path work?
+    // aod::path::set(scheme_path);
+    aod::path::set(base_path);
 
 #define AOD_S7_AUTOLOADS_TIMES_2 4
     static const char *autoloads[AOD_S7_AUTOLOADS_TIMES_2] = {
@@ -111,7 +119,13 @@ int main(int, char**) {
 
     s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOADS_TIMES_2 / 2);
 
-    scm_load(sc, "main.scm");
+    if (argc >= 2) {
+        fprintf(stderr, "Passed custom scheme file %s\n", argv[1]);
+        aod::s7::load_file(sc, argv[1]);
+    } else {
+        aod::s7::load_file(sc, "main.scm");
+    }
+
     aod::path::set(base_path);
 
     /*
@@ -200,13 +214,12 @@ int main(int, char**) {
             s7_make_c_object(sc, aod::s7::foreign::tag_float_arr(sc),
                     (void*) &clear_color));
 
-    // Main loop
-    bool done = false;
-    float knob_value = 0.5;
+
 
     s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
 
-    while (!done) {
+    // Main loop
+    while (main_loop_running) {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -216,7 +229,7 @@ int main(int, char**) {
         while (SDL_PollEvent(&event)) {
             ImGui_ImplSDL2_ProcessEvent(&event);
             if (event.type == SDL_QUIT)
-                done = true;
+                main_loop_running = false;
         }
 
         // Start the Dear ImGui frame
@@ -260,6 +273,8 @@ int main(int, char**) {
             s7_call(sc, post_draw, s7_nil(sc));
         }
     }
+
+    fprintf(stderr, "Quit main loop, cleaning up..\n");
 
     // Cleanup
     ImGui_ImplOpenGL2_Shutdown();

@@ -47,8 +47,6 @@ int save_screenshot(const char *filename) {
 
     free(data);
 
-    printf("saved screenshot? %d\n", saved);
-
     return saved;
 }
 }
