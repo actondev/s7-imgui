@@ -181,8 +181,8 @@ ninja -C build
    #+NAME: ex:menu
    #+BEGIN_SRC sh
 ninja -C build
-./build/s7-imgui scheme/examples/menu.scm
-./build/s7-imgui scheme/examples/shapes.scm
+./build/s7-imgui `pwd`/scheme-examples/menu.scm
+./build/s7-imgui `pwd`/scheme-examples/shapes.scm
    #+END_SRC
 ** COMMENT s7 repl.scm
    Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)

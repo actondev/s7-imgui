@@ -34,5 +34,5 @@
   ;; so, we take a screenshot on the third frame
   (set! frame (+ 1 frame))
   (when (= frame 3)
-    (gl/save-screenshot "../gallery/menu.scm.png")
+    (gl/save-screenshot "../scheme-examples/menu.png")
     (exit)))
