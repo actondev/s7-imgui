@@ -322,10 +322,30 @@ s7_pointer circle(s7_scheme *sc, s7_pointer args) {
         }
     }
 
-    ImGuiStyle &style = ImGui::GetStyle();
-    ImU32 col32line = ImGui::GetColorU32(ImGuiCol_SliderGrabActive);
+    draw_list->AddCircle(ImVec2(p.x + cx, p.y + cy), r, col, segments,
+            thickness);
+    return s7_nil(sc);
+}
 
-    draw_list->AddCircle(ImVec2(p.x + cx, p.y + cy), r, col, segments, thickness);
+s7_pointer line(s7_scheme *sc, s7_pointer args) {
+    ImVec2 p = ImGui::GetCursorScreenPos();
+
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+    float x1 = s7_number_to_real(sc, s7_car(args));
+    float y1 = s7_number_to_real(sc, s7_cadr(args));
+    float x2 = s7_number_to_real(sc, s7_caddr(args));
+    s7_pointer arg4plus = s7_cdddr(args);
+    float y2 = s7_number_to_real(sc, s7_car(arg4plus));
+    unsigned int col = (unsigned int) s7_number_to_real(sc, s7_cadr(arg4plus));
+    float thickness = 1.0f;
+    s7_pointer sc_thickness = s7_caddr(arg4plus);
+    if (s7_is_number(sc_thickness)) {
+        thickness = s7_number_to_real(sc, sc_thickness);
+    }
+
+    draw_list->AddLine(ImVec2(p.x + x1, p.y + y1), ImVec2(p.x + x2, p.y + y2),
+            col, thickness);
     return s7_nil(sc);
 }
 
@@ -335,6 +355,12 @@ void bind(s7_scheme *sc) {
             2, // optional args: segments, thickness
             false, // rest args
             "(cx cy r col &optional segments thickness)");
+
+    s7_define_function(sc, "imgui.draw/line", line, // ..
+            5, // req args: x1 x2 y1 y2 col
+            1, // optional args: thickness
+            false, // rest args
+            "(x1 y1 x2 y2 col &optional thickness)");
 }
 }
 
