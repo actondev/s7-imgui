@@ -14,6 +14,15 @@ aod_sources = files(
   's7/foreign_primitives_arr.cpp',
 )
 
+gl_dep = dependency('gl', required : false)
+if gl_dep.found()
+  message('aod: gl_dep found, adding gl/gl.cpp')
+  aod_sources += files(
+    'gl/gl.cpp', # aod::gl::save_screenshot(const char* filename)
+    's7/gl.cpp', # (gl/save-screenshot filename)
+    )
+endif
+
 aod_lib = library(
   'aod',
   # sources: aod_sources,
@@ -22,6 +31,7 @@ aod_lib = library(
   dependencies : [
     dependency('s7', required: true),
     dependency('imgui', required: true),
+    gl_dep,
   ]
   )
 

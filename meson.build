@@ -44,13 +44,14 @@ sdl_net_dep = sdl_net_proj.get_variable('sdl_net_dep')
 # --- application
 meson.override_dependency('s7', s7_dep)
 meson.override_dependency('imgui', imgui_dep)
+
 subdir('src')
 
 app = executable(
   's7-imgui',
   dependencies : [
     sdl2_dep, # the core library
-    sdl2main_dep, # abstracts out the main thing: windos needs WinMain
+    sdl2main_dep, # abstracts out the main thing: windows needs WinMain
     sdl_net_dep,
     imgui_dep,
     s7_dep,

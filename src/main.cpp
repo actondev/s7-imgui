@@ -24,8 +24,11 @@
 #include "aod/s7/foreign_primitives.hpp"
 #include "aod/s7/foreign_primitives_arr.hpp"
 #include "aod/s7/imgui_addons.hpp"
+//#include "aod/gl/gl.hpp"
+#include "aod/s7/gl.hpp"
 
 #define DRAW_FN "draw"
+#define POST_DRAW_FN "post-draw"
 #define SETUP_FN "setup"
 
 #define SDL_WIDTH 1000
@@ -84,15 +87,18 @@ int main(int, char**) {
      * etc
      */
 
-    // (*foreign* 'new-bool) (*foreign* 'new-bool[]) etc
-    // that I can pass around as a reference
     s7_pointer primitives_env = aod::s7::make_env(sc);
+    // eg ((*foreign* 'new-bool) #t) for a bool* pointer with initial value true
     aod::s7::foreign::bind_primitives(sc, primitives_env);
+    // eg ((*foreign* 'new-bool[]) 4) for a bool[4] array
     aod::s7::foreign::bind_primitives_arr(sc, primitives_env);
 
     // imgui bindings
     aod::s7::imgui::bind(sc);
     aod::s7::imgui::bind_knob(sc);
+
+    // gl bindings (eg gl/save-screenshot)
+    aod::s7::gl::bind(sc);
 
     aod::path::set(scheme_path);
 
@@ -145,7 +151,8 @@ int main(int, char**) {
     SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL
             | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example",
-    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WIDTH, SDL_HEIGHT, window_flags);
+    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WIDTH, SDL_HEIGHT,
+            window_flags);
     if (window == NULL) {
         fprintf(stderr, "Could not create SDL window");
         return -1;
@@ -190,13 +197,15 @@ int main(int, char**) {
 
     // binding the clear color to imgui/clear-color
     s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "imgui/clear-color"),
-            s7_make_c_object(sc, aod::s7::foreign::tag_float_arr(sc), (void*) &clear_color));
+            s7_make_c_object(sc, aod::s7::foreign::tag_float_arr(sc),
+                    (void*) &clear_color));
 
     // Main loop
     bool done = false;
     float knob_value = 0.5;
 
     s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
+
     while (!done) {
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -245,6 +254,11 @@ int main(int, char**) {
         //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
         ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
+
+        s7_pointer post_draw = s7_name_to_value(sc, POST_DRAW_FN);
+        if (!s7_is_null(sc, post_draw)) {
+            s7_call(sc, post_draw, s7_nil(sc));
+        }
     }
 
     // Cleanup
