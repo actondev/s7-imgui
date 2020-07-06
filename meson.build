@@ -1,5 +1,7 @@
 project('s7-imgui', 'cpp', 'c',
-	default_options: ['default_library=static'],
+	default_options: ['default_library=static',
+			  'cpp_std=c++17',
+			 ],
        )
 
 extra_args = []

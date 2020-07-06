@@ -2,10 +2,55 @@
 #include "s7.h"
 #include "aod/s7/foreign_primitives_arr.hpp"
 #include "aod/s7/foreign_primitives.hpp"
+#include <GL/gl.h>
 
 namespace aod {
 namespace s7 {
 namespace imgui {
+
+namespace windows {
+s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
+    GLint viewport[4];
+    glGetIntegerv(GL_VIEWPORT, viewport);
+
+    int x = viewport[0];
+    int y = viewport[1];
+    int w = viewport[2];
+    int h = viewport[3];
+
+    ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
+    ImGui::SetNextWindowSize(ImVec2((float) w, (float) h));
+
+//    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+//    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+
+    bool show = true;
+    ImGui::Begin("maximized-window", &show,
+            ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar
+                    | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+                    | ImGuiWindowFlags_NoCollapse);
+
+//    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
+//    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
+//            | ImGuiWindowFlags_NoMove;
+//    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus
+//            | ImGuiWindowFlags_NoNavFocus;
+
+//    ImGui::PopStyleVar(2);
+
+    return s7_nil(sc);
+}
+
+void bind(s7_scheme *sc) {
+
+    s7_define_function(sc, "imgui/begin-maximized", begin_maximized, // ..
+            0, // req args
+            0, // optional args (the open boolean pointer)
+            false, // rest args
+            "Begin a/the maximized window");
+
+}
+}
 
 namespace general { // anonymous namespace: the functions
 
@@ -135,6 +180,16 @@ void bind(s7_scheme *sc) {
 
 namespace menus {
 
+s7_pointer begin_menu_bar(s7_scheme *sc, s7_pointer args) {
+    return s7_make_boolean(sc, ImGui::BeginMenuBar());
+}
+
+s7_pointer end_menu_bar(s7_scheme *sc, s7_pointer args) {
+    ImGui::EndMenuBar();
+
+    return s7_nil(sc);
+}
+
 s7_pointer begin_main_menu_bar(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::BeginMainMenuBar());
 }
@@ -177,6 +232,18 @@ s7_pointer menu_item(s7_scheme *sc, s7_pointer args) {
 }
 
 void bind(s7_scheme *sc) {
+    s7_define_function(sc, "imgui/begin-menu-bar", begin_menu_bar, // ..
+            0, // req args
+            0, // optional args
+            false, // rest args
+            "ImGui::BeginMenuBar");
+
+    s7_define_function(sc, "imgui/end-menu-bar", end_menu_bar, // ..
+            0, // req args
+            0, // optional args
+            false, // rest args
+            "ImGui::EndMenuBar");
+
     s7_define_function(sc, "imgui/begin-main-menu-bar", begin_main_menu_bar, // ..
             0, // req args
             0, // optional args
@@ -235,7 +302,7 @@ s7_pointer begin_child(s7_scheme *sc, s7_pointer args) {
     if (!s7_is_string(title))
         return (s7_wrong_type_arg_error(sc, "imgui/begin-child", 1, title,
                 "First argument is title, should be a string"));
-    // only automatic width for now
+// only automatic width for now
     ImGui::BeginChild(s7_string(title), ImVec2(0, 0));
 
     return s7_nil(sc);
@@ -413,6 +480,7 @@ void bind(s7_scheme *sc) {
     layout::bind(sc);
     draw::bind(sc);
     colors::bind(sc);
+    windows::bind(sc);
 
 }
 

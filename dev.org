@@ -155,34 +155,51 @@ rm src/scheme/s7/libc_s7*
    #+END_SRC
 
 * Bundled examples
-     #+BEGIN_SRC emacs-lisp
-(aod.org-babel/generate-named-buttons-inc "ex:")
-   #+END_SRC
-
-   #+RESULTS:
-   | [ex:imgui] |
 
 ** COMMENT examples buttons
    #+BEGIN_SRC emacs-lisp
-(aod.org-babel/generate-named-buttons-inc "ex:")
+(aod.org-babel/generate-named-buttons-inc (rx (or "ex.c:" (regexp ">build$"))))
    #+END_SRC
 
    #+RESULTS:
-   | [ex:imgui] |
+   | [ex.c:imgui] | [>build] |
 
 ** imgui demo
-   #+NAME: ex:imgui
+   #+NAME: ex.c:imgui
    #+BEGIN_SRC sh
 ninja -C build
 ./build/examples/example_imgui
    #+END_SRC
 
 ** scheme app examples
-   #+NAME: ex:menu
+   #+BEGIN_SRC emacs-lisp :exports none
+(aod.org-babel/generate-named-buttons-inc (rx (or "ex.scm:" (regexp ">build$"))))
+   #+END_SRC
+
+   #+RESULTS:
+   | [ex.scm:all-screenshots] | [ex.scm:maximized] | [ex.scm:shapes] | [ex.scm:menu] | [>build] |
+
+   #+NAME: ex.scm:menu
    #+BEGIN_SRC sh
-ninja -C build
+./build/s7-imgui `pwd`/scheme-examples/menu.scm
+   #+END_SRC
+
+   #+NAME: ex.scm:shapes
+   #+BEGIN_SRC sh
+./build/s7-imgui `pwd`/scheme-examples/shapes.scm
+   #+END_SRC
+
+   #+NAME: ex.scm:maximized
+   #+BEGIN_SRC sh
+./build/s7-imgui `pwd`/scheme-examples/maximized.scm
+   #+END_SRC
+
+   #+NAME: ex.scm:all-screenshots
+   #+BEGIN_SRC sh
+rm scheme-examples/*.png
 ./build/s7-imgui `pwd`/scheme-examples/menu.scm
 ./build/s7-imgui `pwd`/scheme-examples/shapes.scm
+./build/s7-imgui `pwd`/scheme-examples/maximized.scm
    #+END_SRC
 ** COMMENT s7 repl.scm
    Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)

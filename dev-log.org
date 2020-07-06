@@ -607,3 +607,5 @@ ImU32 col32line = ImGui::GetColorU32(ImGuiCol_SliderGrabActive);
 draw_list->AddCircle(ImVec2(p.x + cx + r, p.y + cy + r), r, col32line, 32,
 		     thickness);
   #+END_SRC
+* C++17
+  meson configure build -Dcpp_std=c++17

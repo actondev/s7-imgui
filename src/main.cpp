@@ -26,6 +26,8 @@
 #include "aod/s7/imgui_addons.hpp"
 //#include "aod/gl/gl.hpp"
 #include "aod/s7/gl.hpp"
+#include <iostream>
+#include <filesystem>
 
 #define DRAW_FN "draw"
 #define POST_DRAW_FN "post-draw"
@@ -35,6 +37,8 @@
 #define SDL_HEIGHT 600
 
 #define REPL_PORT 1234
+
+namespace fs = std::filesystem;
 
 int sdl_net_demo(void *data) {
     fprintf(stderr, "sdl_net_demo\n");
@@ -56,30 +60,44 @@ s7_pointer sc_exit(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
+s7_pointer sc_sdl_set_size(s7_scheme *sc, s7_pointer args) {
+    int w = s7_number_to_integer(sc, s7_car(args));
+    int h = s7_number_to_integer(sc, s7_cadr(args));
+
+    SDL_Window *win = (SDL_Window*) s7_c_pointer(
+            s7_eval_c_string(sc, "sdl/*window*"));
+    SDL_SetWindowSize(win, w, h);
+    return s7_nil(sc);
+}
+
 // Main code
 int main(int argc, char *argv[]) {
 #ifdef __WIN32__
     // AllocConsole();
 #endif
+
+    fs::path cwd_launch = fs::current_path();
+    char *path_char = SDL_GetBasePath();
+    fs::path base_path = fs::path(path_char);
+    fprintf(stderr, "argv[0] %s\n", argv[0]);
+
     SDL_CreateThread(sdl_net_demo, "sdl_net", (void*) NULL);
     s7_scheme *sc = s7_init();
     s7_define_function(sc, "exit", sc_exit, 0, 0, 0, "exits the main loop");
     aod::s7::Repl repl(sc);
 
-    char *path = SDL_GetBasePath();
-    std::string base_path;
-    base_path += path;
+    std::string base_path_str;
+    base_path_str += path_char;
     std::string scheme_path;
-    scheme_path += base_path + "scheme/";
+    scheme_path += base_path_str + "scheme/";
     std::string scheme_s7_path;
     scheme_s7_path += scheme_path + "s7/";
-    fprintf(stderr, "base path is %s\n", base_path.c_str());
-
-    aod::path::set(base_path);
+    fprintf(stderr, "base path is %s\n", base_path_str.c_str());
 
     aod::s7::set_print_stderr(sc);
-    s7_add_to_load_path(sc, "scheme");
-    s7_add_to_load_path(sc, "s7");
+    std::cout << "scheme path is " << base_path / "scheme" << '\n';
+    s7_add_to_load_path(sc, (base_path / "scheme").c_str());
+//    s7_add_to_load_path(sc, "s7");
 
     aod::s7::set_print_stderr(sc);
     s7_eval_c_string(sc, "(display \"hello from s7 from cpp\n\"))");
@@ -108,7 +126,7 @@ int main(int argc, char *argv[]) {
 
     // TODO can i use base_path in windows? do the s7_add_to_load_path work?
     // aod::path::set(scheme_path);
-    aod::path::set(base_path);
+//    aod::path::set(base_path);
 
 #define AOD_S7_AUTOLOADS_TIMES_2 4
     static const char *autoloads[AOD_S7_AUTOLOADS_TIMES_2] = {
@@ -121,12 +139,19 @@ int main(int argc, char *argv[]) {
 
     if (argc >= 2) {
         fprintf(stderr, "Passed custom scheme file %s\n", argv[1]);
-        aod::s7::load_file(sc, argv[1]);
+        fs::path passed_file = cwd_launch / argv[1];
+//        passed_file.append()
+//        passed_file.replace_filename(argv[1]);
+//        std::cout << "cwd was " << cwd_launch << '\n';
+//        std::cout << "cwd is " << cwd_launch << " passed file " << passed_file << '\n';
+        std::cout << "path of passed file is " << passed_file.parent_path() << '\n';
+        s7_add_to_load_path(sc, passed_file.parent_path().c_str());
+        aod::s7::load_file(sc, passed_file.c_str());
     } else {
         aod::s7::load_file(sc, "main.scm");
     }
 
-    aod::path::set(base_path);
+//    aod::path::set(base_path_str);
 
     /*
      * Socket REPL
@@ -167,6 +192,18 @@ int main(int argc, char *argv[]) {
     SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example",
     SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WIDTH, SDL_HEIGHT,
             window_flags);
+
+//    SDL_SetWindowSize()
+
+    // s7 & sdl
+    s7_pointer sc_sdl_window = s7_make_c_pointer(sc, window);
+    s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "sdl/*window*"),
+            sc_sdl_window);
+    s7_define_function(sc, "sdl/set-window-size", sc_sdl_set_size, 2, 0, false,
+            "(w h) sets the size of the sdl window");
+
+    // .....
+
     if (window == NULL) {
         fprintf(stderr, "Could not create SDL window");
         return -1;
@@ -213,8 +250,6 @@ int main(int argc, char *argv[]) {
     s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "imgui/clear-color"),
             s7_make_c_object(sc, aod::s7::foreign::tag_float_arr(sc),
                     (void*) &clear_color));
-
-
 
     s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
 
@@ -268,12 +303,17 @@ int main(int argc, char *argv[]) {
         ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
         SDL_GL_SwapWindow(window);
 
-        s7_pointer post_draw = s7_name_to_value(sc, POST_DRAW_FN);
-        if (!s7_is_null(sc, post_draw)) {
-            s7_call(sc, post_draw, s7_nil(sc));
-        }
-    }
+//        s7_pointer post_draw = s7_name_to_value(sc, POST_DRAW_FN);
 
+//        s7_pointer post_draw = s7_symbol_table_find_name(sc, POST_DRAW_FN);
+//        s7_pointer post_draw = s7_symbol_table_find_name(sc, POST_DRAW_FN); // returns a symbol
+////         s7_is_defined
+//        if (post_draw) {
+//            s7_call(sc, s7_symbol_value(sc, post_draw), s7_nil(sc));
+//        }
+        s7_eval_c_string(sc, "(if (defined? 'post-draw) (post-draw))");
+    }
+//    s7_is_
     fprintf(stderr, "Quit main loop, cleaning up..\n");
 
     // Cleanup
