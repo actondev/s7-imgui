@@ -13,8 +13,8 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
-    int x = viewport[0];
-    int y = viewport[1];
+    // int x = viewport[0];
+    // int y = viewport[1];
     int w = viewport[2];
     int h = viewport[3];
 

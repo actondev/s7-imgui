@@ -7,6 +7,7 @@ aod_sources = files(
   's7/imgui_addons.cpp',
   's7/repl.cpp',
   'imgui/addons.cpp',
+  's7/sdl.cpp',
 
   # foreign types
   # 's7/c_primitives.cpp',
@@ -29,9 +30,11 @@ aod_lib = library(
   include_directories: include_directories('..'),
   sources: aod_sources,
   dependencies : [
-    dependency('s7', required: true),
-    dependency('imgui', required: true),
+    # dependency('s7', required: true),
+    s7_dep,
+    imgui_dep,
     gl_dep,
+    sdl2_dep,
   ]
   )
 

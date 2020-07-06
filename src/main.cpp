@@ -24,8 +24,8 @@
 #include "aod/s7/foreign_primitives.hpp"
 #include "aod/s7/foreign_primitives_arr.hpp"
 #include "aod/s7/imgui_addons.hpp"
-//#include "aod/gl/gl.hpp"
 #include "aod/s7/gl.hpp"
+#include "aod/s7/sdl.hpp"
 #include <iostream>
 #include <filesystem>
 
@@ -57,16 +57,6 @@ bool main_loop_running = true;
 s7_pointer sc_exit(s7_scheme *sc, s7_pointer args) {
     main_loop_running = false;
     fprintf(stderr, "called (exit) from s7, quitting main loop\n");
-    return s7_nil(sc);
-}
-
-s7_pointer sc_sdl_set_size(s7_scheme *sc, s7_pointer args) {
-    int w = s7_number_to_integer(sc, s7_car(args));
-    int h = s7_number_to_integer(sc, s7_cadr(args));
-
-    SDL_Window *win = (SDL_Window*) s7_c_pointer(
-            s7_eval_c_string(sc, "sdl/*window*"));
-    SDL_SetWindowSize(win, w, h);
     return s7_nil(sc);
 }
 
@@ -144,7 +134,8 @@ int main(int argc, char *argv[]) {
 //        passed_file.replace_filename(argv[1]);
 //        std::cout << "cwd was " << cwd_launch << '\n';
 //        std::cout << "cwd is " << cwd_launch << " passed file " << passed_file << '\n';
-        std::cout << "path of passed file is " << passed_file.parent_path() << '\n';
+        std::cout << "path of passed file is " << passed_file.parent_path()
+                << '\n';
         s7_add_to_load_path(sc, passed_file.parent_path().c_str());
         aod::s7::load_file(sc, passed_file.c_str());
     } else {
@@ -195,12 +186,8 @@ int main(int argc, char *argv[]) {
 
 //    SDL_SetWindowSize()
 
-    // s7 & sdl
-    s7_pointer sc_sdl_window = s7_make_c_pointer(sc, window);
-    s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "sdl/*window*"),
-            sc_sdl_window);
-    s7_define_function(sc, "sdl/set-window-size", sc_sdl_set_size, 2, 0, false,
-            "(w h) sets the size of the sdl window");
+    // sdl bindings (sdl/set-window-size)
+    aod::s7::sdl::bind(sc, window);
 
     // .....
 
