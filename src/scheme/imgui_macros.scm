@@ -13,6 +13,12 @@
      (imgui/m-safe ,@body)
      (imgui/end)))
 
+(define-macro (imgui/m-maximized args . body)
+  `(begin
+     (imgui/begin-maximized ,@args)
+     (imgui/m-safe ,@body)
+     (imgui/end)))
+
 (define-macro (imgui/m-child args . body)
   `(begin
      (imgui/begin-child ,@args)
