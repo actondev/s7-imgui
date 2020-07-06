@@ -177,7 +177,7 @@ ninja -C build
    #+END_SRC
 
    #+RESULTS:
-   | [ex.scm:all-screenshots] | [ex.scm:maximized] | [ex.scm:shapes] | [ex.scm:menu] | [>build] |
+   | [ex.scm:all-screenshots] | [ex.scm:color-wheel] | [ex.scm:maximized] | [ex.scm:shapes] | [ex.scm:menu] | [>build] |
 
    #+NAME: ex.scm:menu
    #+BEGIN_SRC sh
@@ -192,6 +192,11 @@ ninja -C build
    #+NAME: ex.scm:maximized
    #+BEGIN_SRC sh
 ./build/s7-imgui `pwd`/scheme-examples/maximized.scm
+   #+END_SRC
+
+   #+NAME: ex.scm:color-wheel
+   #+BEGIN_SRC sh
+./build/s7-imgui `pwd`/scheme-examples/color_wheel.scm
    #+END_SRC
 
    #+NAME: ex.scm:all-screenshots

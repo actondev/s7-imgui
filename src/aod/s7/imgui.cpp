@@ -2,6 +2,7 @@
 #include "s7.h"
 #include "aod/s7/foreign_primitives_arr.hpp"
 #include "aod/s7/foreign_primitives.hpp"
+#include "imgui_internal.h"
 #include <GL/gl.h>
 
 namespace aod {
@@ -394,6 +395,33 @@ s7_pointer circle(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
+s7_pointer text(s7_scheme *sc, s7_pointer args) {
+    ImVec2 p = ImGui::GetCursorScreenPos();
+
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+    float x = s7_number_to_real(sc, s7_car(args));
+    float y = s7_number_to_real(sc, s7_cadr(args));
+    const char *str = s7_string(s7_caddr(args));
+
+    // I really need to this. if not it crashes.
+    char buffer[64];
+    sprintf(buffer, "%s", str);
+
+    unsigned int col = (unsigned int) s7_number_to_real(sc, s7_cadddr(args));
+
+    // ImGuiContext& g = *GImGui;
+    // ImGuiWindow* window = g.CurrentWindow;
+    float wrap_width = 100.0f;
+    float font_size = 0.0f; // auto
+//    draw_list->AddText(NULL, font_size, ImVec2(p.x + x, p.y + y), col, "begin",
+//            "end", wrap_width, NULL);
+
+    draw_list->AddText(ImVec2(p.x + x, p.y + y), col, buffer);
+
+    return s7_nil(sc);
+}
+
 s7_pointer line(s7_scheme *sc, s7_pointer args) {
     ImVec2 p = ImGui::GetCursorScreenPos();
 
@@ -428,6 +456,12 @@ void bind(s7_scheme *sc) {
             1, // optional args: thickness
             false, // rest args
             "(x1 y1 x2 y2 col &optional thickness)");
+
+    s7_define_function(sc, "imgui.draw/text", text, // ..
+            4, // req args: x y text color
+            0, // optional args: thickness
+            false, // rest args
+            "(x y text color)");
 }
 }
 

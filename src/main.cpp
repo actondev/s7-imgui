@@ -28,6 +28,7 @@
 #include "aod/s7/sdl.hpp"
 #include <iostream>
 #include <filesystem>
+#include <mutex>
 
 #define DRAW_FN "draw"
 #define POST_DRAW_FN "post-draw"
@@ -39,6 +40,8 @@
 #define REPL_PORT 1234
 
 namespace fs = std::filesystem;
+
+std::mutex g_s7_mutex;
 
 int sdl_net_demo(void *data) {
     fprintf(stderr, "sdl_net_demo\n");
@@ -150,6 +153,8 @@ int main(int argc, char *argv[]) {
     aod::TcpServer server;
     aod::Callback cb = [&repl](const char *data) -> std::string {
         std::string res;
+        std::lock_guard guard(g_s7_mutex);
+
         if (repl.handleInput(data)) {
             res = repl.evalLastForm();
             res += "\n> ";
@@ -242,6 +247,7 @@ int main(int argc, char *argv[]) {
 
     // Main loop
     while (main_loop_running) {
+        std::lock_guard guard(g_s7_mutex);
         // Poll and handle events (inputs, window resize, etc.)
         // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
         // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
@@ -299,6 +305,7 @@ int main(int argc, char *argv[]) {
 //            s7_call(sc, s7_symbol_value(sc, post_draw), s7_nil(sc));
 //        }
         s7_eval_c_string(sc, "(if (defined? 'post-draw) (post-draw))");
+        // SDL_Delay(30);
     }
 //    s7_is_
     fprintf(stderr, "Quit main loop, cleaning up..\n");
