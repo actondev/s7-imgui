@@ -57,3 +57,19 @@ i is 2
 "
  => "finished with i 3"
  )
+
+(define iota
+  (let ((+documentation+ "(iota n (start 0) (incr 1)) returns a list counting from start for n:\n\
+    (iota 3) -> '(0 1 2)"))
+    (lambda* (n (start 0) (incr 1))
+      (if (or (not (integer? n))
+	      (< n 0))
+	  (error 'wrong-type-arg "iota length ~A should be a non-negative integer" n))
+      (let ((lst (make-list n)))
+	(do ((p lst (cdr p))
+	     (i start (+ i incr)))
+	    ((null? p) lst)
+	  (set! (car p) i))))))
+
+(define range iota)
+(define mod modulo)

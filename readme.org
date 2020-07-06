@@ -1,6 +1,7 @@
 * S7 & ImGui
   Using [[https://ccrma.stanford.edu/software/snd/snd/s7.html][s7 scheme]] alongside [[https://github.com/ocornut/imgui][ImGui]] to (interactively) build (cross platform) GUI apps.
 
+  *TL;DR* \\
   See the =.scm= and the corresponding =.png= files in the [[file:scheme-examples/]] directory for a quick taste.
 
   You can connect to a remote repl (over TCP) while the app is running to change the application behavior.

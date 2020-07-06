@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
 
 //    SDL_SetWindowSize()
 
-    // sdl bindings (sdl/set-window-size)
+    // sdl bindings (sdl/set-window-size!)
     aod::s7::sdl::bind(sc, window);
 
     // .....
@@ -305,7 +305,7 @@ int main(int argc, char *argv[]) {
 //            s7_call(sc, s7_symbol_value(sc, post_draw), s7_nil(sc));
 //        }
         s7_eval_c_string(sc, "(if (defined? 'post-draw) (post-draw))");
-        // SDL_Delay(30);
+//         SDL_Delay(20);
     }
 //    s7_is_
     fprintf(stderr, "Quit main loop, cleaning up..\n");

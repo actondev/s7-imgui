@@ -22,7 +22,7 @@ void bind(s7_scheme *sc, SDL_Window *window) {
     s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "sdl/*window*"),
             sc_sdl_window);
 
-    s7_define_function(sc, "sdl/set-window-size", set_window_size, 2, 0, false,
+    s7_define_function(sc, "sdl/set-window-size!", set_window_size, 2, 0, false,
             "(w h) sets the size of the sdl window");
 
 }

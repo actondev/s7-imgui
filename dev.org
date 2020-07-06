@@ -205,6 +205,7 @@ rm scheme-examples/*.png
 ./build/s7-imgui `pwd`/scheme-examples/menu.scm
 ./build/s7-imgui `pwd`/scheme-examples/shapes.scm
 ./build/s7-imgui `pwd`/scheme-examples/maximized.scm
+./build/s7-imgui `pwd`/scheme-examples/color_wheel.scm
    #+END_SRC
 ** COMMENT s7 repl.scm
    Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)

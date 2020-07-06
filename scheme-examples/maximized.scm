@@ -3,7 +3,7 @@
 (define (setup)
   ;; there seems to be a padding of 8 pixels each side?
   ;; plus.. 14? the menu bar?
-  (sdl/set-window-size 416 430)
+  (sdl/set-window-size! 416 430)
   )
 
 (define (draw)
