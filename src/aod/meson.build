@@ -8,6 +8,7 @@ aod_sources = files(
   's7/repl.cpp',
   'imgui/addons.cpp',
   's7/sdl.cpp',
+  'sdl.cpp',
 
   # foreign types
   # 's7/c_primitives.cpp',
