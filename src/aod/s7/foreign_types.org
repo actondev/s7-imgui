@@ -162,6 +162,8 @@ void bind_C_TYPE(s7_scheme* sc, s7_pointer env) {
 
 ** foreign_primitives.hpp
   #+BEGIN_SRC cpp :tangle "foreign_primitives.hpp" :main no
+#pragma once
+
 #include "s7.h"
 
 namespace aod {
@@ -244,7 +246,7 @@ s7_pointer make_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
 				"C_TYPE_arr creating needs 1 positive argument for its length: ~S", args));
 	}
 	/* fprintf(stderr, "making C_TYPE[] of length %d\n", len); */
-	C_TYPE* data = new C_TYPE[len];
+	C_TYPE* data = new C_TYPE[len]{}; // {} is for default initialization. eg false for bool, 0 for numbers
 
 	int type = tag_C_TYPE_arr(sc);
 	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
@@ -303,6 +305,8 @@ void bind_C_TYPE_arr(s7_scheme* sc, s7_pointer env) {
 
 
   #+BEGIN_SRC cpp :tangle "foreign_primitives_arr.hpp" :noweb yes :main no
+#pragma once
+
 #include "s7.h"
 #include <cstddef>
 

@@ -61,6 +61,20 @@ meson setup --reconfigure build
 meson setup --wipe build
 rm -rf build
     #+END_SRC
+** Building for release
+      Setting up
+   #+BEGIN_SRC sh
+meson setup build/release -Dbuildtype=release
+meson configure build/release # validating the buildtype
+ninja -C build/release
+   #+END_SRC
+
+   - debug build weights ~7mb
+   - release build ~4mb
+     zipped ~1.3mb
+*** TODO release
+    - do not build tests.. duh
+
 ** COMMENT Running
    #+NAME: >build & run
    #+BEGIN_SRC sh
@@ -99,7 +113,6 @@ netcat localhost 12345
   ;; sending something to see if the repl process is alive
   (scheme-send-string "\n"))
   #+END_SRC
-
 * Windows
 ** Optional: using existing repositories for subprojects
    #+BEGIN_SRC sh :session *s7-imgui-cmd*

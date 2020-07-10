@@ -1,3 +1,5 @@
+#pragma once
+
 #include "s7.h"
 
 namespace aod {

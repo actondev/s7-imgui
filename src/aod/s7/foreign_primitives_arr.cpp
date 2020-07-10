@@ -32,7 +32,7 @@ namespace aod {
 	       				"bool_arr creating needs 1 positive argument for its length: ~S", args));
 	       	}
 	       	/* fprintf(stderr, "making bool[] of length %d\n", len); */
-	       	bool* data = new bool[len];
+	       	bool* data = new bool[len]{}; // {} is for default initialization. eg false for bool, 0 for numbers
 	       
 	       	int type = tag_bool_arr(sc);
 	       	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
@@ -103,7 +103,7 @@ namespace aod {
 	       				"int_arr creating needs 1 positive argument for its length: ~S", args));
 	       	}
 	       	/* fprintf(stderr, "making int[] of length %d\n", len); */
-	       	int* data = new int[len];
+	       	int* data = new int[len]{}; // {} is for default initialization. eg false for bool, 0 for numbers
 	       
 	       	int type = tag_int_arr(sc);
 	       	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
@@ -175,7 +175,7 @@ namespace aod {
 	       				"float_arr creating needs 1 positive argument for its length: ~S", args));
 	       	}
 	       	/* fprintf(stderr, "making float[] of length %d\n", len); */
-	       	float* data = new float[len];
+	       	float* data = new float[len]{}; // {} is for default initialization. eg false for bool, 0 for numbers
 	       
 	       	int type = tag_float_arr(sc);
 	       	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
