@@ -412,8 +412,8 @@ s7_pointer text(s7_scheme *sc, s7_pointer args) {
 
     // ImGuiContext& g = *GImGui;
     // ImGuiWindow* window = g.CurrentWindow;
-    float wrap_width = 100.0f;
-    float font_size = 0.0f; // auto
+    // float wrap_width = 100.0f;
+    // float font_size = 0.0f; // auto
 //    draw_list->AddText(NULL, font_size, ImVec2(p.x + x, p.y + y), col, "begin",
 //            "end", wrap_width, NULL);
 

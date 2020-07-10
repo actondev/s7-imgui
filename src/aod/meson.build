@@ -42,4 +42,12 @@ aod_dep = declare_dependency(
   link_with: aod_lib,
   # include from parent dir: to include "aod/s7.cpp" for example
   include_directories: include_directories('..'),
+  dependencies: [
+    # hm.. this is for the include_directories
+    # solving errors like "SDL.h" not found etc
+    s7_dep,
+    imgui_dep,
+    gl_dep,
+    sdl2_dep,
+    ]
   )
