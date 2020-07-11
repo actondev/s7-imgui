@@ -10,7 +10,9 @@ TEST ( foreign_primitives_arr_gen, bool_arr ) {
     s7_scheme *sc = s7_init();
     aod::s7::set_print_stderr(sc);
 
-    aod::s7::foreign::bind_primitives_arr(sc);
+    s7_pointer env = aod::s7::make_env(sc);
+    aod::s7::foreign::bind_primitives_arr(sc, env);
+    aod::s7::foreign::bind_primitives(sc, env); // we also handle a bool* ref
 
     s7_pointer x = s7_eval_c_string(sc,
             "(define x ((*foreign* 'new-bool[]) 3))");
@@ -23,6 +25,8 @@ TEST ( foreign_primitives_arr_gen, bool_arr ) {
     ASSERT_EQ(false, s7_boolean(sc, s7_eval_c_string(sc, "(x 0)")));
     ASSERT_EQ(false, s7_boolean(sc, s7_eval_c_string(sc, "(x 1)")));
     ASSERT_EQ(false, s7_boolean(sc, s7_eval_c_string(sc, "(x 2)")));
+    
+    
 
     arr[0] = true;
     arr[2] = true;
@@ -33,6 +37,21 @@ TEST ( foreign_primitives_arr_gen, bool_arr ) {
 
     s7_eval_c_string(sc, "(set! (x 1) #t)");
     ASSERT_EQ(true, arr[1]);
+    
+    // now.. getting the bool* to &arr[2] ...
+    s7_pointer x2_pointer = s7_eval_c_string(sc, "(x 2 '&)");
+    bool* x2 = (bool*) s7_c_object_value_checked(x2_pointer, aod::s7::foreign::tag_bool(sc));
+    ASSERT_EQ(true, *x2);
+    *x2 = false;
+    ASSERT_EQ(false, s7_boolean(sc, s7_eval_c_string(sc, "(x 2)")));
+    
+    s7_eval_c_string(sc, "(let ((*x2 (x 2 'ref)))"
+    "(set! (*x2) #t))");
+    ASSERT_EQ(true, *x2);
+    
+    // a different calling style
+    s7_eval_c_string(sc, "(set! ((x 2 'ref)) #f))");
+    ASSERT_EQ(false, *x2);
 
 }
 

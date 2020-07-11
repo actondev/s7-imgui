@@ -96,8 +96,14 @@ void free_C_TYPE(void* raw_data) {
 }
 
 int tag_C_TYPE(s7_scheme *sc) {
-     int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE)"));
-     return type;
+     s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE)");
+     if(s7_is_integer(res)){
+	  return s7_integer(res);
+     }
+     s7_error(sc,                               /* s7 is declared in xen.h, defined in xen.c */
+	   s7_make_symbol(sc, "foreign-error"),
+	   s7_cons(sc, s7_make_string(sc, "type-C_TYPE not registered"), s7_nil(sc)));
+     return -1;
 }
 
 s7_pointer make_C_TYPE(s7_scheme *sc, s7_pointer args) {
@@ -109,23 +115,23 @@ s7_pointer make_C_TYPE(s7_scheme *sc, s7_pointer args) {
 }
 
 s7_pointer ref_C_TYPE(s7_scheme *sc, s7_pointer args) {
-	C_TYPE* data = (C_TYPE*) s7_c_object_value(s7_car(args));
+     C_TYPE* data = (C_TYPE*) s7_c_object_value(s7_car(args));
 
-	return S7_WRITE(sc, *data);
+     return S7_WRITE(sc, *data);
 }
 
 s7_pointer set_C_TYPE(s7_scheme *sc, s7_pointer args) {
-	// 2 args: (block-set! (ref) value)
-	if (s7_list_length(sc, args) != 2) {
-		return (s7_wrong_number_of_args_error(sc,
-				"set! for C_TYPE takes 2 arguments: ~S", args));
-	}
-	C_TYPE* data = (C_TYPE*) s7_c_object_value(s7_car(args));
-	s7_pointer s7_new_value = s7_cadr(args);
-	C_TYPE new_value = S7_READ(sc, s7_new_value);
-	,*data = new_value;
+     // 2 args: (block-set! (ref) value)
+     if (s7_list_length(sc, args) != 2) {
+	  return (s7_wrong_number_of_args_error(sc,
+						"set! for C_TYPE takes 2 arguments: ~S", args));
+     }
+     C_TYPE* data = (C_TYPE*) s7_c_object_value(s7_car(args));
+     s7_pointer s7_new_value = s7_cadr(args);
+     C_TYPE new_value = S7_READ(sc, s7_new_value);
+     ,*data = new_value;
 
-	return (s7_new_value);
+     return (s7_new_value);
 }
 
 void bind_C_TYPE(s7_scheme* sc, s7_pointer env) {
@@ -229,52 +235,67 @@ namespace aod {
 // ------------------------------ C_TYPE-arr ------------------------------
 
 void free_C_TYPE_arr(void *raw_data) {
-      C_TYPE* data = (C_TYPE*) raw_data;
-      delete[] data;
+     C_TYPE* data = (C_TYPE*) raw_data;
+     delete[] data;
 }
 
 int tag_C_TYPE_arr(s7_scheme* sc){
-     int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE[])"));
-     return type;
+     s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE[])");
+     if(s7_is_integer(res)){
+	  return s7_integer(res);
+     }
+     return -1;
 }
 
 
 s7_pointer make_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
-	int len = s7_integer(s7_car(args));
-	if (len == 0) {
-		return (s7_wrong_number_of_args_error(sc,
-				"C_TYPE_arr creating needs 1 positive argument for its length: ~S", args));
-	}
-	/* fprintf(stderr, "making C_TYPE[] of length %d\n", len); */
-	C_TYPE* data = new C_TYPE[len]{}; // {} is for default initialization. eg false for bool, 0 for numbers
+     int len = s7_integer(s7_car(args));
+     if (len == 0) {
+	  return (s7_wrong_number_of_args_error(sc,
+						"C_TYPE_arr creating needs 1 positive argument for its length: ~S", args));
+     }
+     /* fprintf(stderr, "making C_TYPE[] of length %d\n", len); */
+     C_TYPE* data = new C_TYPE[len]{}; // {} is for default initialization. eg false for bool, 0 for numbers
 
-	int type = tag_C_TYPE_arr(sc);
-	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
+     int type = tag_C_TYPE_arr(sc);
+     s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
 
-	return obj;
+     return obj;
 }
 
 s7_pointer ref_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
-	C_TYPE* arr = (C_TYPE*) s7_c_object_value(s7_car(args));
-	int index = s7_integer(s7_cadr(args));
-
-	return S7_WRITE(sc, arr[index]);
+     C_TYPE* arr = (C_TYPE*) s7_c_object_value(s7_car(args));
+     int args_length = s7_list_length(sc, args);
+     int index = s7_integer(s7_cadr(args));
+     if (args_length == 2) {
+	  return S7_WRITE(sc, arr[index]);
+     } else if (args_length == 3) {
+	  // we return the reference
+	  C_TYPE* data = &arr[index];
+	  int type = aod::s7::foreign::tag_C_TYPE(sc);
+	  s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
+	  return obj;
+     }
+     else {
+	  return (s7_wrong_number_of_args_error(sc,
+						"C_TYPE_arr-ref needs 2 or 3 arguments~S", args));
+     }
 }
 
 s7_pointer set_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
-	// 3 args: (block-set! data index value)
-	if (s7_list_length(sc, args) != 3)
-		return (s7_wrong_number_of_args_error(sc,
-				"float-set! takes 3 arguments: ~S", args));
+     // 3 args: (block-set! data index value)
+     if (s7_list_length(sc, args) != 3)
+	  return (s7_wrong_number_of_args_error(sc,
+						"C_TYPE_arr-set! takes 3 arguments: ~S", args));
 
-	C_TYPE* arr = (C_TYPE*) s7_c_object_value(s7_car(args));
-	int index = s7_integer(s7_cadr(args));
+     C_TYPE* arr = (C_TYPE*) s7_c_object_value(s7_car(args));
+     int index = s7_integer(s7_cadr(args));
 
-	C_TYPE new_value = S7_READ(sc, s7_caddr(args));
+     C_TYPE new_value = S7_READ(sc, s7_caddr(args));
 
-	arr[index] = new_value;
+     arr[index] = new_value;
 
-	return (s7_cadr(args));
+     return (s7_cadr(args));
 }
 
 void bind_C_TYPE_arr(s7_scheme* sc, s7_pointer env) {
@@ -344,6 +365,7 @@ namespace aod {
 
 #include "s7.h"
 #include <stdio.h> // fprintf etc
+#include "foreign_primitives.hpp" // needed when I access (*arr 1 '&) to get a c-object
 #include "foreign_primitives_arr.hpp"
 
 namespace aod {
@@ -356,6 +378,21 @@ namespace aod {
 		 // note: s7_make_real gets a double argument, not float. hope it gets automatically casted
 	       <<render(template="T-primitive[]",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")>>
 
+		 /**
+		    (define *int-arr ((*foreign* 'new-int[]) 3))
+		    (*int-arr 0) => 0
+		    (set! (*int-arr 0 1))
+		    (*int-arr 1) => 1
+	       
+		    ;; second argument 'ref (or 3rd for the ref function) means give me the reference, not the value
+		    (define *int-1 (*int-arr 1 'ref))
+		    (*int-1) => 1
+		    (set! (*int-1) 2)
+		    (*int-1) => 2
+	       
+		    (*int-arr 1) => 2
+	       
+		 ,**/
 	       void bind_primitives_arr(s7_scheme *sc, s7_pointer env) {
 		    // either passing s7_curlet or s7_nil works..
 		    // ..ugh still don't know what happens with environments

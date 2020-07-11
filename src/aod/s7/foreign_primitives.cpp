@@ -19,8 +19,14 @@ namespace aod {
 	  }
 	  
 	  int tag_bool(s7_scheme *sc) {
-	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-bool)"));
-	       return type;
+	       s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-bool)");
+	       if(s7_is_integer(res)){
+	  	  return s7_integer(res);
+	       }
+	       s7_error(sc,                               /* s7 is declared in xen.h, defined in xen.c */
+	  	   s7_make_symbol(sc, "foreign-error"),
+	  	   s7_cons(sc, s7_make_string(sc, "type-bool not registered"), s7_nil(sc)));
+	       return -1;
 	  }
 	  
 	  s7_pointer make_bool(s7_scheme *sc, s7_pointer args) {
@@ -32,23 +38,23 @@ namespace aod {
 	  }
 	  
 	  s7_pointer ref_bool(s7_scheme *sc, s7_pointer args) {
-	  	bool* data = (bool*) s7_c_object_value(s7_car(args));
+	       bool* data = (bool*) s7_c_object_value(s7_car(args));
 	  
-	  	return s7_make_boolean(sc, *data);
+	       return s7_make_boolean(sc, *data);
 	  }
 	  
 	  s7_pointer set_bool(s7_scheme *sc, s7_pointer args) {
-	  	// 2 args: (block-set! (ref) value)
-	  	if (s7_list_length(sc, args) != 2) {
-	  		return (s7_wrong_number_of_args_error(sc,
-	  				"set! for bool takes 2 arguments: ~S", args));
-	  	}
-	  	bool* data = (bool*) s7_c_object_value(s7_car(args));
-	  	s7_pointer s7_new_value = s7_cadr(args);
-	  	bool new_value = s7_boolean(sc, s7_new_value);
-	  	*data = new_value;
+	       // 2 args: (block-set! (ref) value)
+	       if (s7_list_length(sc, args) != 2) {
+	  	  return (s7_wrong_number_of_args_error(sc,
+	  						"set! for bool takes 2 arguments: ~S", args));
+	       }
+	       bool* data = (bool*) s7_c_object_value(s7_car(args));
+	       s7_pointer s7_new_value = s7_cadr(args);
+	       bool new_value = s7_boolean(sc, s7_new_value);
+	       *data = new_value;
 	  
-	  	return (s7_new_value);
+	       return (s7_new_value);
 	  }
 	  
 	  void bind_bool(s7_scheme* sc, s7_pointer env) {
@@ -79,8 +85,14 @@ namespace aod {
 	  }
 	  
 	  int tag_int(s7_scheme *sc) {
-	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-int)"));
-	       return type;
+	       s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-int)");
+	       if(s7_is_integer(res)){
+	  	  return s7_integer(res);
+	       }
+	       s7_error(sc,                               /* s7 is declared in xen.h, defined in xen.c */
+	  	   s7_make_symbol(sc, "foreign-error"),
+	  	   s7_cons(sc, s7_make_string(sc, "type-int not registered"), s7_nil(sc)));
+	       return -1;
 	  }
 	  
 	  s7_pointer make_int(s7_scheme *sc, s7_pointer args) {
@@ -92,23 +104,23 @@ namespace aod {
 	  }
 	  
 	  s7_pointer ref_int(s7_scheme *sc, s7_pointer args) {
-	  	int* data = (int*) s7_c_object_value(s7_car(args));
+	       int* data = (int*) s7_c_object_value(s7_car(args));
 	  
-	  	return s7_make_integer(sc, *data);
+	       return s7_make_integer(sc, *data);
 	  }
 	  
 	  s7_pointer set_int(s7_scheme *sc, s7_pointer args) {
-	  	// 2 args: (block-set! (ref) value)
-	  	if (s7_list_length(sc, args) != 2) {
-	  		return (s7_wrong_number_of_args_error(sc,
-	  				"set! for int takes 2 arguments: ~S", args));
-	  	}
-	  	int* data = (int*) s7_c_object_value(s7_car(args));
-	  	s7_pointer s7_new_value = s7_cadr(args);
-	  	int new_value = s7_number_to_integer(sc, s7_new_value);
-	  	*data = new_value;
+	       // 2 args: (block-set! (ref) value)
+	       if (s7_list_length(sc, args) != 2) {
+	  	  return (s7_wrong_number_of_args_error(sc,
+	  						"set! for int takes 2 arguments: ~S", args));
+	       }
+	       int* data = (int*) s7_c_object_value(s7_car(args));
+	       s7_pointer s7_new_value = s7_cadr(args);
+	       int new_value = s7_number_to_integer(sc, s7_new_value);
+	       *data = new_value;
 	  
-	  	return (s7_new_value);
+	       return (s7_new_value);
 	  }
 	  
 	  void bind_int(s7_scheme* sc, s7_pointer env) {
@@ -140,8 +152,14 @@ namespace aod {
 	  }
 	  
 	  int tag_float(s7_scheme *sc) {
-	       int type = s7_integer(s7_eval_c_string(sc, "(*foreign* 'type-float)"));
-	       return type;
+	       s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-float)");
+	       if(s7_is_integer(res)){
+	  	  return s7_integer(res);
+	       }
+	       s7_error(sc,                               /* s7 is declared in xen.h, defined in xen.c */
+	  	   s7_make_symbol(sc, "foreign-error"),
+	  	   s7_cons(sc, s7_make_string(sc, "type-float not registered"), s7_nil(sc)));
+	       return -1;
 	  }
 	  
 	  s7_pointer make_float(s7_scheme *sc, s7_pointer args) {
@@ -153,23 +171,23 @@ namespace aod {
 	  }
 	  
 	  s7_pointer ref_float(s7_scheme *sc, s7_pointer args) {
-	  	float* data = (float*) s7_c_object_value(s7_car(args));
+	       float* data = (float*) s7_c_object_value(s7_car(args));
 	  
-	  	return s7_make_real(sc, *data);
+	       return s7_make_real(sc, *data);
 	  }
 	  
 	  s7_pointer set_float(s7_scheme *sc, s7_pointer args) {
-	  	// 2 args: (block-set! (ref) value)
-	  	if (s7_list_length(sc, args) != 2) {
-	  		return (s7_wrong_number_of_args_error(sc,
-	  				"set! for float takes 2 arguments: ~S", args));
-	  	}
-	  	float* data = (float*) s7_c_object_value(s7_car(args));
-	  	s7_pointer s7_new_value = s7_cadr(args);
-	  	float new_value = s7_number_to_real(sc, s7_new_value);
-	  	*data = new_value;
+	       // 2 args: (block-set! (ref) value)
+	       if (s7_list_length(sc, args) != 2) {
+	  	  return (s7_wrong_number_of_args_error(sc,
+	  						"set! for float takes 2 arguments: ~S", args));
+	       }
+	       float* data = (float*) s7_c_object_value(s7_car(args));
+	       s7_pointer s7_new_value = s7_cadr(args);
+	       float new_value = s7_number_to_real(sc, s7_new_value);
+	       *data = new_value;
 	  
-	  	return (s7_new_value);
+	       return (s7_new_value);
 	  }
 	  
 	  void bind_float(s7_scheme* sc, s7_pointer env) {
