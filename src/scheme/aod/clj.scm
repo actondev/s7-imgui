@@ -1,4 +1,7 @@
 ;; some basic functionality that I miss from clojure
+(display "loaded clj.scm\n")
+;; what is provide foooor.. don't get it
+;; (provide 'clj.scm)
 
 (define-macro (comment . body)
   `())

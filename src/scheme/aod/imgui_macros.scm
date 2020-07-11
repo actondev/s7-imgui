@@ -1,4 +1,6 @@
 (require clj.scm) ;; the (comment) macro is there
+(display "Loaded imgui_macros.scm\n")
+
 (define-macro (imgui/m-safe . body)
   `(catch #t
 	   (lambda ()

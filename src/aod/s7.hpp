@@ -59,5 +59,16 @@ inline void bind_all(s7_scheme *sc) {
 
 }
 
+#define AOD_S7_AUTOLOAD_2 4
+inline void set_autoloads(s7_scheme *sc) {
+    static const char *autoloads[AOD_S7_AUTOLOAD_2] = {
+        // each pair of entries is entity name + file name
+        "clj.scm", "clj.scm", //
+        "imgui-macros.scm", "imgui_macros.scm", //
+    };
+
+    s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOAD_2 / 2);
+}
+
 } // ! s7
 } // ! aod
