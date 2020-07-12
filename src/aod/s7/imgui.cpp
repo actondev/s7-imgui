@@ -34,14 +34,8 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
     ImGui::Begin("maximized-window", &show,
                  ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar
                  | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
-                 | ImGuiWindowFlags_NoCollapse);
-
-//    ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar;
-//    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize
-//            | ImGuiWindowFlags_NoMove;
-//    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus
-//            | ImGuiWindowFlags_NoNavFocus;
-
+                 | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
+                 | ImGuiWindowFlags_NoNavFocus);
 //    ImGui::PopStyleVar(2);
 
     return s7_nil(sc);
@@ -54,7 +48,6 @@ void bind(s7_scheme *sc) {
                        0,
                        false, // rest args
                        "Begin a/the maximized window");
-
 }
 }
 
@@ -69,7 +62,7 @@ s7_pointer begin(s7_scheme *sc, s7_pointer args) {
     const char *str = s7_string(title);
     s7_pointer obj = s7_cadr(args);
     bool *p_open = (bool*) s7_c_object_value_checked(obj,
-                   s7::foreign::tag_bool(sc));
+                   aod::s7::foreign::tag_bool(sc));
     if (p_open == NULL) {
         // we don't throw an error. begin has multiple arity
         ImGui::Begin(str);

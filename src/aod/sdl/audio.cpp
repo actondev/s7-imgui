@@ -61,7 +61,7 @@ bool AudioObject::finished() {
 
 void AudioObject::freeWav() {
     // if (wav_buffer != NULL) {
-    if(!freed_wav) {
+    if (!freed_wav) {
         SDL_FreeWAV(wav_buffer);
         freed_wav = true;
     } else {
@@ -81,6 +81,13 @@ void AudioObject::play() {
     rewind();
     SDL_PauseAudio(0);
 }
+
+void AudioObject::glitch() {
+    Uint8 *temp;
+    // :o ! uninitialized hehe
+    wav_buffer = temp;
+}
+
 
 void AudioObject::stop() {
     fprintf(stderr, "stop\n");

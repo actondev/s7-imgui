@@ -15,9 +15,7 @@
 		       (set! audio-file ((*nfd* 'open)))))))
 
 (define (draw)
-  (imgui/m-window
-   ("test")
-   (imgui/text "hi there"))
+
   (imgui/m-maximized
    ("s7 audio")
    (draw-menu)
@@ -29,6 +27,10 @@
    (when (imgui/button "Stop")
      (audio/stop)
      )
-   (when (imgui/button "Free audio buffer (hooray for noise)")
-     (audio/free-wav)
-     )))
+   (when (imgui/button "Glitch!")
+     (audio/glitch)
+     ))
+    (imgui/m-window
+   ("test")
+   (imgui/text "hi there"))
+  )

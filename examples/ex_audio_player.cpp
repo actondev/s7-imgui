@@ -85,14 +85,15 @@ s7_pointer sc_audio_stop(s7_scheme* sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
-s7_pointer sc_audio_free_wav(s7_scheme* sc, s7_pointer args) {
+s7_pointer sc_audio_glitch(s7_scheme* sc, s7_pointer args) {
     if (g_AudioObject == nullptr) {
         return   s7_error(sc,
                           s7_make_symbol(sc, "audio-object-error"),
                           s7_cons(sc, s7_make_string(sc, "AudioObject is null"), s7_nil(sc)));
     }
 
-    g_AudioObject->freeWav();
+//     g_AudioObject->freeWav();
+    g_AudioObject->glitch();
     return s7_nil(sc);
 }
 
@@ -105,7 +106,7 @@ int main(int argc, char *argv[]) {
     s7_define_function(sc, "exit", sc_exit, 0, 0, 0, "exits the main loop");
     s7_define_function(sc, "audio/play", sc_audio_play, 0, 0, 0, "Begins playback");
     s7_define_function(sc, "audio/stop", sc_audio_stop, 0, 0, 0, "Stops playback");
-    s7_define_function(sc, "audio/free-wav", sc_audio_free_wav, 0, 0, 0, "Frees the audio buffer");
+    s7_define_function(sc, "audio/glitch", sc_audio_glitch, 0, 0, 0, "Frees the audio buffer");
 
 
     aod::s7::set_print_stderr(sc);
@@ -190,7 +191,8 @@ int main(int argc, char *argv[]) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    (void) io;
+    io.IniFilename = NULL; // Disable imgui.ini
+    // (void) io;
     ImGuiStyle &style = ImGui::GetStyle();
 
     style.WindowPadding = ImVec2(8, 6);
@@ -237,8 +239,7 @@ int main(int argc, char *argv[]) {
         SDL_GL_SwapWindow(window);
 
 //         s7_eval_c_string(sc, "(if (defined? 'post-draw) (post-draw))");
-        SDL_Delay(100);
-//         std::this_
+//         SDL_Delay(100);
     }
     fprintf(stderr, "Quit main loop, cleaning up..\n");
 

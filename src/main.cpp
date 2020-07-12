@@ -123,10 +123,10 @@ int main(int argc, char *argv[]) {
 
 #define AOD_S7_AUTOLOADS_TIMES_2 4
     static const char *autoloads[AOD_S7_AUTOLOADS_TIMES_2] = {
-    // each pair of entries is entity name + file name
-            "clj.scm", "clj.scm", //
-            "imgui-macros.scm", "imgui_macros.scm", //
-            };
+        // each pair of entries is entity name + file name
+        "clj.scm", "clj.scm", //
+        "imgui-macros.scm", "imgui_macros.scm", //
+    };
 
     s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOADS_TIMES_2 / 2);
 
@@ -138,7 +138,7 @@ int main(int argc, char *argv[]) {
 //        std::cout << "cwd was " << cwd_launch << '\n';
 //        std::cout << "cwd is " << cwd_launch << " passed file " << passed_file << '\n';
         std::cout << "path of passed file is " << passed_file.parent_path()
-                << '\n';
+                  << '\n';
         s7_add_to_load_path(sc, passed_file.parent_path().c_str());
         aod::s7::load_file(sc, passed_file.c_str());
     } else {
@@ -183,11 +183,11 @@ int main(int argc, char *argv[]) {
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    SDL_WindowFlags window_flags = (SDL_WindowFlags) (SDL_WINDOW_OPENGL
-            | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+    SDL_WindowFlags window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL
+                                   | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     SDL_Window *window = SDL_CreateWindow("Dear ImGui SDL2+OpenGL example",
-    SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WIDTH, SDL_HEIGHT,
-            window_flags);
+                                          SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WIDTH, SDL_HEIGHT,
+                                          window_flags);
 
 //    SDL_SetWindowSize()
 
@@ -208,20 +208,13 @@ int main(int argc, char *argv[]) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
+    io.IniFilename = NULL; // Disable imgui.ini
     (void) io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    // ImGui::StyleColorsDark();
-    // ImGui::StyleColorsClassic();
 
     ImGuiStyle &style = ImGui::GetStyle();
 
     style.WindowPadding = ImVec2(8, 6);
     style.WindowRounding = 0.0f;
-    // style.FramePadding                   = ImVec2(2, 4);
-    // style.ItemSpacing                    = ImVec2(5, 5);
     style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);
     style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.50f, 0.50f, 0.50f, 1.00f);
     style.Colors[ImGuiCol_WindowBg] = ImVec4(0.06f, 0.06f, 0.06f, 0.94f);
@@ -235,13 +228,12 @@ int main(int argc, char *argv[]) {
 
     // Our state
     bool show_demo_window = false;
-//    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     float clear_color[] = { 0.45f, 0.55f, 0.60f, 1.00f };
 
     // binding the clear color to imgui/clear-color
     s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "imgui/clear-color"),
-            s7_make_c_object(sc, aod::s7::foreign::tag_float_arr(sc),
-                    (void*) &clear_color));
+              s7_make_c_object(sc, aod::s7::foreign::tag_float_arr(sc),
+                               (void*) &clear_color));
 
     s7_call(sc, s7_name_to_value(sc, SETUP_FN), s7_nil(sc));
 
@@ -290,7 +282,7 @@ int main(int argc, char *argv[]) {
 //	glClearColor(clear_color.x, clear_color.y, clear_color.z,
 //		     clear_color.w);
         glClearColor(clear_color[0], clear_color[1], clear_color[2],
-                clear_color[3]);
+                     clear_color[3]);
         glClear(GL_COLOR_BUFFER_BIT);
         //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
         ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());

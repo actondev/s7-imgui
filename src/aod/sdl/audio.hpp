@@ -5,6 +5,7 @@
 namespace aod {
 namespace sdl {
 
+// experimental class, not really useful
 class AudioObject {
 private:
     bool freed_wav = false;
@@ -27,6 +28,9 @@ public:
     bool finished();
     void freeWav();
     void rewind();
+    // sets the *wav_buffer to a new pointer. obviously, when played back it will be garbage
+    // (hope it doesn't crash though)
+    void glitch();
     inline void setId(int id) {
         this->id = id;
     }

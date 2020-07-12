@@ -10,7 +10,8 @@
        ;; and then.. on first draw, there is just the menu for some reason, no windows
        ;; so, we take a screenshot on the third frame
        (set! frame (+ 1 frame))
-       (when (= frame 3)
+       ;; hm.. sometimes in frame 3 the sizing (from setup!) didn't take effect..?
+       (when (= frame 4)
 	 (gl/save-screenshot (format #f "scheme-examples/~A" ,filename))
 	 (exit))))
   )
