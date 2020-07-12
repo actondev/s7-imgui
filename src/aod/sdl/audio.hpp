@@ -1,0 +1,35 @@
+#include "SDL.h"
+#include "SDL_audio.h"
+#include <memory>
+
+namespace aod {
+namespace sdl {
+
+class AudioObject {
+private:
+    bool freed_wav = false;
+    inline AudioObject() {};
+    Uint32 wav_length; // length of our sample
+    Uint8 *wav_buffer = nullptr; // buffer containing our audio file
+    SDL_AudioSpec wav_spec; // the specs of our piece of music
+    void onCallback(Uint8 *stream, int len);
+    static void forwardCallback(void *userdata, Uint8 *stream, int len);
+    Uint8 *audio_pos;
+    Uint32 audio_len;
+    int id = 0;
+
+public:
+    ~AudioObject();
+    static std::unique_ptr<AudioObject> fromFile(const char*);
+    bool openAudio();
+    void play();
+    void stop();
+    bool finished();
+    void freeWav();
+    void rewind();
+    inline void setId(int id) {
+        this->id = id;
+    }
+};
+}
+}

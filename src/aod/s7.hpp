@@ -14,6 +14,7 @@
 #include "aod/s7/imgui_addons.hpp"
 #include "aod/s7/gl.hpp"
 #include "aod/s7/sdl.hpp"
+#include "aod/s7/nfd.hpp"
 
 namespace aod {
 namespace s7 {
@@ -56,7 +57,9 @@ inline void bind_all(s7_scheme *sc) {
 
     // gl bindings (eg gl/save-screenshot)
     aod::s7::gl::bind(sc);
-
+    
+    // nfd: native file dialog (*nfd* 'open)
+    aod::s7::nfd::bind(sc);
 }
 
 #define AOD_S7_AUTOLOAD_2 4

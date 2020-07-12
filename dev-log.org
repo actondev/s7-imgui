@@ -609,3 +609,28 @@ draw_list->AddCircle(ImVec2(p.x + cx + r, p.y + cy + r), r, col32line, 32,
   #+END_SRC
 * C++17
   meson configure build -Dcpp_std=c++17
+  (it has the cool filesystem/path libs)
+* open file dialog
+  https://github.com/mlabbe/nativefiledialog
+  #+BEGIN_SRC xml
+ItemGroup>
+    <ClInclude Include="..\..\src\common.h" />
+    <ClInclude Include="..\..\src\include\nfd.h" />
+    <ClInclude Include="..\..\src\nfd_common.h" />
+    <ClInclude Include="..\..\src\simple_exec.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\src\nfd_common.c" />
+    <ClCompile Include="..\..\src\nfd_win.cpp" />
+  </ItemGroup>  
+  #+END_SRC
+
+  #+BEGIN_SRC make
+$(OBJDIR)/nfd_common.o: ../../src/nfd_common.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+$(OBJDIR)/nfd_gtk.o: ../../src/nfd_gtk.c
+	@echo $(notdir $<)
+	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
+
+  #+END_SRC

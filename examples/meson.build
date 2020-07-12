@@ -41,45 +41,20 @@ example_sdl_net = executable(
     sdl_net_dep,
     ],
   install: true,
+)
+
+example_audio_player = executable(
+  'ex_audio_player',
+  sources: files (
+    'ex_audio_player.cpp',
+  ),
+  dependencies: [
+    sdl2_dep,
+    sdl2main_dep,
+    sdl_net_dep,
+    imgui_dep,
+    aod_dep,
+    s7_dep,
+    ],
+  install: true,
   )
-
-# example_nng = executable(
-#   'example-nng',
-#   sources: files (
-#     'nng-tcp-socket.c',
-#   ),
-#   dependencies: [
-#     nng_dep,
-#     ],
-#   install: true,
-#   )
-
-# if system == 'linux'
-# example_s7_rel = executable(
-#   's7-repl',
-#   sources: files (
-#     's7-repl.cpp'
-#   ),
-#   include_directories: includes,
-#   dependencies: [
-#     sdl2_dep,
-#     s7_dep,
-#   ],
-#   link_args: ['-ldl', '-lm'],
-#   install: true,
-#   )
-# endif
-
-# example_tcp_server = executable(
-#   'tcp_server',
-#   sources: files (
-#     'ex_tcp_server.cpp'
-#   ),
-#   include_directories: includes,
-#   dependencies: [
-#     sdl2_dep,
-#     sdl_net_dep,
-#   ],
-#   # link_args: ['-ldl', '-lm'],
-#   install: true,
-#   )

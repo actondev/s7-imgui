@@ -43,6 +43,9 @@ imgui_dep = imgui.get_variable('imgui_dep')
 sdl_net_proj = subproject('sdl_net')
 sdl_net_dep = sdl_net_proj.get_variable('sdl_net_dep')
 
+nfd_proj = subproject('nfd')
+nfd_dep = nfd_proj.get_variable('nfd_dep')
+
 # --- application
 meson.override_dependency('s7', s7_dep)
 meson.override_dependency('imgui', imgui_dep)

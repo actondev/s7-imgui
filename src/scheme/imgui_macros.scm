@@ -31,17 +31,19 @@
      (imgui/m-safe ,@body)
      (imgui/end-group)))
 
-;; the top bar, full window, menu
+;; Note: the menu bars don't need any argumnets
+;; but keeping the samy style of call (imgui/m-some-macro args . body)
 (define-macro (imgui/m-main-menu-bar args . body)
-  ;; note: begin-main-menu doesn't take any args,
-  ;; but for the sake of consistency we keep this calling format
-  ;; (imgui/m-some-macro args . body)
-  ;; where args are applied to that first call
-  `(begin
+   `(begin
      (imgui/begin-main-menu-bar)
-     ;; ,@body
-     (imgui/m-safe ,@body)
+      (imgui/m-safe ,@body)
      (imgui/end-main-menu-bar)
+     ))
+(define-macro (imgui/m-menu-bar args . body)
+   `(begin
+     (imgui/begin-menu-bar)
+      (imgui/m-safe ,@body)
+     (imgui/end-menu-bar)
      ))
 
 ;; a menu (eg File)

@@ -11,6 +11,11 @@ namespace imgui {
 
 namespace windows {
 s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
+    s7_pointer title = s7_car(args);
+    if (!s7_is_string(title))
+        return (s7_wrong_type_arg_error(sc, "imgui/begin-maximized", 1, title,
+                                        "First argument is title, should be a string~A"));
+
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
 
@@ -45,8 +50,8 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
 void bind(s7_scheme *sc) {
 
     s7_define_function(sc, "imgui/begin-maximized", begin_maximized,   // ..
-                       0, // req args
-                       0, // optional args (the open boolean pointer)
+                       1, // req args
+                       0,
                        false, // rest args
                        "Begin a/the maximized window");
 

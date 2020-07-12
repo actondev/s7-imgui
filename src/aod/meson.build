@@ -9,6 +9,9 @@ aod_sources = files(
   'imgui/addons.cpp',
   's7/sdl.cpp',
   'sdl.cpp',
+  'sdl/audio.cpp',
+  'nfd.cpp',
+  's7/nfd.cpp',
 
   # foreign types
   # 's7/c_primitives.cpp',
@@ -36,6 +39,7 @@ aod_lib = library(
     imgui_dep,
     gl_dep,
     sdl2_dep,
+    nfd_dep,
   ]
   )
 
@@ -50,5 +54,6 @@ aod_dep = declare_dependency(
     imgui_dep,
     gl_dep,
     sdl2_dep,
+    nfd_dep,
     ]
   )

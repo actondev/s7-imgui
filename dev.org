@@ -22,6 +22,9 @@ ln -s `readlink -f ../s7` subprojects/s7
 ls -alh subprojects/s7
 ln -s `readlink -f ../SDL_net` subprojects/sdl_net
 ls -alh subprojects/sdl_net # subprojects/sdl_net -> xxxx/SDL_net
+
+# file dialog: needed for some examples
+ln -s `readlink -f ../nativefiledialog` subprojects/nfd
    #+END_SRC
 ** Building
    Setting up
@@ -175,13 +178,23 @@ rm src/scheme/s7/libc_s7*
    #+END_SRC
 
    #+RESULTS:
-   | [ex.c:imgui] | [>build] |
+   | [ex.c:audio_player] | [ex.c:imgui] | [>build] |
 
 ** imgui demo
    #+NAME: ex.c:imgui
    #+BEGIN_SRC sh
 ninja -C build
+
 ./build/examples/example_imgui
+   #+END_SRC
+** audio player
+   #+NAME: ex.c:audio_player
+   #+BEGIN_SRC sh
+ninja -C build
+ln -s `readlink -f src/scheme` build/examples/scheme 
+ln -s `readlink -f examples/owl.wav` build/examples/owl.wav
+ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
+./build/examples/ex_audio_player
    #+END_SRC
 
 ** scheme app examples
