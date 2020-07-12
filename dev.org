@@ -228,10 +228,15 @@ ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
    #+NAME: ex.scm:all-screenshots
    #+BEGIN_SRC sh
 rm scheme-examples/*.png
+rm imgui.ini
 ./build/s7-imgui `pwd`/scheme-examples/menu.scm
+rm imgui.ini
 ./build/s7-imgui `pwd`/scheme-examples/shapes.scm
+rm imgui.ini
 ./build/s7-imgui `pwd`/scheme-examples/maximized.scm
+rm imgui.ini
 ./build/s7-imgui `pwd`/scheme-examples/color_wheel.scm
+rm imgui.ini
    #+END_SRC
 ** COMMENT s7 repl.scm
    Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)

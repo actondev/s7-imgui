@@ -26,7 +26,7 @@
 
 (define (draw)
   (imgui/m-maximized
-   ()
+   ("color wheel")
    (layout/circular
     element
     :N N :R 200 :r 20)))

@@ -7,7 +7,7 @@
   )
 
 (define (draw)
-  (imgui/m-maximized ()
+  (imgui/m-maximized ("max")
    (when (imgui/begin-menu-bar)
      (when (imgui/begin-menu "File")
        (imgui/menu-item "Open")
