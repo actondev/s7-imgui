@@ -634,3 +634,5 @@ $(OBJDIR)/nfd_gtk.o: ../../src/nfd_gtk.c
 	$(SILENT) $(CC) $(ALL_CFLAGS) $(FORCE_INCLUDE) -o "$@" -MF "$(@:%.o=%.d)" -c "$<"
 
   #+END_SRC
+* C++ private functions, hiding implentation from header etc
+  https://stackoverflow.com/a/28734794
