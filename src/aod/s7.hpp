@@ -1,61 +1,68 @@
 #pragma once
+
 #include "s7.h"
-// #include <stdio>
 #include <sstream>
 #include <iostream>
+
+// these are for the bind_all functions
+// maybe have some definitions, eg
+// #ifdef AOD_S7_IMGUI
+// #ifdef AOD_S7_SDL etc ?
+#include "aod/s7/imgui.hpp"
+#include "aod/s7/foreign_primitives.hpp"
+#include "aod/s7/foreign_primitives_arr.hpp"
+#include "aod/s7/imgui_addons.hpp"
+#include "aod/s7/gl.hpp"
+#include "aod/s7/sdl.hpp"
+#include "aod/s7/nfd.hpp"
 
 namespace aod {
 namespace s7 {
 
-namespace {
-std::ostringstream _out_stream;
-void _print_stderr(s7_scheme *sc, uint8_t c, s7_pointer port) {
-	fprintf(stderr, "%c", c);
-}
-void _print_temp(s7_scheme *sc, uint8_t c, s7_pointer port) {
-	_out_stream << c;
-}
-} // anonymous
+/**
+ * Sets the stdout of s7 to stderr of the application
+ */
+void set_print_stderr(s7_scheme *sc);
 
-
-void set_print_stderr(s7_scheme *sc) {
-	s7_set_current_output_port(sc, s7_open_output_function(sc, _print_stderr));
-}
-
-void load_file(s7_scheme *sc, const char *file) {
-	if (!s7_load(sc, file)) {
-		fprintf(stderr, "can't load %s\n", file);
-	}
-}
+/**
+ * Loads a file. Prints a warning if file could not be found.
+ */
+void load_file(s7_scheme *sc, const char *file);
 
 /**
  * Wraps the passed sexp around a (write ..) call,
  * and returns the written output.
  */
-std::string eval_write(s7_scheme *sc, const char *sexp) {
-	std::ostringstream wrapped_sexp;
-	// wrapping around begin as well to handle empty input (not enough arguments passed to write error)
-	wrapped_sexp << "(write (begin " << sexp << "))";
+std::string eval_write(s7_scheme *sc, const char *sexp);
 
-//	printf("\nIncoming:\n%s\n", sexp);
-	printf("\nWill process:\n%s\n", wrapped_sexp.str().c_str());
+inline s7_pointer make_env(s7_scheme *sc) {
+    // either passing s7_curlet or s7_nil works..
+    // ..ugh still don't know what happens with environments
+    s7_pointer env = s7_inlet(sc, s7_nil(sc));
+    s7_gc_protect(sc, env);
 
-	s7_pointer old_port = s7_set_current_output_port(sc,
-			s7_open_output_function(sc, _print_temp));
-
-	s7_pointer old_error_port = s7_set_current_error_port(sc,
-				s7_open_output_function(sc, _print_temp));
-
-	_out_stream.clear();
-	_out_stream.str("");
-	s7_eval_c_string(sc, wrapped_sexp.str().c_str());
-
-	// reverting
-	s7_set_current_output_port(sc, old_port);
-	s7_set_current_error_port(sc, old_error_port);
-
-	return _out_stream.str();
+    return env;
 }
 
-} // s7
-} // aod
+inline void bind_all(s7_scheme *sc) {
+    s7_pointer primitives_env = make_env(sc);
+    // eg ((*foreign* 'new-bool) #t) for a bool* pointer with initial value true
+    aod::s7::foreign::bind_primitives(sc, primitives_env);
+    // eg ((*foreign* 'new-bool[]) 4) for a bool[4] array
+    aod::s7::foreign::bind_primitives_arr(sc, primitives_env);
+
+    // imgui bindings
+    aod::s7::imgui::bind(sc);
+    aod::s7::imgui::bind_knob(sc);
+
+    // gl bindings (eg gl/save-screenshot)
+    aod::s7::gl::bind(sc);
+
+    // nfd: native file dialog (*nfd* 'open)
+    aod::s7::nfd::bind(sc);
+}
+
+void set_autoloads(s7_scheme *sc);
+
+} // ! s7
+} // ! aod

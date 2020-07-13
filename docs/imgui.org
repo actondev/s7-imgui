@@ -12,3 +12,124 @@ ImGui::SetNextWindowSize(
 // create a window and append into it
 ImGui::Begin("Controls", NULL, ImGuiWindowFlags_NoResize);
   #+END_SRC
+* Menus
+  #+BEGIN_SRC cpp
+
+// Demonstrate creating a "main" fullscreen menu bar and populating it.
+// Note the difference between BeginMainMenuBar() and BeginMenuBar():
+// - BeginMenuBar() = menu-bar inside current window we Begin()-ed into (the window needs the ImGuiWindowFlags_MenuBar flag)
+// - BeginMainMenuBar() = helper to create menu-bar-sized window at the top of the main viewport + call BeginMenuBar() into it.
+static void ShowExampleAppMainMenuBar()
+{
+    if (ImGui::BeginMainMenuBar())
+    {
+        if (ImGui::BeginMenu("File"))
+        {
+            ShowExampleMenuFile();
+            ImGui::EndMenu();
+        }
+        if (ImGui::BeginMenu("Edit"))
+        {
+            if (ImGui::MenuItem("Undo", "CTRL+Z")) {}
+            if (ImGui::MenuItem("Redo", "CTRL+Y", false, false)) {}  // Disabled item
+            ImGui::Separator();
+            if (ImGui::MenuItem("Cut", "CTRL+X")) {}
+            if (ImGui::MenuItem("Copy", "CTRL+C")) {}
+            if (ImGui::MenuItem("Paste", "CTRL+V")) {}
+            ImGui::EndMenu();
+        }
+        ImGui::EndMainMenuBar();
+    }
+}
+  #+END_SRC
+* Layout
+  See [[file:../subprojects/imgui-1.76/imgui_demo.cpp::Begin("Simple layout]]
+
+  [[file:~/dev/actondev/s7-imgui/subprojects/imgui-1.76/imgui_demo.cpp::4130]]
+  
+  Example: Simple layout
+* TODO full .. window?
+  https://ruurdsdevlog.wordpress.com/2020/03/07/c-desktop-application-with-dear-imgui/
+  #+BEGIN_SRC cpp
+ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+  #+END_SRC
+
+  #+BEGIN_SRC cpp
+ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
+if (opt_fullscreen)
+  {
+    ImGuiViewport* viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(viewport->Pos);
+    ImGui::SetNextWindowSize(viewport->Size);
+    ImGui::SetNextWindowViewport(viewport->ID);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
+    window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+  }  
+  #+END_SRC
+* Colors conversions
+** rgb2hsv
+   #+BEGIN_SRC c
+// Convert rgb floats ([0-1],[0-1],[0-1]) to hsv floats ([0-1],[0-1],[0-1]), from Foley & van Dam p592
+// Optimized http://lolengine.net/blog/2013/01/13/fast-rgb-to-hsv
+void ImGui::ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float& out_s, float& out_v)
+{
+    float K = 0.f;
+    if (g < b)
+    {
+        ImSwap(g, b);
+        K = -1.f;
+    }
+    if (r < g)
+    {
+        ImSwap(r, g);
+        K = -2.f / 6.f - K;
+    }
+
+    const float chroma = r - (g < b ? g : b);
+    out_h = ImFabs(K + (g - b) / (6.f * chroma + 1e-20f));
+    out_s = chroma / (r + 1e-20f);
+    out_v = r;
+}  
+   #+END_SRC
+** rgb->u32
+   #+BEGIN_SRC c
+#define IM_COL32_R_SHIFT    0
+#define IM_COL32_G_SHIFT    8
+#define IM_COL32_B_SHIFT    16
+#define IM_COL32_A_SHIFT    24
+#define IM_COL32_A_MASK     0xFF000000
+#endif
+#define IM_COL32(R,G,B,A)    (((ImU32)(A)<<IM_COL32_A_SHIFT) | ((ImU32)(B)<<IM_COL32_B_SHIFT) | ((ImU32)(G)<<IM_COL32_G_SHIFT) | ((ImU32)(R)<<IM_COL32_R_SHIFT))
+#define IM_COL32_WHITE       IM_COL32(255,255,255,255)  // Opaque white = 0xFFFFFFFF
+#define IM_COL32_BLACK       IM_COL32(0,0,0,255)        // Opaque black
+#define IM_COL32_BLACK_TRANS IM_COL32(0,0,0,0)          // Transparent black = 0x00000000
+   #+END_SRC
+* Drawing
+** primitives (imgui.h)
+   #+BEGIN_SRC cpp
+    // Primitives
+    // - For rectangular primitives, "p_min" and "p_max" represent the upper-left and lower-right corners.
+    // - For circle primitives, use "num_segments == 0" to automatically calculate tessellation (preferred).
+    //   In future versions we will use textures to provide cheaper and higher-quality circles.
+    //   Use AddNgon() and AddNgonFilled() functions if you need to guaranteed a specific number of sides.
+    IMGUI_API void  AddLine(const ImVec2& p1, const ImVec2& p2, ImU32 col, float thickness = 1.0f);
+    IMGUI_API void  AddRect(const ImVec2& p_min, const ImVec2& p_max, ImU32 col, float rounding = 0.0f, ImDrawCornerFlags rounding_corners = ImDrawCornerFlags_All, float thickness = 1.0f);   // a: upper-left, b: lower-right (== upper-left + size), rounding_corners_flags: 4 bits corresponding to which corner to round
+    IMGUI_API void  AddRectFilled(const ImVec2& p_min, const ImVec2& p_max, ImU32 col, float rounding = 0.0f, ImDrawCornerFlags rounding_corners = ImDrawCornerFlags_All);                     // a: upper-left, b: lower-right (== upper-left + size)
+    IMGUI_API void  AddRectFilledMultiColor(const ImVec2& p_min, const ImVec2& p_max, ImU32 col_upr_left, ImU32 col_upr_right, ImU32 col_bot_right, ImU32 col_bot_left);
+    IMGUI_API void  AddQuad(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col, float thickness = 1.0f);
+    IMGUI_API void  AddQuadFilled(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col);
+    IMGUI_API void  AddTriangle(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, ImU32 col, float thickness = 1.0f);
+    IMGUI_API void  AddTriangleFilled(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, ImU32 col);
+    IMGUI_API void  AddCircle(const ImVec2& center, float radius, ImU32 col, int num_segments = 12, float thickness = 1.0f);
+    IMGUI_API void  AddCircleFilled(const ImVec2& center, float radius, ImU32 col, int num_segments = 12);
+    IMGUI_API void  AddNgon(const ImVec2& center, float radius, ImU32 col, int num_segments, float thickness = 1.0f);
+    IMGUI_API void  AddNgonFilled(const ImVec2& center, float radius, ImU32 col, int num_segments);
+    IMGUI_API void  AddText(const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL);
+    IMGUI_API void  AddText(const ImFont* font, float font_size, const ImVec2& pos, ImU32 col, const char* text_begin, const char* text_end = NULL, float wrap_width = 0.0f, const ImVec4* cpu_fine_clip_rect = NULL);
+    IMGUI_API void  AddPolyline(const ImVec2* points, int num_points, ImU32 col, bool closed, float thickness);
+    IMGUI_API void  AddConvexPolyFilled(const ImVec2* points, int num_points, ImU32 col); // Note: Anti-aliased filling requires points to be in clockwise order.
+    IMGUI_API void  AddBezierCurve(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col, float thickness, int num_segments = 0);
+   
+   #+END_SRC

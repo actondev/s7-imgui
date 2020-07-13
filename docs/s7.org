@@ -1,28 +1,70 @@
 * S7 Scheme quick documentation
   Some notes while developing
+* Looping
+  #+BEGIN_SRC scheme
+(do ((i 0 (+ i 1)))
+    ((= i 10))
+  (format #t "i is ~A\n" i))
+  #+END_SRC
 
+  #+BEGIN_SRC scheme
+(define-macro (dotimes spec . body)	;; spec = (var end . return)
+  (let ((e (gensym))
+	(n (car spec)))
+    `(do ((,e ,(cadr spec))
+	  (,n 0 (+ ,n 1)))
+	 ((>= ,n ,e) ,@(cddr spec))
+       ,@body)))
+
+(comment
+ (dotimes (i 3)
+   (format *stderr* "i is ~A\n" i)
+   )
+ ;; this printes
+ "
+i is 0
+i is 1
+i is 2
+"
+ ;; and returns
+ #t
+
+ (dotimes (i 3 (format #f "finished with i ~A" i)) ;; <= the 3rd i is the return statement. could be anything
+   ;; (display "here")
+   (format *stderr* "i is ~A\n" i)
+   )
+ ;; this prints
+ "i is 0
+i is 1
+i is 2
+"
+ ;; and returns
+ "finished with i 3"
+ )
+
+  #+END_SRC
 * FFI: c <-> scheme
 ** Define a function in C
    #+BEGIN_SRC c
 static s7_pointer add1(s7_scheme *sc, s7_pointer args)
 {
-  /* all added functions have this form, args is a list, 
-   ,*    s7_car(args) is the first arg, etc 
-   ,*/
+     /* all added functions have this form, args is a list, 
+      ,*    s7_car(args) is the first arg, etc 
+      ,*/
 
-  /* the recommendation is to check every single argument yourself
-     and return an error to the scheme caller of this functions
-   ,*/
-  if (!s7_is_integer(s7_car(args)))
-    return(s7_wrong_type_arg_error(sc, "add1", 1, s7_car(args), "an integer"));
+     /* the recommendation is to check every single argument yourself
+	and return an error to the scheme caller of this functions
+     ,*/
+     if (!s7_is_integer(s7_car(args)))
+	  return(s7_wrong_type_arg_error(sc, "add1", 1, s7_car(args), "an integer"));
 
-  // after you do all the checks, return the proper result
-  return(s7_make_integer(sc, 1 + s7_integer(s7_car(args))));
+     // after you do all the checks, return the proper result
+     return(s7_make_integer(sc, 1 + s7_integer(s7_car(args))));
 }
 
 void add1_init(s7_scheme *sc)
 {
-  s7_define_function(sc, "add1", add1, 1, 0, false, "(add1 int) adds 1 to int");
+     s7_define_function(sc, "add1", add1, 1, 0, false, "(add1 int) adds 1 to int");
 }
    #+END_SRC
 ** arguments
@@ -34,7 +76,7 @@ s7_pointer s7_define_function(s7_scheme *sc,
 			      s7_int optional_args,
 			      bool rest_arg,
 			      const char *doc
-			      );
+     );
    #+END_SRC
 
 ** Checking s7_integer
@@ -43,9 +85,9 @@ s7_pointer s7_define_function(s7_scheme *sc,
 bool s7_is_integer(s7_pointer p)
 {
 #if WITH_GMP
-  return((is_t_integer(p)) || (is_t_big_integer(p)));
+     return((is_t_integer(p)) || (is_t_big_integer(p)));
 #else
-  return(is_t_integer(p));
+     return(is_t_integer(p));
 #endif
 }   
    #+END_SRC
@@ -54,14 +96,14 @@ bool s7_is_integer(s7_pointer p)
    #+BEGIN_SRC c
 s7_int s7_integer(s7_pointer p)
 {
-  if (is_t_integer(p))
-    return(integer(p));
+     if (is_t_integer(p))
+	  return(integer(p));
 
 #if WITH_GMP
-  if (is_t_big_integer(p)) return(big_integer_to_s7_int(cur_sc, big_integer(p)));
+     if (is_t_big_integer(p)) return(big_integer_to_s7_int(cur_sc, big_integer(p)));
 #endif
 
-  return(0);
+     return(0);
 }   
    #+END_SRC
 
@@ -75,14 +117,14 @@ s7_int s7_integer(s7_pointer p)
    #+BEGIN_SRC c
 bool s7_is_string(s7_pointer p)
 {
-  return(is_string(p));
+     return(is_string(p));
 }   
    #+END_SRC
 
    #+BEGIN_SRC c
 const char *s7_string(s7_pointer p)
 {
-  return(string_value(p));
+     return(string_value(p));
 }   
    #+END_SRC
 
@@ -137,7 +179,7 @@ lib-env
                          (curlet) 
                          (map (lambda (binding) 
                                 (cons (string->symbol 
-                                        (string-append "lib:" (symbol->string (car binding)))) 
+				       (string-append "lib:" (symbol->string (car binding)))) 
                                       (cdr binding))) 
                               lib-exports)))
 lib-env
@@ -174,30 +216,30 @@ lib-env
 	       (procedure? (*libc* 'passwd.pw_name)))
       (with-let (sublet *libc*)
 
-	(test (let ((buf (make-string 20 #\null)))
-		(strcat buf "All ")
-		(strcat buf "for ")
-		(strcat buf "one.")
-		(substring buf 0 12))
-	      "All for one.")
-	(test (strcmp "a" "b") -1)
-	(test (strcmp "a" "a") 0)
-	(test (strncmp "1234" "1235" 3) 0)
-	(test (strcpy (make-string 3) "123") "123")
-	(test (strlen "123") 3)
-	(test (strchr "12345" (char->integer #\3)) "345")
-	(test (strspn "12345" "123") 3)
-	(test (isalpha (char->integer #\.)) 0)
-	(test (zero? (isdigit (char->integer #\2))) #f)
-	(test (integer->char (toupper (char->integer #\a))) #\A)
-	(test (let ((buf (malloc 3)))
-		(memset buf 90 3)
-		(let ((result (c-pointer->string buf 3)))
-		  (free buf)
-		  result))
-	      "ZZZ")
-	;; etc....
-	))))   
+		(test (let ((buf (make-string 20 #\null)))
+			(strcat buf "All ")
+			(strcat buf "for ")
+			(strcat buf "one.")
+			(substring buf 0 12))
+		      "All for one.")
+		(test (strcmp "a" "b") -1)
+		(test (strcmp "a" "a") 0)
+		(test (strncmp "1234" "1235" 3) 0)
+		(test (strcpy (make-string 3) "123") "123")
+		(test (strlen "123") 3)
+		(test (strchr "12345" (char->integer #\3)) "345")
+		(test (strspn "12345" "123") 3)
+		(test (isalpha (char->integer #\.)) 0)
+		(test (zero? (isdigit (char->integer #\2))) #f)
+		(test (integer->char (toupper (char->integer #\a))) #\A)
+		(test (let ((buf (malloc 3)))
+			(memset buf 90 3)
+			(let ((result (c-pointer->string buf 3)))
+			  (free buf)
+			  result))
+		      "ZZZ")
+		;; etc....
+		))))   
    #+END_SRC
 
 
@@ -227,9 +269,9 @@ s7_pointer s7_c_pointer_type(s7_pointer p);
    #+BEGIN_SRC c
 static s7_pointer lg_make_GtkTextIter(s7_scheme *sc, s7_pointer args)
 {
-  GtkTextIter* result;
-  result = (GtkTextIter*)calloc(1, sizeof(GtkTextIter));
-  return(s7_make_c_pointer_with_type(sc, result, s7_make_symbol(sc, "GtkTextIter_"), make_xm_obj(sc, result)));
+     GtkTextIter* result;
+     result = (GtkTextIter*)calloc(1, sizeof(GtkTextIter));
+     return(s7_make_c_pointer_with_type(sc, result, s7_make_symbol(sc, "GtkTextIter_"), make_xm_obj(sc, result)));
 }
 
 s7_define_function(sc, "GtkTextIter", lg_make_GtkTextIter, 0, 0, 0, "(GtkTextIter): a new GtkTextIter struct");
@@ -239,11 +281,59 @@ s7_define_function(sc, "GtkTextIter", lg_make_GtkTextIter, 0, 0, 0, "(GtkTextIte
    #+BEGIN_SRC c
 s7_pointer s7_make_c_object(s7_scheme *sc, s7_int type, void *value)
 {
-  return(s7_make_c_object_with_let(sc, type, value, sc->nil));
+     return(s7_make_c_object_with_let(sc, type, value, sc->nil));
 }   
    #+END_SRC
 
+** c-types
+   #+BEGIN_QUOTE
+   c-object? returns #t is its argument is a c-object. c-object-type
+   returns the object's type tag (otherwise #f of course). This tag
+   is also the position of the object's type in the (*s7* 'c-types)
+   list. (*s7* 'c-types) returns a list of the types created by
+   s7_make_c_type.
+   #+END_QUOTE
 
+   #+BEGIN_SRC scheme
+(*s7* 'c-types)
+   #+END_SRC
+
+   #+BEGIN_SRC c
+s7_int s7_make_c_type(s7_scheme *sc, const char *name)
+{
+     s7_int tag;
+     c_object_t *c_type;
+     tag = sc->num_c_object_types++;
+     if (tag >= sc->c_object_types_size)
+     {
+	  if (sc->c_object_types_size == 0)
+	  {
+	       sc->c_object_types_size = 8;
+	       sc->c_object_types = (c_object_t **)Calloc(sc->c_object_types_size, sizeof(c_object_t *));
+	  }
+	  else
+	  {
+	       sc->c_object_types_size = tag + 8;
+	       sc->c_object_types = (c_object_t **)Realloc((void *)(sc->c_object_types), sc->c_object_types_size * sizeof(c_object_t *));
+	  }
+     }
+     c_type = (c_object_t *)Calloc(1, sizeof(c_object_t));
+     sc->c_object_types[tag] = c_type;
+     c_type->type = tag;
+     c_type->scheme_name = s7_make_permanent_string(sc, name);
+     c_type->getter = sc->F;
+     c_type->setter = sc->F;
+     c_type->free = fallback_free;
+     c_type->mark = fallback_mark;
+     c_type->ref = fallback_ref;
+     c_type->set = fallback_set;
+     c_type->outer_type = T_C_OBJECT;
+     c_type->length = fallback_length;
+     /* all other fields are NULL */
+     return(tag);
+}
+
+   #+END_SRC
 * About GC
   #+BEGIN_QUOTE
   If you create an s7 object in C, that object needs to be GC
@@ -254,3 +344,52 @@ s7_pointer s7_make_c_object(s7_scheme *sc, s7_int type, void *value)
   object (removes it from the vector) using the location passed to
   it. s7_gc_protected_at returns the object at the given location
   #+END_QUOTE
+* Openlet, functions etc
+  If the function is defined in scheme, its signature is the value of the '+signature+ variable in its closure:
+  
+  #+BEGIN_SRC scheme
+> (define f1 (let ((+documentation+ "helpful info") 
+                   (+signature+ '(boolean? real?)))
+	       (lambda (x) 
+		 (positive? x))))
+f1
+> (documentation f1)
+"helpful info"
+> (signature f1)
+(boolean? real?)
+  #+END_SRC
+
+  We could do the same thing using methods:
+
+  #+BEGIN_SRC scheme
+> (define f1 (let ((documentation (lambda (f) "helpful info"))
+                   (signature (lambda (f) '(boolean? real?))))
+	       (openlet  ; openlet alerts s7 that f1 has methods
+		(lambda (x) 
+		  (positive? x)))))
+> (documentation f1)
+"helpful info"
+> (signature f1)
+(boolean? real?)
+
+  #+END_SRC
+* Autoloading
+  Useful functions in s7.c:
+  - find_autoload_name
+
+  Autload gives info about what to do when stumbling upon a symbol that is undefind
+  #+BEGIN_SRC scheme
+(autoload 'aod.clj "aod/clj.scm")  
+  #+END_SRC
+
+  later on, whenever i try to access =aod.clj=, if it's not defined, it will try to =resolve= it.
+  The =resolving= tactic is the 2nd argument, which can be a string (what file to load) or a lambda to do something.
+
+  #+BEGIN_QUOTE
+  This info can be declared via autoload, a function of two arguments,
+  the symbol that triggers the autoload, and either a filename or a
+  function. If a filename, s7 loads that file; if a function, it is
+  called with one argument, the current (calling) environment.
+  #+END_QUOTE
+
+  The =provide= simply puts that symbol into the =*features*= list.

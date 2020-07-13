@@ -1,0 +1,46 @@
+* Primitives (bool*, int*, bool[], int[], etc..)
+  See [[file:../src/aod/s7/foreign_types.org]] and the generated =hpp= and =cpp= files
+  
+  These primitives are available in the =*foreign*= named evnironment.
+
+  Example usage:
+
+  #+BEGIN_SRC scheme
+(define *some-float ((*foreign* 'new-float) 10))
+(*some-float)
+;; => 10
+(set! (*some-float) 20)
+(*some-float)
+;; => 20
+  #+END_SRC
+
+  For arrays:
+
+  #+BEGIN_SRC scheme
+(define *some-floats ((*foreign* 'new-float []) 2))
+(*some-floats 0)
+;; => 0
+(*some-floats 1)
+;; => 0
+(set! (*some-floats 0) 10)
+(*some-floats 0)
+;; => 10
+(*some-floats 1)
+;; => 0
+
+
+;; another trick.. getting the reference of an index
+;; this is by sending an extra param. it doesn't matter the value
+;; a personal style preference is '& to denote that we take the address
+;; so, yes, the following statements are equievalent
+(define *some-float (*some-floats 0 'yes-reference-please))
+(define *some-float (*some-floats 0 '&))
+
+;; and it's the same as before
+(*some-float)
+;; => 10
+(set! (*some-float) 20)
+(*some-float)
+;; => 20
+
+  #+END_SRC

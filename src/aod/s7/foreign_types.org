@@ -1,0 +1,427 @@
+* Foreign types (or c types)
+  This was created in order to save the duplicate work when describing new foreign types. See more at https://orgmode.org/org.html#Noweb-Reference-Syntax
+  Example code needed for a heap allocated bool
+** oh the manual work that needed to be done
+
+   #+BEGIN_SRC cpp
+s7_pointer bool_make(s7_scheme *sc, s7_pointer args) {
+	bool *data = new bool;
+	,*data = s7_boolean(sc, s7_car(args));
+	int type = s7_integer(s7_eval_c_string(sc, "(*c-primitives* 'type-bool)"));
+	s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
+
+	return obj;
+}
+
+s7_pointer bool_ref(s7_scheme *sc, s7_pointer args) {
+	bool *data = (bool*) s7_c_object_value(s7_car(args));
+
+	return s7_make_boolean(sc, *data);
+}
+
+s7_pointer bool_set(s7_scheme *sc, s7_pointer args) {
+	// 2 args: (block-set! (ref) value)
+	if (s7_list_length(sc, args) != 2)
+		return (s7_wrong_number_of_args_error(sc,
+				"bool-set! takes 2 arguments: ~S", args));
+
+	bool *data = (bool*) s7_c_object_value(s7_car(args));
+
+	bool new_value = s7_boolean(sc, s7_cadr(args));
+	,*data = new_value;
+
+	return (s7_cadr(args));
+}
+
+void bind_primitives(s7_scheme *sc) {
+
+	// either passing s7_curlet or s7_nil works..
+	// ..ugh still don't know what happens with environments
+	s7_pointer env = s7_inlet(sc, s7_nil(sc));
+	s7_gc_protect(sc, env);
+
+	// --- bool ----
+	s7_int bool_type = s7_make_c_type(sc, "<bool>");
+	// maybe renaming to bool-type ??
+	s7_define(sc, env, s7_make_symbol(sc, "type-bool"),
+			s7_make_integer(sc, bool_type));
+	s7_define(sc, env, s7_make_symbol(sc, "bool"),
+			s7_make_function(sc, "bool", bool_make, 1, 0, false,
+					"creates a heap allocated bool (c-object)"));
+	s7_c_type_set_ref(sc, bool_type, bool_ref);
+	s7_c_type_set_set(sc, bool_type, bool_set);
+	s7_c_type_set_free(sc, bool_type, primitive_free);
+	//	s7_c_type_set_gc_free(sc, int_type, primitive_free_gc);
+
+	s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*c-primitives*"),
+		  s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
+}
+   #+END_SRC
+* elisp requirements
+  The necessary elisp to be able to actually tangle this file
+  
+  packages:
+  - dash.el
+
+  #+BEGIN_SRC emacs-lisp
+(use-package dash
+  :demand t
+  :require t)
+  #+END_SRC
+
+  Custom functions:
+
+  #+BEGIN_SRC emacs-lisp :results silent
+(defun aod.org/src-block-content (name)
+  "Given a name of src block (which has the #+NAME: attr set),
+it returns its contents"
+  (org-save-outline-visibility nil ;; use markers?  
+    (save-excursion
+      (goto-char (org-babel-find-named-block name))
+      (let ((src (org-element-property :value (org-element-at-point))))
+	src))))
+  #+END_SRC
+
+* Primitives (bool, int, float, double)
+** primite-template (make,ref,set,free,bind)
+
+   #+NAME: primitive-template
+   #+BEGIN_SRC c
+
+// ------------------------------ C_TYPE ------------------------------
+
+void free_C_TYPE(void* raw_data) {
+     C_TYPE* data = (C_TYPE*) raw_data;
+     delete data;
+}
+
+int tag_C_TYPE(s7_scheme *sc) {
+     s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE)");
+     if(s7_is_integer(res)){
+	  return s7_integer(res);
+     }
+     s7_error(sc,                               /* s7 is declared in xen.h, defined in xen.c */
+	   s7_make_symbol(sc, "foreign-error"),
+	   s7_cons(sc, s7_make_string(sc, "type-C_TYPE not registered"), s7_nil(sc)));
+     return -1;
+}
+
+s7_pointer make_C_TYPE(s7_scheme *sc, s7_pointer args) {
+     C_TYPE* data = new C_TYPE;
+     ,*data = (C_TYPE) S7_READ(sc, s7_car(args));
+     int type = tag_C_TYPE(sc);
+     s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
+     return obj;
+}
+
+s7_pointer ref_C_TYPE(s7_scheme *sc, s7_pointer args) {
+     C_TYPE* data = (C_TYPE*) s7_c_object_value(s7_car(args));
+
+     return S7_WRITE(sc, *data);
+}
+
+s7_pointer set_C_TYPE(s7_scheme *sc, s7_pointer args) {
+     // 2 args: (block-set! (ref) value)
+     if (s7_list_length(sc, args) != 2) {
+	  return (s7_wrong_number_of_args_error(sc,
+						"set! for C_TYPE takes 2 arguments: ~S", args));
+     }
+     C_TYPE* data = (C_TYPE*) s7_c_object_value(s7_car(args));
+     s7_pointer s7_new_value = s7_cadr(args);
+     C_TYPE new_value = S7_READ(sc, s7_new_value);
+     ,*data = new_value;
+
+     return (s7_new_value);
+}
+
+void bind_C_TYPE(s7_scheme* sc, s7_pointer env) {
+     /* s7_pointer env = s7_inlet(sc, s7_nil(sc)); */
+     /* s7_gc_protect(sc, env); */
+
+     // --- bool ----
+     s7_int type = s7_make_c_type(sc, "<C_TYPE>");
+     s7_define(sc, env, s7_make_symbol(sc, "type-C_TYPE"),
+	       s7_make_integer(sc, type));
+     s7_define(sc, env, s7_make_symbol(sc, "new-C_TYPE"),
+	       s7_make_function(sc, "C_TYPE", make_C_TYPE, 1, 0, false,
+				"creates a heap allocated C_TYPE (c-object)"));
+     s7_c_type_set_ref(sc, type, ref_C_TYPE);
+     s7_c_type_set_set(sc, type, set_C_TYPE);
+     s7_c_type_set_free(sc, type, free_C_TYPE);
+}
+
+// ! ---------------------------- C_TYPE ------------------------------
+   #+END_SRC
+** Generating src
+   You can just as well evaluate this, it will render the c code the the =bool= type.
+   This is later called for all of our types
+
+  #+NAME: render
+  #+BEGIN_SRC emacs-lisp :var template="primitive-template" type="bool" s7_read="s7_boolean" s7_write="s7_make_boolean" :wrap SRC cpp
+(let ((case-fold-search nil))
+  (-as-> (aod.org/src-block-content template) x
+	 (replace-regexp-in-string "C_TYPE" type x t)
+	 (replace-regexp-in-string "S7_READ" s7_read x t)
+	 (replace-regexp-in-string "S7_WRITE" s7_write x t)
+	 ))
+  #+END_SRC
+
+** foreign_primitives.hpp
+  #+BEGIN_SRC cpp :tangle "foreign_primitives.hpp" :main no
+#pragma once
+
+#include "s7.h"
+
+namespace aod {
+     namespace s7 {
+	  namespace foreign {
+	       void bind_primitives(s7_scheme *sc, s7_pointer env);
+	       inline void bind_primitives(s7_scheme *sc){
+		    s7_pointer env = s7_inlet(sc, s7_nil(sc));
+		    s7_gc_protect(sc, env);
+		    bind_primitives(sc, env);
+	       }
+	       int tag_bool(s7_scheme* sc);
+	       int tag_int(s7_scheme* sc);
+	       int tag_float(s7_scheme* sc);
+	  }
+     }
+}
+  #+END_SRC
+** foreign_primitives.cpp
+  #+BEGIN_SRC cpp :tangle "foreign_primitives.cpp" :noweb yes :main no
+/**
+ ,* This file was auto-generated with org-babel tangle.
+ ,* See foreign_types.org for more info
+ ,* I would suggest to not edit this by hand.
+ ,**/
+
+#include "s7.h"
+
+namespace aod {
+     namespace s7 {
+          namespace foreign {
+               <<render(template="primitive-template",type="bool",s7_read="s7_boolean",s7_write="s7_make_boolean")>>
+
+               <<render(template="primitive-template",type="int",s7_read="s7_number_to_integer",s7_write="s7_make_integer")>>
+
+                 // note: s7_make_real gets a double argument, not float. hope it gets automatically casted
+               <<render(template="primitive-template",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")>>
+
+               void bind_primitives(s7_scheme *sc, s7_pointer env) {
+                    // either passing s7_curlet or s7_nil works..
+                    // ..ugh still don't know what happens with environments
+                    // s7_pointer env = s7_inlet(sc, s7_nil(sc));
+                    // s7_gc_protect(sc, env);
+
+                    // the bindings
+                    bind_bool(sc, env);
+                    bind_int(sc, env);
+                    bind_float(sc, env);
+
+                    s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*foreign*"),
+                              s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
+
+                    s7_define_variable(sc, "aod.foreign", s7_let_to_list(sc, env));
+               }
+          } // foreign
+     } // s7
+} // aod
+  #+END_SRC
+* Arrays (bool[], int[], float[], double[])
+** primite[] arr template (make,ref,set,free,bind)
+   #+NAME: T-primitive[]
+   #+BEGIN_SRC c
+
+// ------------------------------ C_TYPE-arr ------------------------------
+
+void free_C_TYPE_arr(void *raw_data) {
+     C_TYPE* data = (C_TYPE*) raw_data;
+     delete[] data;
+}
+
+int tag_C_TYPE_arr(s7_scheme* sc){
+     s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE[])");
+     if(s7_is_integer(res)){
+	  return s7_integer(res);
+     }
+     return -1;
+}
+
+
+s7_pointer make_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
+     int len = s7_integer(s7_car(args));
+     if (len == 0) {
+	  return (s7_wrong_number_of_args_error(sc,
+						"C_TYPE_arr creating needs 1 positive argument for its length: ~S", args));
+     }
+     /* fprintf(stderr, "making C_TYPE[] of length %d\n", len); */
+     C_TYPE* data = new C_TYPE[len]{}; // {} is for default initialization. eg false for bool, 0 for numbers
+
+     int type = tag_C_TYPE_arr(sc);
+     s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
+
+     return obj;
+}
+
+s7_pointer ref_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
+     C_TYPE* arr = (C_TYPE*) s7_c_object_value(s7_car(args));
+     int args_length = s7_list_length(sc, args);
+     int index = s7_integer(s7_cadr(args));
+     if (args_length == 2) {
+	  return S7_WRITE(sc, arr[index]);
+     } else if (args_length == 3) {
+	  // we return the reference
+	  C_TYPE* data = &arr[index];
+	  int type = aod::s7::foreign::tag_C_TYPE(sc);
+	  s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
+	  return obj;
+     }
+     else {
+	  return (s7_wrong_number_of_args_error(sc,
+						"C_TYPE_arr-ref needs 2 or 3 arguments~S", args));
+     }
+}
+
+s7_pointer set_C_TYPE_arr(s7_scheme *sc, s7_pointer args) {
+     // 3 args: (block-set! data index value)
+     if (s7_list_length(sc, args) != 3)
+	  return (s7_wrong_number_of_args_error(sc,
+						"C_TYPE_arr-set! takes 3 arguments: ~S", args));
+
+     C_TYPE* arr = (C_TYPE*) s7_c_object_value(s7_car(args));
+     int index = s7_integer(s7_cadr(args));
+
+     C_TYPE new_value = S7_READ(sc, s7_caddr(args));
+
+     arr[index] = new_value;
+
+     return (s7_cadr(args));
+}
+
+void bind_C_TYPE_arr(s7_scheme* sc, s7_pointer env) {
+     /* s7_pointer env = s7_inlet(sc, s7_nil(sc)); */
+     /* s7_gc_protect(sc, env); */
+
+     // --- bool ----
+     s7_int type = s7_make_c_type(sc, "<C_TYPE-arr>");
+     s7_define(sc, env, s7_make_symbol(sc, "type-C_TYPE[]"),
+	       s7_make_integer(sc, type));
+     s7_define(sc, env, s7_make_symbol(sc, "new-C_TYPE[]"),
+	       s7_make_function(sc, "new-C_TYPE[]", make_C_TYPE_arr, 1, 0, false,
+				"creates a heap allocated C_TYPE[] (c-object)"));
+     s7_c_type_set_ref(sc, type, ref_C_TYPE_arr);
+     s7_c_type_set_set(sc, type, set_C_TYPE_arr);
+     s7_c_type_set_free(sc, type, free_C_TYPE_arr);
+}
+
+// ! ---------------------------- C_TYPE-arr ------------------------------
+   #+END_SRC
+** Generating src
+  We use the render src block defined above.
+
+  Demo expansion (run C-c above it)
+  #+CALL: render(template="T-primitive[]",type="bool",s7_read="s7_boolean",s7_write="s7_make_boolean")
+
+** foreign_primitives_arr.hpp
+
+
+  #+BEGIN_SRC cpp :tangle "foreign_primitives_arr.hpp" :noweb yes :main no
+#pragma once
+
+#include "s7.h"
+#include <cstddef>
+
+namespace aod {
+     namespace s7 {
+	  namespace foreign {
+	       // https://stackoverflow.com/a/17014793
+	       // template <typename T, std::size_t S>
+	       // inline
+	       // std::size_t arr_size(const T (&v)[S])
+	       // { 
+	       // 	    return S; 
+	       // }
+
+	       void bind_primitives_arr(s7_scheme *sc, s7_pointer env);
+	       inline void bind_primitives_arr(s7_scheme *sc){
+		    s7_pointer env = s7_inlet(sc, s7_nil(sc));
+		    s7_gc_protect(sc, env);
+		    bind_primitives_arr(sc, env);
+	       }
+	       int tag_bool_arr(s7_scheme* sc);
+	       int tag_int_arr(s7_scheme* sc);
+	       int tag_float_arr(s7_scheme* sc);
+	  }
+     }
+}
+  #+END_SRC
+** foreign_primitives_arr.cpp
+  #+BEGIN_SRC cpp :tangle "foreign_primitives_arr.cpp" :noweb yes :main no
+/**
+ ,* This file was auto-generated with org-babel tangle.
+ ,* See foreign_types.org for more info
+ ,* I would suggest to not edit this by hand.
+ ,**/
+
+#include "s7.h"
+#include <stdio.h> // fprintf etc
+#include "foreign_primitives.hpp" // needed when I access (*arr 1 '&) to get a c-object
+#include "foreign_primitives_arr.hpp"
+
+namespace aod {
+     namespace s7 {
+          namespace foreign {
+               <<render(template="T-primitive[]",type="bool",s7_read="s7_boolean",s7_write="s7_make_boolean")>>
+
+               <<render(template="T-primitive[]",type="int",s7_read="s7_number_to_integer",s7_write="s7_make_integer")>>
+
+                 // note: s7_make_real gets a double argument, not float. hope it gets automatically casted
+               <<render(template="T-primitive[]",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")>>
+
+                 /**
+                    (define *int-arr ((*foreign* 'new-int[]) 3))
+                    (*int-arr 0) => 0
+                    (set! (*int-arr 0 1))
+                    (*int-arr 1) => 1
+               
+                    ;; second argument 'ref (or 3rd for the ref function) means give me the reference, not the value
+                    (define *int-1 (*int-arr 1 'ref))
+                    (*int-1) => 1
+                    (set! (*int-1) 2)
+                    (*int-1) => 2
+               
+                    (*int-arr 1) => 2
+               
+                 ,**/
+               void bind_primitives_arr(s7_scheme *sc, s7_pointer env) {
+                    // either passing s7_curlet or s7_nil works..
+                    // ..ugh still don't know what happens with environments
+                    // s7_pointer env = s7_inlet(sc, s7_nil(sc));
+                    // s7_gc_protect(sc, env);
+
+                    // the bindings
+                    bind_bool_arr(sc, env);
+                    bind_int_arr(sc, env);
+                    bind_float_arr(sc, env);
+
+                    s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*foreign*"),
+                              s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
+
+                    s7_define_variable(sc, "aod.foreign", s7_let_to_list(sc, env));
+               }
+          } // foreign
+     } // s7
+} // aod
+  #+END_SRC
+
+** demo
+   #+CALL: render(template="T-primitive[]",type="bool",s7_read="s7_boolean",s7_write="s7_make_boolean")
+
+   #+CALL: render(template="T-primitive[]",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")
+* Further notes
+  I guess that mapping c++ classes could be easily done with this method..
+* COMMENT Local variables
+# Local Variables:
+# eval: (setq-local org-confirm-babel-evaluate nil)
+# End:

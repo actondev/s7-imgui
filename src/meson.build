@@ -7,16 +7,10 @@ includes = []
 
 includes += include_directories('.')
 
+subdir('aod')
+
 app_dep = declare_dependency(
   include_directories: includes,
-  sources: sources
+  sources: sources,
+  dependencies: [aod_dep]
 )
-
-aod_dep = declare_dependency(
-  include_directories: includes,
-  # for now i'm just having header only files
-  sources: [],
-  dependencies: [
-    s7_dep,
-  ],
-  )
