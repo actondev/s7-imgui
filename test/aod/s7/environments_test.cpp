@@ -107,6 +107,7 @@ TEST(s7_environments, require_as) {
                         "(aod.clj/comment AHA clj style require with aod/require)"
                         "(aod/require aod.clj :as my-clj-things)"
                         "(my-clj-things/comment AHA 2! clj style require with aod/require)"
+                        "(aod/require aod.clj :as my-clj-things)" // should see a warning that it's already defined
                         "3)"
                         ;
     ASSERT_EQ(3, s7_integer(s7_eval_c_string(sc, sexp3)));

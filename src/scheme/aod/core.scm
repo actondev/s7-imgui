@@ -22,37 +22,33 @@
 (autoload 'aod.imgui.macros "aod/imgui/macros.scm")
 
 (define-macro* (aod/require what (as #f))
-  (let ((prefix (symbol->string `,(or as what))))
-    ;; (format *stderr* "aod/require ~A :as ~A\n" what prefix)
-    (if (defined? what)
-	;; bindings from c
-	(begin
-	  ;; (format *stderr* "requiring foreign bindings ~A as ~A\n" what prefix)
-	  `(apply varlet (curlet)
-		  (map (lambda (binding)
-		  (let ((binding-symbol (string->symbol 
-				      (string-append ,prefix "/" (symbol->string (car binding))))))
-		    ;; (format *stderr* "binding ~A\n" binding-symbol)
-		    (cons binding-symbol 
-			  (cdr binding))))
-		,what)))
-	;; normal autload, symbol "what" not present
-	(begin
-	  ;; (format *stderr* "requiring autoload symbol ~A as ~A, features ~A\n autoload ~A\n" what prefix *features* (*autoload* what))
-	  (if (defined? (string->symbol (string-append prefix "/*features*")))
-	    (format *stderr* "WARNING: ~A already required as ~A\n" what prefix)
-	    `(apply varlet (curlet)
-		    (with-let (unlet)
-			      (let ()
-				;; note: we use load cause if we required already nothing will happen!
-				;; (*autoload* ',what) gives us the file name
-				(load (*autoload* ',what) (curlet))
-				(map (lambda (binding)
-				       (let ((binding-symbol (string->symbol 
-							   (string-append ,prefix "/" (symbol->string (car binding))))))
-					 ;; (format *stderr* "binding ~A\n" binding-symbol)
-					 (cons binding-symbol 
-					       (cdr binding))))
-				     (curlet))))))))))
+  (let* ((prefix (symbol->string `,(or as what)))
+	(features-symbol (string->symbol (string-append prefix "/*features*"))))
+    `(if (defined? ',features-symbol)
+	(format *stderr* "WARNING: ~A already required as ~A\n" ',what ,prefix)
+	;; else, doing the bidings:
+	(if (defined? ',what)
+	    ;; bindings from c
+	    (apply varlet (curlet)
+		   (map (lambda (binding)
+			  (let ((binding-symbol (string->symbol 
+						 (string-append ,prefix "/" (symbol->string (car binding))))))
+			    ;; (format *stderr* "binding from c ~A\n" binding-symbol)
+			    (cons binding-symbol 
+				  (cdr binding))))
+			,what))
+	     ;; normal autload, symbol "what" not present
+	    (apply varlet (curlet)
+		   (with-let (unlet)
+			     (let ()
+			       ;; note: we use load cause if we required already nothing will happen!
+			       ;; (*autoload* ',what) gives us the file name
+			       (load (*autoload* ',what) (curlet))
+			       (map (lambda (binding)
+				      (let ((binding-symbol (string->symbol 
+							     (string-append ,prefix "/" (symbol->string (car binding))))))
+					;; (format *stderr* "binding from autoload ~A\n" binding-symbol)
+					(cons binding-symbol 
+					      (cdr binding))))
+				    (curlet)))))))))
 
-(display "loaded aod/core\n")

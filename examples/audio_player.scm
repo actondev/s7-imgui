@@ -37,5 +37,4 @@
 	       ;; no menu flags.. gotta work on the flags thing
 	       '(igm/menu-bar ()
 			 (igm/menu ("file")))
-	       (imgui/text "hi there!"))
-  )
+	       (imgui/text "hi there!")))

@@ -10,6 +10,26 @@ namespace s7 {
 namespace imgui {
 
 namespace windows {
+s7_pointer begin(s7_scheme *sc, s7_pointer args) {
+    s7_pointer title = s7_car(args);
+    if (!s7_is_string(title))
+        return (s7_wrong_type_arg_error(sc, "imgui/begin", 1, title,
+                                        "First argument is title, should be a string"));
+
+    const char *str = s7_string(title);
+    s7_pointer obj = s7_cadr(args);
+    bool *p_open = (bool*) s7_c_object_value_checked(obj,
+                   aod::s7::foreign::tag_bool(sc));
+    if (p_open == NULL) {
+        // we don't throw an error. begin has multiple arity
+        ImGui::Begin(str);
+    } else {
+        ImGui::Begin(str, p_open);
+    }
+
+    return (s7_nil(sc));
+}
+
 s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
     s7_pointer title = s7_car(args);
     if (!s7_is_string(title))
@@ -41,37 +61,46 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
-void bind(s7_scheme *sc) {
+s7_pointer end(s7_scheme *sc, s7_pointer args) {
+    ImGui::End();
+    return (s7_nil(sc));
+}
+
+void bind(s7_scheme *sc, s7_pointer env) {
 
     s7_define_function(sc, "imgui/begin-maximized", begin_maximized,   // ..
                        1, // req args
                        0,
                        false, // rest args
                        "Begin a/the maximized window");
+
+    s7_define_function(sc, "imgui/begin", begin,   // ..
+                       1, // req args
+                       1, // optional args (the open boolean pointer)
+                       false, // rest args
+                       "Begin a window");
+    s7_define_function(sc, "imgui/end", end,   // ..
+                       0, // req args
+                       0, // optional args
+                       false, // rest args
+                       "End a window");
+
+    // WIP going to environments
+    s7_define(sc, env, s7_make_symbol(sc, "begin"),
+              s7_make_function(sc, "begin", begin, 1, 1, false,
+                               "Begin a window"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "begin-maximized"),
+              s7_make_function(sc, "begin-maximized", begin_maximized, 1, 0, false,
+                               "Begin the maximized window"));
+    s7_define(sc, env, s7_make_symbol(sc, "end"),
+              s7_make_function(sc, "end", end, 0, 0, false,
+                               "Ends a window"));
+
 }
 }
 
 namespace general { // anonymous namespace: the functions
-
-s7_pointer begin(s7_scheme *sc, s7_pointer args) {
-    s7_pointer title = s7_car(args);
-    if (!s7_is_string(title))
-        return (s7_wrong_type_arg_error(sc, "imgui/begin", 1, title,
-                                        "First argument is title, should be a string"));
-
-    const char *str = s7_string(title);
-    s7_pointer obj = s7_cadr(args);
-    bool *p_open = (bool*) s7_c_object_value_checked(obj,
-                   aod::s7::foreign::tag_bool(sc));
-    if (p_open == NULL) {
-        // we don't throw an error. begin has multiple arity
-        ImGui::Begin(str);
-    } else {
-        ImGui::Begin(str, p_open);
-    }
-
-    return (s7_nil(sc));
-}
 
 s7_pointer checkbox(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
@@ -90,11 +119,6 @@ s7_pointer checkbox(s7_scheme *sc, s7_pointer args) {
 
     ImGui::Checkbox(s7_string(text), p_check);
     return s7_nil(sc);
-}
-
-s7_pointer end(s7_scheme *sc, s7_pointer args) {
-    ImGui::End();
-    return (s7_nil(sc));
 }
 
 s7_pointer text(s7_scheme *sc, s7_pointer args) {
@@ -120,18 +144,6 @@ s7_pointer button(s7_scheme *sc, s7_pointer args) {
 
 
 void bind(s7_scheme *sc) {
-    s7_define_function(sc, "imgui/begin", begin,   // ..
-                       1, // req args
-                       1, // optional args (the open boolean pointer)
-                       false, // rest args
-                       "Begin a window");
-
-    s7_define_function(sc, "imgui/end", end,   // ..
-                       0, // req args
-                       0, // optional args
-                       false, // rest args
-                       "End a window");
-
     s7_define_function(sc, "imgui/text", text,   // ..
                        1, // req args
                        0, // optional args
@@ -531,18 +543,23 @@ void bind(s7_scheme* sc) {
 
 // exposed function (inc in header)
 void bind(s7_scheme *sc) {
-    using namespace menus;
+//     using namespace menus;
 
     s7_pointer env = s7_inlet(sc, s7_nil(sc));
     s7_gc_protect(sc, env);
 
+    windows::bind(sc, env);
     general::bind(sc);
     menus::bind(sc);
     layout::bind(sc);
     draw::bind(sc);
     colors::bind(sc);
-    windows::bind(sc);
     sliders::bind(sc);
+
+    // the provide is needed to define the *features* symbol in this environment
+    // this is checked to avoid duplicate requires of this environment
+    s7_eval_c_string_with_environment(sc, "(provide 'aod.c.imgui)", env);
+    s7_define_variable(sc, "aod.c.imgui", s7_let_to_list(sc, env));
 }
 
 } // imgui

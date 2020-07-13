@@ -1,6 +1,10 @@
 (require aod.clj) ;; the (comment) macro is there
 (provide 'aod.imgui.macros)
-(display "loaded aod/imgui/macros.scm\n")
+(display "loading aod/imgui/macros.scm\n")
+(aod/require aod.c.imgui :as ig)
+(format *stderr* "defined ig/*features* ~A\n" (defined? 'ig/*features*))
+(aod/require aod.c.imgui :as ig) ;; should give a warning that aod.c.imgui is already required as ig
+(format *stderr* "~A\n" *features*)
 
 (define-macro (safe . body)
   `(catch #t
@@ -12,9 +16,9 @@
 
 (define-macro (begin args . body)
   `(begin
-     (imgui/begin ,@args)
+     (,ig/begin ,@args)
      (,safe ,@body)
-     (imgui/end)))
+     (,ig/end)))
 
 (define-macro (maximized args . body)
   `(begin

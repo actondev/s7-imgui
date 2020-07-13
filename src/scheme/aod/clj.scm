@@ -1,5 +1,5 @@
 ;; some basic functionality that I miss from clojure
-;; (display "loading aod/clj.scm\n")
+(display "loading aod/clj.scm\n")
 (provide 'aod.clj)
 
 #;
@@ -31,6 +31,7 @@ f should accept to arguments, i and the element")
 ;; i 2 el c
  )
 
+;; got from s7.. stuff.scm ?
 (define-macro (dotimes spec . body)	;; spec = (var end . return)
 	(let ((e (gensym))
 	      (n (car spec)))
@@ -78,4 +79,3 @@ i is 2
 (define range iota)
 (define mod modulo)
 
-(display "..loaded aod/clj.scm\n")
