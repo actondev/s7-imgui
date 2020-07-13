@@ -1,10 +1,7 @@
+(display "loading aod/imgui/macros.scm\n")
 (require aod.clj) ;; the (comment) macro is there
 (provide 'aod.imgui.macros)
-(display "loading aod/imgui/macros.scm\n")
 (aod/require aod.c.imgui :as ig)
-(format *stderr* "defined ig/*features* ~A\n" (defined? 'ig/*features*))
-(aod/require aod.c.imgui :as ig) ;; should give a warning that aod.c.imgui is already required as ig
-(format *stderr* "~A\n" *features*)
 
 (define-macro (safe . body)
   `(catch #t
@@ -22,21 +19,21 @@
 
 (define-macro (maximized args . body)
   `(begin
-     (imgui/begin-maximized ,@args)
+     (,ig/begin-maximized ,@args)
      (,safe ,@body)
-     (imgui/end)))
+     (,ig/end)))
 
 (define-macro (child args . body)
   `(begin
-     (imgui/begin-child ,@args)
+     (,ig/begin-child ,@args)
      (,safe ,@body)
-     (imgui/end-child)))
+     (,ig/end-child)))
 
 (define-macro (group args . body)
   `(begin
-     (imgui/begin-group ,@args)
+     (,ig/begin-group ,@args)
      (,safe ,@body)
-     (imgui/end-group)))
+     (,ig/end-group)))
 
 ;; the top bar, full window, menu
 (define-macro (main-menu-bar args . body)
@@ -45,28 +42,28 @@
   ;; (some-macro args . body)
   ;; where args are applied to that first call
   `(begin
-     (imgui/begin-main-menu-bar)
+     (,ig/begin-main-menu-bar)
      ;; ,@body
      (,safe ,@body)
-     (imgui/end-main-menu-bar)
+     (,ig/end-main-menu-bar)
      ))
 
 (define-macro (menu-bar args . body)
    `(begin
-     (imgui/begin-menu-bar)
+     (,ig/begin-menu-bar)
       (,safe ,@body)
-     (imgui/end-menu-bar)
+     (,ig/end-menu-bar)
      ))
 
 ;; a menu (eg File)
 (define-macro (menu args . body)
-  `(when (imgui/begin-menu ,@args)
+  `(when (,ig/begin-menu ,@args)
      ;; ,@body
      (,safe ,@body)
-     (imgui/end-menu)))
+     (,ig/end-menu)))
 
 (define-macro (menu-item args . body)
-  `(when (imgui/menu-item ,@args)
+  `(when (,ig/menu-item ,@args)
      ,@body))
 
 (comment "window (begin etc)"
@@ -116,7 +113,7 @@
   (let ((with-same-line-prepended (map
 				   (lambda (el)
 				     `(begin
-					(imgui/same-line)
+					(,ig/same-line)
 					,el))
 				    (cdr body))))
     `(begin

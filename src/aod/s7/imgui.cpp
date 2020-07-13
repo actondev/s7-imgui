@@ -143,12 +143,16 @@ s7_pointer button(s7_scheme *sc, s7_pointer args) {
 
 
 
-void bind(s7_scheme *sc) {
+void bind(s7_scheme *sc, s7_pointer env) {
     s7_define_function(sc, "imgui/text", text,   // ..
                        1, // req args
                        0, // optional args
                        false, // rest args
                        "Draw a text label");
+
+    s7_define(sc, env, s7_make_symbol(sc, "text"),
+              s7_make_function(sc, "text", text, 1, 0, false,
+                               "Text"));
 
     s7_define_function(sc, "imgui/button", button,   // ..
                        1, // req args
@@ -156,12 +160,19 @@ void bind(s7_scheme *sc) {
                        0, // optional args
                        false, // rest args
                        "Draw a button. Returns a boolean, true if clicked");
+    s7_define(sc, env, s7_make_symbol(sc, "button"),
+              s7_make_function(sc, "button", button, 1, 0, false,
+                               "Button"));
 
     s7_define_function(sc, "imgui/checkbox", checkbox,   // ..
                        2, // req args
                        0, // optional args
                        false, // rest args
                        "Checkbox");
+
+    s7_define(sc, env, s7_make_symbol(sc, "checkbox"),
+              s7_make_function(sc, "checkbox", checkbox, 2, 0, false,
+                               "Checkbox"));
 
 }
 } // ! anonymous namespace: the functions
@@ -219,12 +230,16 @@ s7_pointer menu_item(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::MenuItem((s7_string(text))));
 }
 
-void bind(s7_scheme *sc) {
+void bind(s7_scheme *sc, s7_pointer env) {
     s7_define_function(sc, "imgui/begin-menu-bar", begin_menu_bar,   // ..
                        0, // req args
                        0, // optional args
                        false, // rest args
                        "ImGui::BeginMenuBar");
+
+    s7_define(sc, env, s7_make_symbol(sc, "begin-menu-bar"),
+              s7_make_function(sc, "begin-menu-bar", begin_menu_bar, 0, 0, false,
+                               "BeginMenuBar"));
 
     s7_define_function(sc, "imgui/end-menu-bar", end_menu_bar,   // ..
                        0, // req args
@@ -232,11 +247,20 @@ void bind(s7_scheme *sc) {
                        false, // rest args
                        "ImGui::EndMenuBar");
 
+
+    s7_define(sc, env, s7_make_symbol(sc, "end-menu-bar"),
+              s7_make_function(sc, "end-menu-bar", end_menu_bar, 0, 0, false,
+                               "EndMenuBar"));
+
     s7_define_function(sc, "imgui/begin-main-menu-bar", begin_main_menu_bar,   // ..
                        0, // req args
                        0, // optional args
                        false, // rest args
                        "ImGui::BeginMainMenuBar");
+
+    s7_define(sc, env, s7_make_symbol(sc, "begin-main-menu-bar"),
+              s7_make_function(sc, "begin-main-menu-bar", begin_main_menu_bar, 0, 0, false,
+                               "BeginMainMenuBar"));
 
     s7_define_function(sc, "imgui/end-main-menu-bar", end_main_menu_bar,   // ..
                        0, // req args
@@ -244,11 +268,19 @@ void bind(s7_scheme *sc) {
                        false, // rest args
                        "ImGui::EndMainMenuBar");
 
+    s7_define(sc, env, s7_make_symbol(sc, "end-main-menu-bar"),
+              s7_make_function(sc, "end-main-menu-bar", end_main_menu_bar, 0, 0, false,
+                               "EndMainMenuBar"));
+
     s7_define_function(sc, "imgui/begin-menu", begin_menu,   // ..
                        1, // req args
                        0, // optional args
                        false, // rest args
                        "Menu group (eg File)");
+
+    s7_define(sc, env, s7_make_symbol(sc, "begin-menu"),
+              s7_make_function(sc, "begin-menu", begin_menu, 1, 0, false,
+                               "BeginMenu"));
 
     s7_define_function(sc, "imgui/end-menu", end_menu,   // ..
                        0, // req args
@@ -256,11 +288,19 @@ void bind(s7_scheme *sc) {
                        false, // rest args
                        "Ends the menu group (eg File)");
 
+    s7_define(sc, env, s7_make_symbol(sc, "end-menu"),
+              s7_make_function(sc, "end-menu", end_menu, 0, 0, false,
+                               "EndMenu"));
+
     s7_define_function(sc, "imgui/separator", separator,   // ..
                        0, // req args
                        0, // optional args
                        false, // rest args
                        "Separator (eg between menu items)");
+
+    s7_define(sc, env, s7_make_symbol(sc, "separator"),
+              s7_make_function(sc, "separator", separator, 0, 0, false,
+                               "Separator"));
 
     s7_define_function(sc, "imgui/menu-item", menu_item,   // ..
                        1, // req args
@@ -268,6 +308,9 @@ void bind(s7_scheme *sc) {
                        false, // rest args
                        "Menu item. TODO add more args (kbd shortcut, enabled, selected))");
 
+    s7_define(sc, env, s7_make_symbol(sc, "menu-item"),
+              s7_make_function(sc, "menu-item", menu_item, 1, 0, false,
+                               "Menu item. TODO add more args (kbd shortcut, enabled, selected"));
 }
 
 } // ! menus
@@ -325,12 +368,17 @@ s7_pointer dummy(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
-void bind(s7_scheme *sc) {
+void bind(s7_scheme *sc, s7_pointer env) {
     s7_define_function(sc, "imgui/same-line", same_line,   // ..
                        0, // req args
                        0, // optional args (the open boolean pointer)
                        false, // rest args
                        "Puts the next element in the same line as the previous one");
+
+    s7_define(sc, env, s7_make_symbol(sc, "same-line"),
+              s7_make_function(sc, "same-line", same_line, 0, 0, false,
+                               "Puts the next element in the same line as the previous one"));
+
 
     s7_define_function(sc, "imgui/begin-child", begin_child,   // ..
                        1, // req args
@@ -338,19 +386,38 @@ void bind(s7_scheme *sc) {
                        false, // rest args
                        "BeginChild");
 
+    s7_define(sc, env, s7_make_symbol(sc, "begin-child"),
+              s7_make_function(sc, "begin-child", begin_child, 1, 0, false,
+                               "BeginChild"));
+
     s7_define_function(sc, "imgui/end-child", end_child,   // ..
                        0, // req args
                        0, // optional args (the open boolean pointer)
                        false, // rest args
                        "EndChild");
 
+    s7_define(sc, env, s7_make_symbol(sc, "end-child"),
+              s7_make_function(sc, "end-child", end_child, 0, 0, false,
+                               "EndChild"));
+
     s7_define_function(sc, "imgui/begin-group", begin_group, 0, 0, false,
                        "BeginGroup");
+    s7_define(sc, env, s7_make_symbol(sc, "begin-group"),
+              s7_make_function(sc, "begin-group", begin_group, 0, 0, false,
+                               "BeginGroup"));
+
     s7_define_function(sc, "imgui/end-group", end_group, 0, 0, false,
                        "EndGroup");
+    s7_define(sc, env, s7_make_symbol(sc, "end-group"),
+              s7_make_function(sc, "end-group", end_group, 0, 0, false,
+                               "EndGroup"));
 
     s7_define_function(sc, "imgui/dummy", dummy, 2, 0, false,
                        "Dummy - a container (for eg drawing - think of it as a canvas)");
+
+    s7_define(sc, env, s7_make_symbol(sc, "dummy"),
+              s7_make_function(sc, "dummy", dummy, 2, 0, false,
+                               "Dummy - a container (a placeholder for custom drawin, sets the w,h to offset the next element)"));
 }
 }
 
@@ -431,12 +498,22 @@ s7_pointer line(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
-void bind(s7_scheme *sc) {
+void bind(s7_scheme *sc, s7_pointer env) {
     s7_define_function(sc, "imgui.draw/circle", circle,   // ..
                        4, // req args: cx cy r col
                        2, // optional args: segments, thickness
                        false, // rest args
                        "(cx cy r col &optional segments thickness)");
+
+    s7_define(sc, env, s7_make_symbol(sc, "circle"),
+              s7_make_function(sc, "circle", circle,
+                               4, // req args: cx cy r col
+                               2, // optional args: segments, thickness
+                               false, // rest args
+                               "(cx cy r col &optional segments thickness)"));
+
+
+
 
     s7_define_function(sc, "imgui.draw/line", line,   // ..
                        5, // req args: x1 x2 y1 y2 col
@@ -444,11 +521,25 @@ void bind(s7_scheme *sc) {
                        false, // rest args
                        "(x1 y1 x2 y2 col &optional thickness)");
 
+    s7_define(sc, env, s7_make_symbol(sc, "line"),
+              s7_make_function(sc, "line", line,
+                               5, // req args: x1 x2 y1 y2 col
+                               1, // optional args: thickness
+                               false, // rest args
+                               "(x1 y1 x2 y2 col &optional thickness)"));
+
     s7_define_function(sc, "imgui.draw/text", text,   // ..
                        4, // req args: x y text color
                        0, // optional args: thickness
                        false, // rest args
                        "(x y text color)");
+
+    s7_define(sc, env, s7_make_symbol(sc, "draw-text"),
+              s7_make_function(sc, "draw-text", text,
+                               4, // req args: x y text color
+                               0,
+                               false, // rest args
+                               "(x y text color)"));
 }
 }
 
@@ -472,7 +563,7 @@ s7_pointer int_rgb_to_u32(s7_scheme *sc, s7_pointer args) {
     return s7_make_integer(sc, res);
 }
 
-void bind(s7_scheme *sc) {
+void bind(s7_scheme *sc, s7_pointer env) {
     s7_define_function(sc, "imgui.color/frgb->u32",
                        float_rgb_to_u32, // ..
                        3, // req args
@@ -480,12 +571,28 @@ void bind(s7_scheme *sc) {
                        false, // rest args
                        "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0.0 to 1.0");
 
+    s7_define(sc, env, s7_make_symbol(sc, "frgb->u32"),
+              s7_make_function(sc, "frgb->u32", float_rgb_to_u32,
+                               3, // req args
+                               0, // optional args: thickness
+                               false, // rest args
+                               "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0.0 to 1.0"));
+
+
     s7_define_function(sc, "imgui.color/rgb->u32",
                        int_rgb_to_u32, // ..
                        3, // req args
                        0, // optional args (the open boolean pointer)
                        false, // rest args
                        "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0 to 255.");
+
+    s7_define(sc, env, s7_make_symbol(sc, "rgb->u32"),
+              s7_make_function(sc, "rgb->u32", int_rgb_to_u32,
+                               3, // req args
+                               0, // optional args: thickness
+                               false, // rest args
+                               "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0 to 255."));
+
 }
 }
 
@@ -525,18 +632,31 @@ s7_pointer color_edit_3(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
-void bind(s7_scheme* sc) {
+void bind(s7_scheme* sc, s7_pointer env) {
     s7_define_function(sc, "imgui/color-edit-3", color_edit_3,   // ..
                        2, // req args
                        0, // optional args
                        false, // rest args
                        "ColorEdit3");
+    s7_define(sc, env, s7_make_symbol(sc, "color-edit-3"),
+              s7_make_function(sc, "color-edit-3", color_edit_3,
+                               2, // req args
+                               0, // optional args: thickness
+                               false, // rest args
+                               "ColorEdit3"));
+
 
     s7_define_function(sc, "imgui/slider-float", slider_float,   // ..
                        4, // req args
                        0, // optional args
                        false, // rest args
                        "SliderFloat");
+    s7_define(sc, env, s7_make_symbol(sc, "slider-float"),
+              s7_make_function(sc, "slider-float", slider_float,
+                               4, // req args
+                               0, // optional args: thickness
+                               false, // rest args
+                               "SliderFloat"));
 
 }
 }
@@ -549,12 +669,12 @@ void bind(s7_scheme *sc) {
     s7_gc_protect(sc, env);
 
     windows::bind(sc, env);
-    general::bind(sc);
-    menus::bind(sc);
-    layout::bind(sc);
-    draw::bind(sc);
-    colors::bind(sc);
-    sliders::bind(sc);
+    general::bind(sc, env);
+    menus::bind(sc, env);
+    layout::bind(sc, env);
+    draw::bind(sc, env);
+    colors::bind(sc, env);
+    sliders::bind(sc, env);
 
     // the provide is needed to define the *features* symbol in this environment
     // this is checked to avoid duplicate requires of this environment

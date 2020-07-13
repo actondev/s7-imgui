@@ -1,7 +1,7 @@
 (display "hi from audio player\n")
 (require aod.core)
-(require imgui-macros.scm)
 (aod/require aod.imgui.macros :as igm)
+(aod/require aod.c.imgui :as ig)
 
 (define audio-file #f)
 
@@ -9,27 +9,30 @@
   (sdl/set-window-size! 500 300))
 
 (define (draw-menu)
-  (imgui/m-menu-bar
+  (igm/menu-bar
    ()
-   (imgui/m-menu
+   (igm/menu
     ("File")
-    (imgui/m-menu-item ("Open")
+    (igm/menu-item ("Open")
 		       (set! audio-file ((*nfd* 'open)))))))
+
+#;
+(format *stderr* "Expanded: ~A\n" (macroexpand (igm/maximized ("test")
+							      (ig/text "hi"))))
 
 (define (draw)
 
-  (imgui/m-maximized
+  (igm/maximized
    ("s7 audio")
    (draw-menu)
-   (imgui/text (format #f "Audio file: ~A" audio-file))
-;;   (when audio-file)
-   (when (imgui/button "Play")
+   (ig/text (format #f "Audio file: ~A" audio-file))
+   (when (ig/button "Play")
      (audio/play)
      )
-   (when (imgui/button "Stop")
+   (when (ig/button "Stop")
      (audio/stop)
      )
-   (when (imgui/button "Glitch!")
+   (when (ig/button "Glitch!")
      (audio/glitch)
      ))
     
@@ -37,4 +40,4 @@
 	       ;; no menu flags.. gotta work on the flags thing
 	       '(igm/menu-bar ()
 			 (igm/menu ("file")))
-	       (imgui/text "hi there!")))
+	       (ig/text "hi there!")))
