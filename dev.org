@@ -92,8 +92,9 @@ ninja -C build && ./build/s7-imgui
 ** Running the tests
    #+NAME: >test
    #+BEGIN_SRC sh
-ninja -C build
-./build/test/gtest-all
+#ninja -C build
+#./build/test/gtest-all
+ninja -C build test
    #+END_SRC
 
    To run specific tests:
@@ -191,7 +192,7 @@ ninja -C build
    #+NAME: ex.c:audio_player
    #+BEGIN_SRC sh
 ninja -C build
-ln -s `readlink -f src/scheme` build/examples/scheme 
+ln -s `readlink -f src/scheme` build/examples/scheme
 ln -s `readlink -f examples/owl.wav` build/examples/owl.wav
 ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
 ./build/examples/ex_audio_player

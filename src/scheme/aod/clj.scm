@@ -1,10 +1,13 @@
 ;; some basic functionality that I miss from clojure
-(display "loaded clj.scm\n")
-;; what is provide foooor.. don't get it
-;; (provide 'clj.scm)
+;; (display "loading aod/clj.scm\n")
+(provide 'aod.clj)
 
+#;
 (define-macro (comment . body)
-  `())
+   `())
+
+;; #<unspecified> or () is better?
+(define-expansion (comment . body) #<unspecified>)
 
 (define map-indexed
   (let ((+documentation+ "(map-indexed f coll)
@@ -22,8 +25,6 @@ f should accept to arguments, i and the element")
  (map-indexed (lambda (i el)
 		(format *stdout* "i ~A el ~A\n" i el))
 	      '(a b c))
-
-
  
 ;; i 0 el a
 ;; i 1 el b
@@ -76,3 +77,5 @@ i is 2
 
 (define range iota)
 (define mod modulo)
+
+(display "..loaded aod/clj.scm\n")

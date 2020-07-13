@@ -52,6 +52,25 @@ std::string eval_write(s7_scheme *sc, const char *sexp) {
     return _out_stream.str();
 }
 
+
+#define AOD_S7_AUTOLOAD 1
+#define AOD_S7_AUTOLOAD_2 AOD_S7_AUTOLOAD*2
+void set_autoloads(s7_scheme *sc) {
+//     s7_autoload_set_names(sc, NULL, 0);
+    // hm.. if I don't set this to static, everything goes to shit
+    static const char *autoloads[AOD_S7_AUTOLOAD_2] = {
+        // each pair of entries is entity name + file name
+        "aod.core", "aod/core.scm",
+//         "aod.clj", "aod/clj.scm", //
+//         "aod.imgui", "aod/imgui/macros.scm",
+//         "imgui-macros.scm", "aod/imgui_macros.scm", //
+//         "aod.libs.lib1", "aod/imgui/macros.scm",
+    };
+
+
+    s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOAD);
+}
+
 } // s7
 } // aod
 

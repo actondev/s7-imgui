@@ -117,18 +117,8 @@ int main(int argc, char *argv[]) {
     // gl bindings (eg gl/save-screenshot)
     aod::s7::gl::bind(sc);
 
-    // TODO can i use base_path in windows? do the s7_add_to_load_path work?
-    // aod::path::set(scheme_path);
-//    aod::path::set(base_path);
-
-#define AOD_S7_AUTOLOADS_TIMES_2 4
-    static const char *autoloads[AOD_S7_AUTOLOADS_TIMES_2] = {
-        // each pair of entries is entity name + file name
-        "clj.scm", "clj.scm", //
-        "imgui-macros.scm", "imgui_macros.scm", //
-    };
-
-    s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOADS_TIMES_2 / 2);
+//     s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOADS_TIMES_2 / 2);
+    aod::s7::set_autoloads(sc);
 
     if (argc >= 2) {
         fprintf(stderr, "Passed custom scheme file %s\n", argv[1]);

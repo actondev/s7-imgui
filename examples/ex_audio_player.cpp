@@ -101,6 +101,8 @@ s7_pointer sc_audio_glitch(s7_scheme* sc, s7_pointer args) {
 int main(int argc, char *argv[]) {
     char *path_char = SDL_GetBasePath();
     fs::path base_path = fs::path(path_char);
+    fs::path scheme_path = base_path / "scheme";
+    std::cerr << "scheme path" << scheme_path << std::endl;
 
     s7_scheme *sc = s7_init();
     s7_define_function(sc, "exit", sc_exit, 0, 0, 0, "exits the main loop");
@@ -111,8 +113,7 @@ int main(int argc, char *argv[]) {
 
     aod::s7::set_print_stderr(sc);
     s7_add_to_load_path(sc, SDL_GetBasePath());
-    s7_add_to_load_path(sc, (base_path / "scheme").c_str());
-    s7_add_to_load_path(sc, (base_path / "aod").c_str());
+    s7_add_to_load_path(sc, scheme_path.c_str());
 
     aod::s7::bind_all(sc);
     aod::s7::set_autoloads(sc);

@@ -57,21 +57,12 @@ inline void bind_all(s7_scheme *sc) {
 
     // gl bindings (eg gl/save-screenshot)
     aod::s7::gl::bind(sc);
-    
+
     // nfd: native file dialog (*nfd* 'open)
     aod::s7::nfd::bind(sc);
 }
 
-#define AOD_S7_AUTOLOAD_2 4
-inline void set_autoloads(s7_scheme *sc) {
-    static const char *autoloads[AOD_S7_AUTOLOAD_2] = {
-        // each pair of entries is entity name + file name
-        "clj.scm", "clj.scm", //
-        "imgui-macros.scm", "imgui_macros.scm", //
-    };
-
-    s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOAD_2 / 2);
-}
+void set_autoloads(s7_scheme *sc);
 
 } // ! s7
 } // ! aod

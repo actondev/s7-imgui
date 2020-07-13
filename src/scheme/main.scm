@@ -1,5 +1,6 @@
 (display "loading main.scm\n")
 
+(require aod.core)
 ;; either one of the 2
 ;; (load "imgui_macros.scm")
 (require imgui-macros.scm)

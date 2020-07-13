@@ -1,5 +1,7 @@
 ;; places the elements in a circular fashion
 ;; starting from 12 o'clock and going clock-wise
+(provide 'aod.layout)
+
 (define* (layout/circular cb (N 12) (R 100) (r 20))
   (let ((+documentation+ "Calls (cb x y)"))
     (let ((d-theta (/ (* 2 pi) N))

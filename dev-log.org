@@ -636,3 +636,109 @@ $(OBJDIR)/nfd_gtk.o: ../../src/nfd_gtk.c
   #+END_SRC
 * C++ private functions, hiding implentation from header etc
   https://stackoverflow.com/a/28734794
+* TODO <2020-07-12 Sun> s7 bug
+  sent to the mailing list
+  #+BEGIN_SRC cpp
+TEST(s7_environments, autoloads_bug) {
+    const char *autoloads[6] = {
+        // each pair of entries is entity name + file name
+        "aod.lib1", "aod/lib1.scm", //
+        "aod.lib2", "aod/lib2.scm", //
+        "aod.extra.foo", "aod/extra/foo.scm",
+    };
+
+    s7_scheme* sc1 = s7_init();
+    s7_autoload_set_names(sc1, autoloads, 3);
+    char* sexp = "(begin "
+                 "(require aod.lib1)"
+                 "(require aod.lib2)"
+                 "1)";
+    // ok that works
+    ASSERT_EQ(1, s7_integer(s7_eval_c_string(sc1, sexp)));
+
+    s7_scheme* sc2 = s7_init();
+    s7_autoload_set_names(sc2, autoloads, 3);
+    char* sexp2 = "(begin "
+                  "(require aod.extra.foo)"
+                  "2)";
+    // THAT FAILS!!
+    ASSERT_EQ(2, s7_integer(s7_eval_c_string(sc2, sexp2)));
+    /**
+     ,* ----------
+    ;require: no autoload info for aod.extra.foo
+    ; (require aod.extra.foo)
+    ; ((lambda (hook lst) (if (do ((p lst (cdr ...
+    ; (2)
+    ,* -----------
+    ,*/
+}  
+  #+END_SRC
+* some macros about clj style require
+  #+BEGIN_SRC scheme
+(define-macro* (aod/-require-bindings lib-exports as)
+  (format *stderr* "=> require bindings ~A as ~A\n" lib-exports as)
+  (let* ((as (or as lib-exports))
+	 (prefix (symbol->string as)))
+    ;; note: if I used a let inside the ` block, the (curlet) would refer to the let closure
+    ;; thus, making any let assignments outside of the macro
+    `(apply varlet (curlet)
+	   (map (lambda (binding)
+		  (let ((new-binding (string->symbol 
+				      (string-append ,prefix "/" (symbol->string (car binding))))))
+		    (format *stderr* "binding ~A\n" new-binding)
+		    (cons new-binding 
+			  (cdr binding))))
+		,lib-exports))))
+(define-macro* (aod/-require-as autoload-symbol (as #f))
+    (format *stderr* "=> require autoload symbol ~A as ~A\n" autoload-symbol as)
+  (let* ((as (or as autoload-symbol))
+	 (prefix (symbol->string as)))
+    `(apply varlet (curlet)
+	    (with-let (unlet)
+		      (let ()
+			(require ,autoload-symbol)
+			(map (lambda (binding)
+			       (let ((new-binding (string->symbol 
+						   (string-append ,prefix "/" (symbol->string (car binding))))))
+				 (format *stderr* "binding ~A\n" new-binding)
+				 (cons new-binding 
+				       (cdr binding))))
+			     (curlet)))))))  
+  #+END_SRC
+
+  eventually replaced from
+  #+BEGIN_SRC scheme
+(define-macro* (aod/require what (as #f))
+  (let ((prefix (symbol->string `,(or as what))))
+    ;; (format *stderr* "aod/require ~A :as ~A\n" what prefix)
+    (if (defined? what)
+	;; bindings from c
+	(begin
+	  ;; (format *stderr* "requiring foreign bindings ~A as ~A\n" what prefix)
+	  `(apply varlet (curlet)
+		  (map (lambda (binding)
+		  (let ((new-binding (string->symbol 
+				      (string-append ,prefix "/" (symbol->string (car binding))))))
+		    (format *stderr* "binding ~A\n" new-binding)
+		    (cons new-binding 
+			  (cdr binding))))
+		,what)))
+	;; normal autload, symbol "what" not present
+	(begin
+	  ;; (format *stderr* "requiring autoload symbol ~A as ~A, features ~A\n autoload ~A\n" what prefix *features* (*autoload* what))
+	  (if (defined? (string->symbol (string-append prefix "/*features*")))
+	    (format *stderr* "WARNING: ~A already required as ~A\n" what prefix)
+	    `(apply varlet (curlet)
+		    (with-let (unlet)
+			      (let ()
+				;; note: we use load cause if we required already nothing will happen!
+				;; (*autoload* ',what) gives us the file name
+				(load (*autoload* ',what) (curlet))
+				(map (lambda (binding)
+				       (let ((new-binding (string->symbol 
+							   (string-append ,prefix "/" (symbol->string (car binding))))))
+					 (format *stderr* "binding ~A\n" new-binding)
+					 (cons new-binding 
+					       (cdr binding))))
+				     (curlet))))))))))  
+  #+END_SRC

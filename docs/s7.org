@@ -373,3 +373,23 @@ f1
 (boolean? real?)
 
   #+END_SRC
+* Autoloading
+  Useful functions in s7.c:
+  - find_autoload_name
+
+  Autload gives info about what to do when stumbling upon a symbol that is undefind
+  #+BEGIN_SRC scheme
+(autoload 'aod.clj "aod/clj.scm")  
+  #+END_SRC
+
+  later on, whenever i try to access =aod.clj=, if it's not defined, it will try to =resolve= it.
+  The =resolving= tactic is the 2nd argument, which can be a string (what file to load) or a lambda to do something.
+
+  #+BEGIN_QUOTE
+  This info can be declared via autoload, a function of two arguments,
+  the symbol that triggers the autoload, and either a filename or a
+  function. If a filename, s7 loads that file; if a function, it is
+  called with one argument, the current (calling) environment.
+  #+END_QUOTE
+
+  The =provide= simply puts that symbol into the =*features*= list.

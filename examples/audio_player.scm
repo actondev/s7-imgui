@@ -1,5 +1,7 @@
-;; (display "hi from audio player\n")
+(display "hi from audio player\n")
+(require aod.core)
 (require imgui-macros.scm)
+(aod/require aod.imgui.macros :as igm)
 
 (define audio-file #f)
 
@@ -30,7 +32,10 @@
    (when (imgui/button "Glitch!")
      (audio/glitch)
      ))
-    (imgui/m-window
-   ("test")
-   (imgui/text "hi there"))
+    
+    (igm/begin ("test window 2")
+	       ;; no menu flags.. gotta work on the flags thing
+	       '(igm/menu-bar ()
+			 (igm/menu ("file")))
+	       (imgui/text "hi there!"))
   )
