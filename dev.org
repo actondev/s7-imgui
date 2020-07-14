@@ -179,7 +179,7 @@ rm src/scheme/s7/libc_s7*
    #+END_SRC
 
    #+RESULTS:
-   | [ex.c:repl] | [ex.c:audio_player] | [ex.c:imgui] | [>build] |
+   | [ex.c:repl-emacs] | [ex.c:repl] | [ex.c:audio_player] | [ex.c:imgui] | [>build] |
 
 ** imgui demo
    #+NAME: ex.c:imgui
@@ -201,8 +201,29 @@ ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
 ** repl
    #+NAME: ex.c:repl
    #+BEGIN_SRC sh
-ninja -C build && ./build/examples/repl
+ninja -C build && ./build/examples/repl src/scheme/aod/sxs.scm
    #+END_SRC
+
+   #+NAME: ex.c:repl-emacs
+   #+BEGIN_SRC emacs-lisp
+(with-temp-buffer
+  (if (= 0 (call-process "ninja" nil t t "-C" "build" ))
+      (progn
+	;; (message "OK! running scheme")
+	(let ((default-directory (projectile-project-root)))
+	  (run-scheme (concat (projectile-project-root) "build/examples/repl src/scheme/aod/sxs.scm") )))
+    (progn
+      ;; (message "build failed")
+      (message (buffer-string))
+      )
+    ))
+   #+END_SRC
+
+   #+BEGIN_SRC emacs-lisp
+(message "hi")
+(run-scheme (concat (projectile-project-root) "build/examples/repl"))
+   #+END_SRC
+
 ** scheme app examples
    #+BEGIN_SRC emacs-lisp :exports none
 (aod.org-babel/generate-named-buttons-inc (rx (or "ex.scm:" (regexp ">build$"))))
@@ -270,3 +291,16 @@ time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-r
 # eval: (aod.org-babel/eval-named-block "buttons")
 # eval: (org-babel-goto-named-result "buttons")
 # End:  
+* Testing
+     #+BEGIN_SRC emacs-lisp :exports none
+(aod.org-babel/generate-named-buttons-inc (rx "test:"))
+   #+END_SRC
+
+   #+RESULTS:
+   | [test:scheme] |
+
+** Testing scheme
+   #+NAME: test:scheme
+   #+BEGIN_SRC sh
+ninja -C build && ./build/examples/repl src/scheme/test.scm
+   #+END_SRC

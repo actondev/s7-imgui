@@ -87,3 +87,6 @@ i is 2
 (expt base power))
 
 (define pow expt)
+
+(define-expansion (identity what)
+  `,what)

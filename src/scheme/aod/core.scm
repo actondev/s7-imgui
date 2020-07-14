@@ -3,9 +3,18 @@
 (provide 'aod.core)
 
 (autoload 'aod.clj "aod/clj.scm")
+(autoload 'aod.test "aod/test.scm")
+(autoload 'aod.geom "aod/geom.scm")
 ;; comment, map-indexed, dotimes, range, mod
 ;; on the (rootlet)
 (require aod.clj)
+;; ignornig tests, unless:
+(define-expansion (test . body) #<unspecified>)
+
+(when (eq? (symbol->value '*test*) #t)
+  (display "Preparing tests:\n")
+  (require aod.test))
+
 
 (define-macro* (aod/require what (as #f))
   (let* ((prefix (symbol->string `,(or as what)))
@@ -52,4 +61,32 @@
 (autoload 'aod.imgui.macros "aod/imgui/macros.scm")
 (autoload 'aod.colors "aod/colors.scm")
 
+(define (filter pred col)
+  (let loop ((res (list ))
+	   (s col))
+    (if (pair? s)
+	(begin
+	  (when (pred (car s))
+	      (set! res (append res (list (car s)))))
+	  (loop res (cdr s)))
+	res)))
 
+(comment
+ (filter (lambda (x)
+	   (> x 0))
+	 '( 0 1 2 -1 -5 10))
+ ;; => (1 2 10)
+ )
+
+
+(define (print . args)
+  (format *stderr* "~A\n" (apply string-append
+		  (map
+		   (lambda (x)
+		     (format #f "~A " x)
+		     )
+		   args))))
+
+(comment
+ (print 'a 'b "aasa" '(a b c))
+ )
