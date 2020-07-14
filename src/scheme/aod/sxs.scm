@@ -81,9 +81,72 @@
 					:dir 'left)))
       )
 
-(define (-logo/x)
-  (let ((cx 100)
-	(cx 100)
-	(r 100))
-    
-    ))
+
+(comment
+ "offsetting/duplicating lines"
+ )
+;; the sigma-x-square lines to be drawn
+
+(define (-arrow-right circle)
+  (map (lambda (theta)
+	 (polar-line circle :theta theta))
+       (-arrow-angles :dir 'right)))
+
+(define (-arrow-left circle)
+  (map (lambda (theta)
+	 (polar-line circle :theta theta))
+       (-arrow-angles :dir 'left)))
+
+(define (arrows-right circle)
+  (let* ((r (circle 2))
+	(offset (* 2 r)))
+    (geom/repeat-lines
+     (-arrow-right circle)
+     `((,(- offset) 0)
+       (0 0)
+       (,offset 0)))))
+
+(define (arrows-left circle)
+  (let* ((r (circle 2))
+	(offset (* 2 r)))
+    (geom/repeat-lines
+     (-arrow-left circle)
+     `((,(- offset) 0)
+       (0 0)
+       (,offset 0)))))
+
+(define* (lines circle (phase 0) (clip #t))
+  (let ((offset-right (list (* 2 phase (circle 2))
+			    0))
+	(offset-left (list (- (* 2 phase (circle 2)))
+			   0)))
+    (let ((lines
+	   (append
+	    (geom/lines-offset (arrows-right circle)
+			       offset-right)
+	    (geom/lines-offset (arrows-left circle)
+			       offset-left)
+	    )))
+      (if clip
+	  (geom/clip-lines-in-circle lines circle)
+	  lines))))
+
+(comment
+ (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
+	     :clip #t)
+
+ 
+ )
+
+(test "SXS lines non-clipped"
+      (is (equivalent?
+	       '((-2.8284271247461903 0 -3.8284271247461903 1.0000000000000002) (0.0 0 -1.0 1.0000000000000002) (2.8284271247461903 0 1.8284271247461903 1.0000000000000002) (-2.8284271247461903 0 -3.8284271247461907 -1.0) (0.0 0 -1.0000000000000002 -1.0) (2.8284271247461903 0 1.82842712474619 -1.0) (-2.8284271247461903 0 -1.82842712474619 -1.0) (0.0 0 1.0000000000000002 -1.0) (2.8284271247461903 0 3.8284271247461907 -1.0) (-2.8284271247461903 0 -1.82842712474619 1.0) (0.0 0 1.0000000000000002 1.0) (2.8284271247461903 0 3.8284271247461907 1.0))
+	       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
+		      :clip #f)))
+      )
+
+
+(test "SXS lines clipped"
+      (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
+	     :clip #t)
+      )

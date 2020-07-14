@@ -177,6 +177,11 @@
 		    (clip-line-in-circle '(-100 -100 100 100) `(0 0 ,(* 2 (sqrt 2)))))
        "Line that exceeds in both ends"))
 
+(define (clip-lines-in-circle lines circle)
+  (map (lambda (line)
+	 (clip-line-in-circle line circle))
+       lines))
+
 (define (rad->deg rad)
   (/ (* 180 rad) pi))
 
@@ -191,11 +196,23 @@
 	  (+ offs-x (line 2))
 	  (+ offs-y (line 3)))))
 
-(test "Line offset"
-      (assert (equivalent? '(1 1 2 2)
+(define (lines-offset lines offset)
+  (map (lambda (line)
+	 (line-offset line offset)
+	 )
+       lines))
+
+(test "Line(s) offset"
+      (is (equivalent? '(1 1 2 2)
 			   (line-offset '(0 0 1 1)
-					'(1 1))
-			   )))
+					'(1 1))))
+
+
+      (is (equivalent? '((1 1 2 2) (1 1 11 11))
+			   (lines-offset '((0 0 1 1) (0 0 10 10))
+					 '(1 1)))))
+
+
 
 (define* (mk-circle cx cy r)
   (list cx cy r))
@@ -210,8 +227,8 @@
 
 (define (repeat-lines lines offsets)
   (apply append (map (lambda (line)
-		(repeat-line line offsets))
-	      lines)))
+		       (repeat-line line offsets))
+		     lines)))
 
 (test "Repeat lines"
       (is (equivalent? '((-1 0 0 1) (0 0 1 1) (1 0 2 1))
