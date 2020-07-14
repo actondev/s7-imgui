@@ -1,5 +1,6 @@
 (provide 'aod.geom)
 (require aod.core)
+(display "in aod.geom\n")
 
 (define (distance-sq p1 p2)
   (+
@@ -64,6 +65,42 @@
 			     (/ ( - y2 y1)
 				(- x2 x1)
 				))))
-		 theta))
+	   theta))
 
+(define (sq x)
+  (* x x))
 
+(define (intersects-d line circle)
+  (let ((x0 (circle 0))
+	(y0 (circle 1))
+	(r (circle 2))
+	(x1 (line 0))
+	(y1 (line 1))
+	(x2 (line 2))
+	(y2 (line 3)))
+    (let* ((A (- y2 y1))
+	   (B (- x1 x2))
+	   (C (- (* x2 y1) (* x1 y2)))
+	   (a (+ (sq A) (sq B)))
+	   (b ;; not vertical line..
+	    (* 2 (+ (* A C)
+		    (* A B y0)
+		    (- 0 (* (sq B)
+			    x0)))))
+	   (c (- (+ (sq C)
+		   (* 2 B C y0)
+		   )
+		 (* (sq B)
+		    (- (sq r)
+		       (sq x0)
+		       (sq y0)))))
+	   (d ;; discriminant
+	    (- (sq b)
+	       (* 4 a c))))
+      d)))
+
+(comment
+ (= 0 (intersects-d '(0 10 0 20) '(0 0 10))) ;; one intersection
+ (intersects-d '(0 20 10 20) '(0 0 10)) ;; negative: no intersection
+ (intersects-d '(1 1 2 2) '(0 0 10)) ;; positive: intersection
+ )
