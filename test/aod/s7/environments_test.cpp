@@ -67,8 +67,8 @@ TEST(s7_environments, require) {
 
     const char* sexp = "(begin "
                        "(require aod.core)"
-                       "(aod/require aod.foreign)"
-                       "(define i2 (aod.foreign/new-int 2))"
+                       "(aod/require aod.c.foreign)"
+                       "(define i2 (aod.c.foreign/new-int 2))"
                        "(i2)"
                        ")"
                        ;
@@ -93,7 +93,7 @@ TEST(s7_environments, require_as) {
     const char* sexp2 = "(begin "
                         "(require aod.core)"
                         "(comment aha)"
-                        "(aod/require aod.foreign :as c)"
+                        "(aod/require aod.c.foreign :as c)"
                         "(define i2 (c/new-int 2))"
                         "(i2)"
                         ")"

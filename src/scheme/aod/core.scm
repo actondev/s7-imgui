@@ -7,20 +7,6 @@
 ;; on the (rootlet)
 (require aod.clj)
 
-(autoload 'aod.layout "aod/layout.scm")
-
-(autoload 'imgui-macros.scm
-	  ;; fuck, the lambda is not working
-	  ;; aaaagggh
-	  
-	  ;; (lambda (e)
-	  ;;   (unless (provided? 'imgui-macros)
-	  ;;     (load "aod/imgui_macros.scm")))
-	  "aod/imgui_macros.scm"
-	  )
-
-(autoload 'aod.imgui.macros "aod/imgui/macros.scm")
-
 (define-macro* (aod/require what (as #f))
   (let* ((prefix (symbol->string `,(or as what)))
 	(features-symbol (string->symbol (string-append prefix "/*features*"))))
@@ -51,4 +37,19 @@
 					(cons binding-symbol 
 					      (cdr binding))))
 				    (curlet)))))))))
+
+(autoload 'aod.layout "aod/layout.scm")
+(autoload 'imgui-macros.scm
+	  ;; fuck, the lambda is not working
+	  ;; aaaagggh
+	  
+	  ;; (lambda (e)
+	  ;; (display "WARNING! please use aod.imgui.macros")
+	  ;;   (unless (provided? 'imgui-macros)
+	  ;;     (load "aod/imgui_macros.scm")))
+	  "aod/imgui_macros.scm"
+	  )
+(autoload 'aod.imgui.macros "aod/imgui/macros.scm")
+(autoload 'aod.colors "aod/colors.scm")
+
 

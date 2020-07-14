@@ -79,3 +79,11 @@ i is 2
 (define range iota)
 (define mod modulo)
 
+(define-macro (not= . args)
+  `(not (= ,@args)))
+
+#;
+(define-expansion (pow base power)
+(expt base power))
+
+(define pow expt)

@@ -1,6 +1,9 @@
-(require imgui-macros.scm)
-(load "layout.scm")
-(load "colors.scm")
+(require aod.core)
+
+(aod/require aod.colors :as colors)
+(aod/require aod.c.imgui :as ig)
+(aod/require aod.imgui.macros :as igm)
+(aod/require aod.layout :as layout)
 
 (define w 400)
 (define h 400)
@@ -19,13 +22,13 @@
   (let* ((rgb (colors/rgb-phase phase))
 	 ;; red is (car rgb) or (rgb 0).. it's the same
 	 ;; green (cadr rgb) or (rgb 1) etc
-	 (color (imgui.color/frgb->u32 (rgb 0) (rgb 1) (rgb 2)))
+	 (color (ig/frgb->u32 (rgb 0) (rgb 1) (rgb 2)))
 	 (label (format #f "~A " n)))
-    (imgui.draw/text x y label color)
-    (imgui.draw/circle x y 20 color)))
+    (ig/draw-text x y label color)
+    (ig/draw-circle x y 20 color)))
 
 (define (draw)
-  (imgui/m-maximized
+  (igm/maximized
    ("color wheel")
    (layout/circular
     element

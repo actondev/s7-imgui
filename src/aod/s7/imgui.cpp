@@ -505,8 +505,8 @@ void bind(s7_scheme *sc, s7_pointer env) {
                        false, // rest args
                        "(cx cy r col &optional segments thickness)");
 
-    s7_define(sc, env, s7_make_symbol(sc, "circle"),
-              s7_make_function(sc, "circle", circle,
+    s7_define(sc, env, s7_make_symbol(sc, "draw-circle"),
+              s7_make_function(sc, "draw-circle", circle,
                                4, // req args: cx cy r col
                                2, // optional args: segments, thickness
                                false, // rest args
@@ -521,8 +521,8 @@ void bind(s7_scheme *sc, s7_pointer env) {
                        false, // rest args
                        "(x1 y1 x2 y2 col &optional thickness)");
 
-    s7_define(sc, env, s7_make_symbol(sc, "line"),
-              s7_make_function(sc, "line", line,
+    s7_define(sc, env, s7_make_symbol(sc, "draw-line"),
+              s7_make_function(sc, "draw-line", line,
                                5, // req args: x1 x2 y1 y2 col
                                1, // optional args: thickness
                                false, // rest args

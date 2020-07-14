@@ -222,7 +222,7 @@ namespace aod {
                     s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*foreign*"),
                               s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
 
-                    s7_define_variable(sc, "aod.foreign", s7_let_to_list(sc, env));
+                    s7_define_variable(sc, "aod.c.foreign", s7_let_to_list(sc, env));
                }
           } // foreign
      } // s7

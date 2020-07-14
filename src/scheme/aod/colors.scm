@@ -1,6 +1,9 @@
+(display "loading aod/colors.scm\n")
+
+(provide 'aod.colors)
 ;; https://en.wikipedia.org/wiki/Hue#/media/File:HSV-RGB-comparison.svg
 ;; starts with the "red"
-(define (colors/-triplet-ramp1 phase360)
+(define (-triplet-ramp1 phase360)
   (let ((phase360 (mod phase360 360)))
     (cond
      ((< phase360 60) 1)
@@ -15,7 +18,7 @@
       )))
 
 ;; phase is 0.0 .. 1.0
-(define (colors/rgb-phase phase)
+(define (rgb-phase phase)
   (let ((phase (* phase 360)))
     (map 
      (lambda (phase3)
@@ -23,7 +26,7 @@
 	 (colors/-triplet-ramp1 phase)))
      '(0 120 240))))
 
-(define (colors/rgb-steps steps)
+(define (rgb-steps steps)
   (map
    (lambda (x)
      (colors/rgb-phase (/ x steps)))
@@ -32,18 +35,18 @@
 
 (comment
  (equivalent?
-  (colors/rgb-phase 0)
+  (rgb-phase 0)
   '(1 0 0))
  
  (equivalent?
-  (colors/rgb-phase 1)
+  (rgb-phase 1)
   '(1 0 0))
 
- (colors/rgb-steps 3)
+ (rgb-steps 3)
  ;; =>
  ((1 0 0) (0 1 0) (0 0 1))
  
- (colors/rgb-steps 12)
+ (rgb-steps 12)
  ;; =>
  ((1 0 0)
   (1 1/2 0)
