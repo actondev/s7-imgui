@@ -7,3 +7,4 @@ subprojects/*
 
 # kdevelop files
 *.kdev4
+*.kate-swp
