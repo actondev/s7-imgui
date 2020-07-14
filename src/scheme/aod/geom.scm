@@ -202,3 +202,23 @@
 
 (define* (mk-line x1 x2 y1 y2)
   (list x1 y1 x2 y2))
+
+(define (repeat-line line offsets)
+  (map (lambda (offset)
+	 (line-offset line offset))
+       offsets))
+
+(define (repeat-lines lines offsets)
+  (apply append (map (lambda (line)
+		(repeat-line line offsets))
+	      lines)))
+
+(test "Repeat lines"
+      (is (equivalent? '((-1 0 0 1) (0 0 1 1) (1 0 2 1))
+		       (repeat-line '(0 0 1 1)
+				    '((-1 0) (0 0) (1 0)))))
+
+      (is (equivalent? '((-1 0 0 1) (0 0 1 1) (1 0 2 1) (9 10 10 11) (10 10 11 11) (11 10 12 11))
+		       (repeat-lines '((0 0 1 1) (10 10 11 11))
+				     '((-1 0) (0 0) (1 0)))))
+      )

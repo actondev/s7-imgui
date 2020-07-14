@@ -9,6 +9,8 @@
 	   (format *stderr* "~A: ~A failed : \"~A\"~%" (*function*) ',assertion ,msg)
 	   #f))))
 
+(define is assert)
+
 (define-macro (test name . body)
   `(catch #t
 	   (lambda ()

@@ -2,9 +2,7 @@
 ;; putting the autload info here, among other necessary things (that I use often)
 (provide 'aod.core)
 
-(autoload 'aod.clj "aod/clj.scm")
-(autoload 'aod.test "aod/test.scm")
-(autoload 'aod.geom "aod/geom.scm")
+(load "aod/autloads.scm")
 ;; comment, map-indexed, dotimes, range, mod
 ;; on the (rootlet)
 (require aod.clj)
@@ -46,20 +44,6 @@
 					(cons binding-symbol 
 					      (cdr binding))))
 				    (curlet)))))))))
-
-(autoload 'aod.layout "aod/layout.scm")
-(autoload 'imgui-macros.scm
-	  ;; fuck, the lambda is not working
-	  ;; aaaagggh
-	  
-	  ;; (lambda (e)
-	  ;; (display "WARNING! please use aod.imgui.macros")
-	  ;;   (unless (provided? 'imgui-macros)
-	  ;;     (load "aod/imgui_macros.scm")))
-	  "aod/imgui_macros.scm"
-	  )
-(autoload 'aod.imgui.macros "aod/imgui/macros.scm")
-(autoload 'aod.colors "aod/colors.scm")
 
 (define (filter pred col)
   (let loop ((res (list ))
