@@ -29,6 +29,7 @@
 #include <iostream>
 #include <filesystem>
 #include <mutex>
+#include <thread>
 
 #define DRAW_FN "draw"
 #define POST_DRAW_FN "post-draw"
@@ -229,29 +230,31 @@ int main(int argc, char *argv[]) {
 
     // Main loop
     while (main_loop_running) {
-        std::lock_guard guard(g_s7_mutex);
-        // Poll and handle events (inputs, window resize, etc.)
-        // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-        // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-        // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-        // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT)
-                main_loop_running = false;
-        }
+        {
+            {
+                std::unique_lock lock(g_s7_mutex);
+                // Poll and handle events (inputs, window resize, etc.)
+                // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
+                // - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
+                // - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
+                // Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
+                SDL_Event event;
+                while (SDL_PollEvent(&event)) {
+                    ImGui_ImplSDL2_ProcessEvent(&event);
+                    if (event.type == SDL_QUIT)
+                        main_loop_running = false;
+                }
 
-        // Start the Dear ImGui frame
-        ImGui_ImplOpenGL2_NewFrame();
-        ImGui_ImplSDL2_NewFrame(window);
-        ImGui::NewFrame();
+                // Start the Dear ImGui frame
+                ImGui_ImplOpenGL2_NewFrame();
+                ImGui_ImplSDL2_NewFrame(window);
+                ImGui::NewFrame();
 
-        s7_call(sc, s7_name_to_value(sc, DRAW_FN), s7_nil(sc));
+                s7_call(sc, s7_name_to_value(sc, DRAW_FN), s7_nil(sc));
 
-        // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
-        if (show_demo_window)
-            ImGui::ShowDemoWindow(&show_demo_window);
+                // 1. Show the big demo window (Most of the sample code is in ImGui::ShowDemoWindow()! You can browse its code to learn more about Dear ImGui!).
+                if (show_demo_window)
+                    ImGui::ShowDemoWindow(&show_demo_window);
 
 //        {
 //            // testing custom widgets
@@ -266,17 +269,17 @@ int main(int argc, char *argv[]) {
 //            ImGui::End();
 //        }
 
-        // Rendering
-        ImGui::Render();
-        glViewport(0, 0, (int) io.DisplaySize.x, (int) io.DisplaySize.y);
+                // Rendering
+                ImGui::Render();
+                glViewport(0, 0, (int) io.DisplaySize.x, (int) io.DisplaySize.y);
 //	glClearColor(clear_color.x, clear_color.y, clear_color.z,
 //		     clear_color.w);
-        glClearColor(clear_color[0], clear_color[1], clear_color[2],
-                     clear_color[3]);
-        glClear(GL_COLOR_BUFFER_BIT);
-        //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
-        ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-        SDL_GL_SwapWindow(window);
+                glClearColor(clear_color[0], clear_color[1], clear_color[2],
+                             clear_color[3]);
+                glClear(GL_COLOR_BUFFER_BIT);
+                //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
+                ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+                SDL_GL_SwapWindow(window);
 
 //        s7_pointer post_draw = s7_name_to_value(sc, POST_DRAW_FN);
 
@@ -286,8 +289,12 @@ int main(int argc, char *argv[]) {
 //        if (post_draw) {
 //            s7_call(sc, s7_symbol_value(sc, post_draw), s7_nil(sc));
 //        }
-        s7_eval_c_string(sc, "(if (defined? 'post-draw) (post-draw))");
-//         SDL_Delay(20);
+                s7_eval_c_string(sc, "(if (defined? 'post-draw) (post-draw))");
+            }
+//             lock.release();
+
+            SDL_Delay(20);
+        }
     }
 //    s7_is_
     fprintf(stderr, "Quit main loop, cleaning up..\n");
@@ -303,3 +310,4 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+

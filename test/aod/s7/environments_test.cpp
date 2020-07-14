@@ -21,7 +21,7 @@ TEST(s7_environments, autoloads_bug) {
 
     s7_scheme* sc1 = s7_init();
     s7_autoload_set_names(sc1, autoloads, 3);
-    char* sexp = "(begin "
+    const char* sexp = "(begin "
                  "(require aod.lib1)"
                  "(require aod.lib2)"
                  "1)";
@@ -30,7 +30,7 @@ TEST(s7_environments, autoloads_bug) {
 
     s7_scheme* sc2 = s7_init();
     s7_autoload_set_names(sc2, autoloads, 3);
-    char* sexp2 = "(begin "
+    const char* sexp2 = "(begin "
                   "(require aod.extra.foo)"
                   "2)";
     // THAT FAILS!!

@@ -393,3 +393,19 @@ f1
   #+END_QUOTE
 
   The =provide= simply puts that symbol into the =*features*= list.
+* Macros, expansions etc
+  #+BEGIN_QUOTE
+   define-expansion defines a macro that expands at read-time. It has
+   the same syntax as define-macro, and (in normal use) the same
+   result, but it is much faster because it expands only
+   once. Similarly, define-expansion* defines a read-time macro*. (See
+   also define-with-macros in s7test.scm for a way to expand macros in
+   a function body at definition time). Since the reader knows almost
+   nothing about the code it is reading, you need to make sure the
+   expansion is defined at the top level and that its name is
+   unique. The reader does know about global variables, so:
+  #+END_QUOTE
+
+  Check
+  - define-with-macros
+    :) should be useful for imgui macros and cpu
