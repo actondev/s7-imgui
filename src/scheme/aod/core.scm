@@ -40,7 +40,9 @@
 			       (map (lambda (binding)
 				      (let ((binding-symbol (string->symbol 
 							     (string-append ,prefix "/" (symbol->string (car binding))))))
+					;; maybe skip the ones starting with dash - ? they're "private"
 					;; (format *stderr* "binding from autoload ~A\n" binding-symbol)
+					;; (print " binding symbol " binding-symbol " with value " ((curlet) (car binding)))
 					(cons binding-symbol 
 					      (cdr binding))))
 				    (curlet)))))))))
@@ -63,6 +65,86 @@
  )
 
 
+;; WIP: trying to make it so that
+;; let's say im requiring aod.geom :as geom
+;; I want to change the definition of some function
+;; (with-let aod.geom/*curlet* (define (mk-circle ..) ..))
+;; and then in the namespace that i required it, when i run
+;; geom/mk-circle , I should see the reflecting changes
+(define-macro* (aod/require-ns ns (force #f))
+  (let* ((features-symbol (string->symbol (string-append (symbol->string ns) "/*ns*"))))
+    `(if (and (defined? ',features-symbol) (not ,force))
+	(format *stderr* "WARNING: ns ~A already loaded~%" ',ns)
+	;; else, load the namespace
+	;; loading the namespace means:
+	;; creating top level macros with the full forms of the ns functions
+	;; eg foo.bar/fun
+	;; the tricky part: instead of creating this symbol, it has to be a macro...?
+	(apply varlet (rootlet)
+	       (with-let (unlet)
+			 (let ()
+			   ;; note: we use load cause if we required already nothing will happen!
+			   ;; (*autoload* ',what) gives us the file name
+			   (load (*autoload* ',ns) (curlet))
+			   (print "loaded " ',ns " and curlet is " (curlet) )
+			   (print "echo is " ((curlet) 'echo))
+			   (define *ns* ',ns) ;; Note: that should be defined by the (ns ) macro
+			   (define *curlet* (curlet))
+			   ;; (with-let (rootlet)
+			   ;; 	       (define ,(string-append (symbol->string ',ns) "/*curlet*" )))
+
+
+			   ;; apend...
+			   '(list (cons (string->symbol
+					  (string-append (symbol->string ',ns) "/*curlet*"))
+					      (curlet)))
+			   (map (lambda (binding)
+				  (let ((binding-symbol (string->symbol
+							 (string-append (symbol->string ',ns) "/" (symbol->string (car binding))))))
+				    ;; maybe skip the ones startign with dash - ? they're "private"
+				    (format *stderr* "binding from autoload ~A\n" binding-symbol)
+				    (print " binding symbol " binding-symbol " with value " ((curlet) (car binding)))
+				    (cons binding-symbol
+					  ;; (cdr binding)
+					  (if (procedure? (cdr binding))
+					      ;; TODO: do the macro only when *develop* is #t
+					      ;; on "production" we don't want this, it has some performance impact I imagine!
+					      (macro args
+						`((,*curlet* ',(car binding))
+						  ,@args)
+						)
+					      (cdr binding))
+					  )))
+				(curlet))
+			   ))))))
+
+(comment
+ (aod/require-ns aod.geom :force #t)
+ aod.geom/*curlet*
+ aod.geom/*ns*
+ (aod.geom/echo)
+
+ (define gecho aod.geom/echo)
+ ;; (gecho)
+ 
+ (aod/require-ns aod.geom)
+
+ ;; aod.geom/*ns*
+
+ (with-let aod.geom/*curlet*
+	   (define (echo) (print "geom echo modified 3!")))
+
+ (with-let aod.geom/*curlet*
+	   (define (mk-circle) (print "hi! i'm a circle")))
+
+ ;; this reflects the changes
+ ((aod.geom/*curlet* 'echo))
+ ;; this not
+ (aod.geom/echo)
+
+ (procedure-source aod.geom/echo)
+ )
+
 (define (print . args)
   (format *stderr* "~A\n" (apply string-append
 		  (map
@@ -71,6 +153,17 @@
 		     )
 		   args))))
 
+(define-macro (ns the-ns)
+  (display "here......\n")
+  `(begin
+     (define *ns* ',the-ns)
+     ;;(define *curlet* ,curlet)
+     ))
+
 (comment
  (print 'a 'b "aasa" '(a b c))
+
+ (let->list (curlet))
+ ((curlet) (string->symbol "lines"))
+ geom/echo
  )

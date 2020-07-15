@@ -2,6 +2,15 @@
 (require aod.core)
 (display "in aod.geom\n")
 
+(ns aod.geom)
+
+(define (echo)
+  (print "hi from aod.geom"))
+
+(define (echo2)
+  (print "calling echo")
+  (echo))
+
 ;; TODO
 ;; working only for non-vertical lines
 ;; leaving that case for now, not needing it atm
@@ -149,7 +158,7 @@
 			  (px2 (/ (- 0 b d)
 				  (* 2 a)))
 			  (py2 (-fx-intersect A B C px2)))
-		     ;; (format *stderr* "intersect: (~A, ~A) (~A, ~A)" px1 py1 px2 py2 )
+		     (format *stderr* "intersect: (~A, ~A) (~A, ~A)" px1 py1 px2 py2 )
 		     (apply append (filter-points-in-circle
 				    (filter-points-in-segment `((,x1 ,y1)
 								(,x2 ,y2)

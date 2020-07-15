@@ -1,5 +1,9 @@
 (define *test* #t)
 (require aod.core)
+
+;; TEMP
+(require debug.scm)
+
 (aod/require aod.geom :as geom)
 (provide 'aod.sxs) ;; sigma-x-square
 (display "loading aod/sxs.scm\n")
@@ -145,8 +149,67 @@
 		      :clip #f)))
       )
 
+(comment
+ (require debug.scm)
+ (trace lines)
+ (*s7* 'debug)
+ (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
+	:clip #t)
+
+ (*s7* 'print-length) ;; 32
+ (set! (*s7* 'print-length) 80)
+ ((rootlet) '*features*)
+
+ (stacktrace)
+ (*s7* 'stacktrace-defaults)
+ (*s7* 'stacktrace)
+ (set! (*s7* 'stacktrace-defaults) '(5 200 200 200 #t))
+ ;; (3 45 80 45 #t)
+ ;; how many frames to display
+ ;; how many columns are devoted to code display,
+ ;; how many columns are available for a line of data,
+ ;; and where to place comments.
+ (set! (*s7* 'debug) 1) ;; 3 is also nice
+ (procedure-source lines)
+ (untrace lines)
+ )
 
 (test "SXS lines clipped"
       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
 	     :clip #t)
       )
+
+(comment
+ "about namespaces"
+ (geom/echo)
+ (define geom/echo (lambda ()
+		     (print "echo modified")))
+
+ (set! geom/echo (lambda ()
+		     (print "echo modified")))
+ (geom/echo)
+ (geom/echo2)
+ geom/*ns*
+
+ (geom/*curlet* 'echo)
+ ((geom/*curlet* 'echo))
+ ((geom/*curlet* 'echo2))
+
+ (set! (geom/*curlet* 'echo) (lambda () (print "echo modified!!")))
+
+ (geom/echo)
+ (geom/echo2)
+
+ (with-let geom/*curlet*
+	   (define (echo) (print "echo modified 4!")))
+
+
+ (define gecho (geom/*curlet* 'echo))
+ (gecho)
+ (define-expansion (gecho2 . args)
+   `((geom/*curlet* 'echo)))
+
+ (gecho2)
+ 
+ 
+ )

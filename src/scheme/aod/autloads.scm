@@ -17,3 +17,4 @@
 (autoload 'aod.colors "aod/colors.scm")
 (autoload 'aod.imgui.helpers "aod/imgui/helpers.scm")
 (autoload 'aod.sxs "aod/sxs.scm")
+(autoload 'debug.scm "s7/debug.scm")

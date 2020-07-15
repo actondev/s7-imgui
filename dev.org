@@ -230,7 +230,7 @@ ninja -C build && ./build/examples/repl src/scheme/aod/sxs.scm
    #+END_SRC
 
    #+RESULTS:
-   | [ex.scm:all-screenshots] | [ex.scm:color-wheel] | [ex.scm:maximized] | [ex.scm:shapes] | [ex.scm:menu] | [>build] |
+   | [ex.scm:s-x-s] | [ex.scm:all-screenshots] | [ex.scm:color-wheel] | [ex.scm:maximized] | [ex.scm:shapes] | [ex.scm:menu] | [>build] |
 
    #+NAME: ex.scm:menu
    #+BEGIN_SRC sh
@@ -261,6 +261,7 @@ rm scheme-examples/*.png
 ./build/s7-imgui `pwd`/scheme-examples/color_wheel.scm
    #+END_SRC
 
+   #+NAME: ex.scm:s-x-s
    #+BEGIN_SRC sh :exports none
 ninja -C build && ./build/s7-imgui `pwd`/scheme-examples/sigma-x-square.scm
    #+END_SRC
