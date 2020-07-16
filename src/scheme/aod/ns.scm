@@ -33,44 +33,23 @@
 ;; requires the namespace in the rootlet
 ;; fully quialified methods, defined as macros => can dynamically reload
 (define* (ns-require-global the-ns (force #f))
-  (if (or
-       (equal? #<undefined> ((rootlet) (string->symbol
-					(string-append (symbol->string the-ns) "/*ns*"))))
-       force)
-      (begin
-	;; (print "--- ns-require-global (loading) " the-ns)
-	(apply varlet (rootlet)
-	       (with-let (unlet)
-			 (let ()
-			   (load (*autoload* the-ns) (curlet))
-			   (print "loaded " the-ns " and curlet is " (curlet))
-			   ;; (print "echo is " ((curlet) 'echo))
-			   ;; (define *ns* ',the-ns) ;; Note: that should be defined by the (ns ) macro
-			   (define *ns* the-ns)
-			   (define *curlet* (curlet))
-			   (map (lambda (binding)
-				  (if (not (ns-should-bind-globally? (car binding)))
-				      (values)
-				    (let ((binding-symbol (string->symbol
-							   (string-append (symbol->string the-ns) "/" (symbol->string (car binding))))))
-				      ;; maybe skip the ones startign with dash - ? they're "private"
-				      (print " binding globally " binding-symbol)
-				      (cons binding-symbol
-					    (if (procedure? (cdr binding))
-						;; TODO: do the macro only when *develop* is #t
-						;; on "production" we don't want this, it has some performance impact I imagine!
-						(macro args
-						  `((,*curlet* ',(car binding))
-						    ,@args)
-						  )
-						(begin
-						  ;; (print "not a procedure, just binding it?")
-						  (cdr binding)))
-					    ))))
-				(curlet))
-			   ))))
-      (begin
-	(print "Skipping global require for " the-ns)))
+  (let ((ns-curlet-symbol (string->symbol
+			   (string-append (symbol->string the-ns) "/*curlet*"))))
+    (if (or
+	 (equal? #<undefined> ((rootlet) (string->symbol
+					  (string-append (symbol->string the-ns) "/*curlet*"))))
+	 force)
+	(begin
+	  (print "--- ns-require-global (loading) " the-ns)
+	  (varlet (rootlet)
+		 (with-let (unlet)
+			   (let ()
+			     (load (*autoload* the-ns) (curlet))
+			     (print "loaded " the-ns " and curlet is " (curlet))
+			     (cons ns-curlet-symbol
+				   (curlet))))))
+	(begin
+	  (print "Skipping global require for " the-ns))))
   )
 
 (define* (ns-require-env-as env as (target-env (curlet)))
@@ -83,7 +62,7 @@
 					(if (not (ns-should-bind-locally? (car binding)))
 					    (values)
 					    (begin
-					      (print " binding " binding-symbol)
+					      ;; (print "in ns " (target-env '*ns-name*) " binding " binding-symbol)
 					      (cons binding-symbol
 						    (if (procedure? (cdr binding))
 							;; TODO: do the macro only when *develop* is #t
@@ -103,21 +82,23 @@
   (print "- ns-require: " the-ns " as " as)
   `(begin
      (ns-require-global ',the-ns :force ,force)
-     (when ',as
-       (print "here, want to require " ',the-ns "as " ',as)
-              (print "requiring as " ',as " the env  " ((rootlet) 'ns.bar/*curlet*))
-	      (ns-require-env-as ((rootlet) (string->symbol
-					     (string-append (symbol->string ',the-ns) "/*curlet*")))
-				 ',as
-				 :target-env (outlet (curlet)))
-	 ))
+     (ns-require-env-as ((rootlet) (string->symbol
+				    (string-append (symbol->string ',the-ns) "/*curlet*")))
+			(or ',as ',the-ns)
+			:target-env (outlet (curlet)))
+     ;; (print "finished requiring, in " ',*ns-name*)
+	 )
   )
 
 
 (define-macro (ns the-ns . body)
   (print "ns: defining ns " the-ns)
-  `(let ((require  ns-require))
-     ;; inlet: we replaced the require
-     () ;; just in case there is no body
-     ,@body
-     ))
+  ;; (set! ((rootlet) '*ns*) (unlet))
+  ;; (eval `(define *ns-name* ',the-ns) ((rootlet) '*ns*))
+  `(begin
+     (define *ns-name* ',the-ns)
+     (let ((require ns-require))
+       ()
+       ,@body
+       ;; (print "done require, in ns " ',*ns-name*)
+       )))
