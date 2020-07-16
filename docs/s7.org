@@ -67,8 +67,20 @@ void add1_init(s7_scheme *sc)
      s7_define_function(sc, "add1", add1, 1, 0, false, "(add1 int) adds 1 to int");
 }
    #+END_SRC
-** arguments
+** C side: processing passed arguments from scheme
    #+BEGIN_SRC c
+float x1 = s7_number_to_real(sc, s7_list_ref(sc, args, 0));
+float y1 = s7_number_to_real(sc, s7_list_ref(sc, args, 1));
+// .. and so on
+// as seen on https://github.com/createuniverses/praxis/blob/7ad27b80f48cf1b0e60af7a3b0c66db296c5f588/lispCallbacks.cpp
+// instead of car, cadr caddr etc
+   #+END_SRC
+** Types
+   #+BEGIN_SRC c
+int tag = s7_new_type("some_type..?", NULL, NULL, NULL, NULL, NULL, NULL);   
+   #+END_SRC
+*** s7_define_functionsarguments
+    #+BEGIN_SRC c
 s7_pointer s7_define_function(s7_scheme *sc,
 			      const char *name,
 			      s7_function fnc, 
@@ -77,7 +89,7 @@ s7_pointer s7_define_function(s7_scheme *sc,
 			      bool rest_arg,
 			      const char *doc
      );
-   #+END_SRC
+    #+END_SRC
 
 ** Checking s7_integer
    The =s7_is_integer= check

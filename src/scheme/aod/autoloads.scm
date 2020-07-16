@@ -1,3 +1,4 @@
+(autoload 'aod.ns "aod/ns.scm")
 (autoload 'aod.clj "aod/clj.scm")
 (autoload 'aod.test "aod/test.scm")
 (autoload 'aod.geom "aod/geom.scm")
@@ -18,3 +19,4 @@
 (autoload 'aod.imgui.helpers "aod/imgui/helpers.scm")
 (autoload 'aod.sxs "aod/sxs.scm")
 (autoload 'debug.scm "s7/debug.scm")
+
