@@ -32,7 +32,12 @@ bool Repl::handleInput(std::string str, bool clearPreviousInput) {
     }
     // completing previous input that could not be read
     input_buffer += str;
+    
     std::string wrapped = "(begin " + input_buffer + ")";
+    // temp solution: wrapping around (with-let *ns* (begin ..))
+//     std::string wrapped = "(with-let *ns* (begin " + input_buffer + "))";
+    
+    
     const char *c_str = wrapped.c_str();
     s7_pointer port = s7_open_input_string(sc, c_str);
 
