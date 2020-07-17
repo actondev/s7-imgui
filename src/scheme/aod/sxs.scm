@@ -1,36 +1,14 @@
-;; note: if i direclty pass this file to the repl executable
-;; i need to laod the aod.test in the (rootlet) in order for
-;; the tests to run
-'(with-let (rootlet)
-	  (require aod.test))
-
 (ns aod.sxs)
 (ns-require aod.geom :as geom)
 
+;; note: if i direclty pass this file to the repl executable
+;; i need to laod the aod.test in the (rootlet) in order for
+;; the tests to run
 (comment
- *ns*
-	 )
+ (with-let (rootlet)
+	   (require aod.test))
+ )
 
-;; (test "geom loaded?"
-;;       (assert (begin
-;; 		(print "herreeeeee")
-;; 		(geom/echo)
-;; 		#t))
-;;       (assert (equivalent? '(0 0 10)
-;; 			   (let ((circle 
-;; 				  (geom/mk-circle :cx 0 :cy 0 :r 10)))
-;; 			     (print "created circle " circle)
-;; 			     circle))))
-
-;; (test "sxs: geom line offset"
-;;       (let ((line (geom/mk-line :x1 0 :y1 0 :x2 10 :y2 10)))
-;; 	(is (equivalent? '(0 0 10 10)
-;; 			 line))
-;; 	(is (equivalent? '(0 2 10 12)
-;; 			 (geom/line-offset line '(0 2))))))
-
-(display "loading aod/sxs.scm\n")
-;; private
 (define* (-arrow-angles (dir 'right))
   ;; or.. I could just hardcode it.. wtf
   (let* ((angle-a (* 0.75 pi))
@@ -48,13 +26,6 @@
       (assert (equivalent? '(-45 45)
 			   (map geom/rad->deg
 				(-arrow-angles :dir 'left)))))
-
-
-;; (define* (arrow-lines cx cy r (dir :right) (color (ig/frgb->u32 0.5 0.5 0.5)))
-;;   (map (lambda (theta)
-;; 	 (sxs/circular-line :cx cx :cy cy :r r
-;; 			    :theta theta))
-;;        (sxs/-arrow-angles :dir dir)))
 
 (define* (polar-line circle theta
 		     (mod-theta identity))
@@ -108,12 +79,6 @@
 					:dir 'left)))
       )
 
-
-(comment
- "offsetting/duplicating lines"
- )
-;; the sigma-x-square lines to be drawn
-
 (define (-arrow-right circle)
   (map (lambda (theta)
 	 (polar-line circle :theta theta))
@@ -145,8 +110,9 @@
 (test "SXS repeat line"
       (assert (equivalent? '((0 2 10 12) (0 -2 10 8))  (geom/repeat-line '(0 0 10 10) '((0 2) (0 -2))))))
 
-
-
+;; The sigma-x-square lines to draw the logo
+;;
+;; Could make every other function "private" actually
 (define* (lines circle (phase 0) (clip #t))
   (let ((offset-right (list (* 2 phase (circle 2))
 			    0))
@@ -163,13 +129,6 @@
 	  (geom/clip-lines-in-circle lines circle)
 	  lines))))
 	  
-(comment
- (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
-	     :clip #t)
-
- 
- )
-
 (test "SXS lines non-clipped"
       (is (equivalent?
 	       '((-2.8284271247461903 0 -3.8284271247461903 1.0000000000000002) (0.0 0 -1.0 1.0000000000000002) (2.8284271247461903 0 1.8284271247461903 1.0000000000000002) (-2.8284271247461903 0 -3.8284271247461907 -1.0) (0.0 0 -1.0000000000000002 -1.0) (2.8284271247461903 0 1.82842712474619 -1.0) (-2.8284271247461903 0 -1.82842712474619 -1.0) (0.0 0 1.0000000000000002 -1.0) (2.8284271247461903 0 3.8284271247461907 -1.0) (-2.8284271247461903 0 -1.82842712474619 1.0) (0.0 0 1.0000000000000002 1.0) (2.8284271247461903 0 3.8284271247461907 1.0))
@@ -185,10 +144,9 @@
 			      :clip #t)))
       )
 
-;;FIXME
 (comment
- ;; FIXME
  ;; returns some empty lists inside
+ ;; ..fixed
  (lines (geom/mk-circle :cx 0 :cy 0 :r 100)
 	:phase 0.3555555555555
 	:clip #t)

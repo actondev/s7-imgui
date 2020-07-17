@@ -1,20 +1,16 @@
-(require aod.core)
-(require aod.test)
+(with-let (rootlet)
+	  ;; aod.core already required by repl in cpp
+	  (require aod.core)
+	  (require aod.test))
+
+(ns aod.all-tests)
 
 ;; testing files:
-(require aod.geom)
+(ns-require aod.ns)
+(ns-require aod.geom)
+(ns-require aod.sxs)
 
-(with-let (unlet)
-	  (load "test/ns_test.scm")
-	  )
-
-(require aod.sxs)
-
-;; (with-let (unlet)
-;; 	  (define some-variable 1)
-;; 	  (test "Test isolation"
-;; 		(is (= some-variable 1))))
-
+(print "======")
 (print "Passed:" (*aod.test* 'pass))
 (print "Failed:" (*aod.test* 'fail))
 (exit (*aod.test* 'fail))

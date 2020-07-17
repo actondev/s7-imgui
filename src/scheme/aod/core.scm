@@ -6,7 +6,7 @@
 ;; comment, map-indexed, dotimes, range, mod
 ;; on the (rootlet)
 (require aod.clj)
-(require aod.ns)
+
 ;; ignornig tests: test expansion/macro replaced in aod.test
 (define-expansion (test . body) #<unspecified>)
 
@@ -171,3 +171,7 @@
 ;; from s7.html
 (define (concat . args)
   (apply append (map (lambda (arg) (map values arg)) args)))
+
+;; aod.ns has tests and may make some use of the rest of
+;; internal funtions, so requiring at the end
+(require aod.ns)

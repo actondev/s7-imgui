@@ -123,7 +123,7 @@
 						  (eval `(apply ,ns-internal-func ',args) (*nss* ns-internal-target))
 						  ))
 					      (begin
-						(print "not a procedure, just binding it?")
+						;; (print "not a procedure, just binding it?")
 						(cdr binding)))
 					  )))))
 			  (*nss* the-ns))))))
@@ -162,3 +162,29 @@
 (define-macro (with-ns the-ns . body)
   `(with-let (*nss* ',the-ns)
 	    ,@body))
+
+(define-macro (with-temp-ns . body)
+  (let ((ns-symbol (gensym "temp-ns"))
+	(previous-ns (gensym "*ns-temp*")))
+    `(begin
+       (set! (*nss* ',previous-ns) *ns*)
+       (ns ',ns-symbol)
+       (let ((res (begin
+		    ,@body)))
+	 (set! *ns* (*nss* ',previous-ns))
+	 (set! (*nss* ',previous-ns) #f)
+	 res))))
+(comment
+ (require aod.test)
+ )
+
+(test "Temp ns"
+      (with-temp-ns
+       (define x 1)
+       (is (defined? 'x))
+       (is (= x 1)))
+
+      (with-temp-ns
+       (is (not (defined? 'x))))
+
+      )

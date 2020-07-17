@@ -211,7 +211,7 @@ ninja -C build && ./build/examples/repl src/scheme/aod/sxs.scm
       (progn
 	;; (message "OK! running scheme")
 	(let ((default-directory (projectile-project-root)))
-	  (run-scheme (concat (projectile-project-root) "build/examples/repl src/scheme/scratch.scm "))
+	  (run-scheme (concat (projectile-project-root) "build/examples/repl src/scheme/aod/sxs.scm "))
 	  ))
     (progn
       ;; (message "build failed")
@@ -301,7 +301,7 @@ time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-r
    #+RESULTS:
    | [test:scheme] |
 
-** Testing scheme
+   Testing scheme
    #+NAME: test:scheme
    #+BEGIN_SRC sh
 ninja -C build && ./build/examples/repl src/scheme/test.scm

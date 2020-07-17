@@ -24,21 +24,24 @@
 			  (let? *ns*))
 		     *ns*
 		     (curlet))
-		 (call-with-exit
-		  (lambda (return)
-		    (map (lambda (e)
-			   (let ((res (eval e)))
-			     (unless res
-			       (format *stderr* "FAIL: ~A~%" ,name)
-			       (set! res #f)
-			       (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
-			       (return))))
-			 ',body)
-		    (set! (*aod.test* 'pass) (+ 1 (*aod.test* 'pass)))
-		    (format *stderr* "PASS: ~A~%" ,name)
-		    #t
-		    ))))
+		 (let ((header (or (*ns* '*ns-name*)
+				   "")))
+		   (call-with-exit
+		    (lambda (return)
+		      (map (lambda (e)
+			     (let ((res (eval e)))
+			       (unless res
+				 (format *stderr* "FAIL: ~A ~A~%" header ,name)
+				 (set! res #f)
+				 (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
+				 (return))))
+			   ',body)
+		      (set! (*aod.test* 'pass) (+ 1 (*aod.test* 'pass)))
+		      (format *stderr* "PASS: ~A ~A~%" header ,name)
+		      #t
+		      )))))
      (lambda args
+       (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
        (format *stderr* "FAIL: ~A~%\texception caught:~%\t~A~%"
 	       ,name
 	       (apply format #f (cadr args))))))
