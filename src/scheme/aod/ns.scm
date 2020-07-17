@@ -75,17 +75,19 @@
 ;; Loads the namespace in its own environment
 ;; and puts it in the *nss* hash table, under the 'the-ns key
 (define* (ns-require-load the-ns (force #f))
-  (ns-get-or-create the-ns)
-  ;; TODO not require/load again if already loaded
-  ;; unless force is #t
-  (begin
-    (apply varlet (*nss* the-ns)
-	   ;; hmm.. unlet?
-	   (with-let (unlet)
-		     (let ()
-		       (#_load (*autoload* the-ns) (*nss* the-ns))
-		       (let->list (curlet)))
-		     ))))
+  (if (or (eq? #f (*nss* the-ns))
+	  force)
+      (begin
+	(ns-get-or-create the-ns)
+	(apply varlet (*nss* the-ns)
+	       ;; hmm.. unlet?
+	       (with-let (unlet)
+			 (let ()
+			   (#_load (*autoload* the-ns) (*nss* the-ns))
+			   (let->list (curlet))))))
+      (begin
+	(print "Skipping already ns-require'd" the-ns)
+	)))
 
 ;; Creates the dynamic bindings in the target-env
 ;; 
