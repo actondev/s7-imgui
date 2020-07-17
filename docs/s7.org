@@ -421,3 +421,91 @@ f1
   Check
   - define-with-macros
     :) should be useful for imgui macros and cpu
+* (ns ..) forms, switch namespace from emacs
+  see [[file:../src/scheme/aod/ns.scm]] for dealing with namespaces
+
+  Example/tutorial:
+  
+  #+BEGIN_SRC scheme
+(ns foo.bar)
+;; sets the *ns* symbol in a new environment (let)
+;; subsequent calls are evaluated in this environment
+
+(ns-require foo.bar2)
+(ns-require foo.bar3 :as bar3)
+;; fully qualified namespace for calling
+(foo.bar2/hi)
+
+;; call with alias
+(bar3/hi)
+
+;; shows the current namespace
+,*ns*
+
+;; the following are equivalent
+;; --- BEGIN equivalent
+(with-ns foo.bar2
+	 (hi))
+
+;; *nss* mnemonic: plurar of ns. NameSpaceS
+(with-let (*nss* 'foo.bar2)
+	  (hi))
+;; this changes the *ns*
+(ns foo.bar2)
+(hi)
+;; ---- END equivalent
+
+;; WARNING
+;; now foo.bar2/hi and bar3/hi are NOT available
+;; to make them available we have to switch back:
+(ns foo.bar)
+
+  #+END_SRC
+
+** emacs: switching namespace
+   - [ ] send =(set! *ns* #f)= if no =(ns ..)= form found? \\
+     The repl on the cpp side checks for this
+   #+BEGIN_SRC emacs-lisp
+;; Some helper funcionts for workin with s7 namely, changing
+;; "namespace" with (ns ..) forms ala clojure tyle
+;; 
+;; Pardon the non-elisp-idiomatic dots and slashes but I really prefer
+;; this namespace/clojure sytnax
+
+(require 'cmuscheme)
+
+(defun aod.s7/get-ns ()
+  "Get the (ns some.namespace) part to send on the repl"
+  (save-excursion
+    (beginning-of-buffer)
+    (if (re-search-forward "^\\(\(ns .+\)\\)" nil t)
+	(match-string-no-properties 1)
+      nil)))
+
+(defun aod.s7/switch-to-ns ()
+  "Switches to the namespace of the currently open buffer."
+  (interactive)
+  (if-let ((ns (aod.s7/get-ns)))
+      (scheme-send-string ns)
+    ;; else
+    (if (interactive-p)
+	(message "No (ns ..) form found!"))))
+
+(defun aod.s7/send-definition ()
+  "Sends top level sexp"
+  (interactive)
+  (aod.s7/switch-to-ns)
+  (scheme-send-definition)
+  )
+
+(defun aod.s7/send-last-sexp ()
+  "Sends last sexp. Useful for one-liners, subforms
+inside (comment ... ) etc"
+  (interactive)
+  (aod.s7/switch-to-ns)
+  (scheme-send-last-sexp)
+  )
+
+(provide 'aod-s7)
+
+   #+END_SRC

@@ -5,28 +5,41 @@
 ;; (ns-require some.lib.other :as other)
 ;;
 ;; 
-;; TODO
-;; maybe try the more clojure-like form
+;; Wanted to make it more clojure-like style:
 ;; (ns foo.bar
 ;;   (require some.lib :as lib)
 ;;   (require some.lib.other :as other))
 ;;
+;; but proved more difficult (and didn't know what I was doing at the
+;; time) so switched back to the simpler form.  And I think it's
+;; better to stick with this. Easier to maintain/adjust I think.
+;;
+;;
+
 (require aod.clj) ;; for (comment .. )
 (provide 'aod.ns)
-;; can be thought either of plurar (namespaces)
-;; or ns store..
+
+;; Holding all the namespaces, to be able to switch.
+;; 
+;; mnemonic: NameSpaceS
 (define *nss* (make-hash-table))
-;; setting to #t when loading a file ala (load "foo/bar.scm")
-;; we use it to "merge" with any (ns..) declaration
+
+;; Setting to #t when loading a file (ns-load-file "foo/bar.scm")
+;;
+;; We use it to "merge" with any (ns..) declaration hacky, but it
+;; works for now See more comments in the (ns-load-file)
 (define *ns-load-mode* #f)
 (define (ns-make-empty-let)
   (with-let (unlet)
 	    (let ()
 	      (curlet))))
 
-;; holds the current namespace
-;; the repl running on the c-side shoudl read this to eval incoming expressions in there
+;; Holds the current namespace.
+;; 
+;; The repl running on the c-side should read this to eval incoming
+;; expressions in there
 (define *ns* (ns-make-empty-let))
+
 (define-macro (ns-create the-ns)
   ;; should check about the *ns-load-mode*
   (format *stderr* "Creating namespace ~A\n" the-ns)
@@ -39,6 +52,7 @@
   `(with-let ,(*nss* the-ns)
 	    (define *ns-name* ',the-ns)
 	    ))
+
 (define (ns-get-or-create the-ns)
   (unless (*nss* the-ns)
     ;; note: ns-create is a macro, gotta call it with apply
@@ -48,6 +62,7 @@
 (define (ns-should-bind-globally? symbol)
   (let ((first-char ((symbol->string symbol) 0)))
     (not (equal? #\- first-char))))
+
 (define (ns-should-bind-locally? symbol)
   (let* ((symbol-string (symbol->string symbol))
 	(first-char (symbol-string 0)))
@@ -57,104 +72,85 @@
 	 ;; (not (char-position #\/ symbol-string))
 	 )))
 
-(comment
- (ns-should-bind-globally? '*curlet*)
- (ns-should-bind-globally? '-private)
- (equal? #\- ("-asdsa" 0))
- )
-
-
-;; requires the namespace in the rootlet
-;; fully quialified methods, defined as macros => can dynamically reload
-(define* (ns-require-global the-ns (force #f))
-  ;; (print "here, require global " the-ns " blah " (symbol->string the-ns))
-  ;; creating the ns
+;; Loads the namespace in its own environment
+;; and puts it in the *nss* hash table, under the 'the-ns key
+(define* (ns-require-load the-ns (force #f))
   (ns-get-or-create the-ns)
-  ;; TODO not require/load again, unless force #t
+  ;; TODO not require/load again if already loaded
+  ;; unless force is #t
   (begin
     (apply varlet (*nss* the-ns)
 	   ;; hmm.. unlet?
 	   (with-let (unlet)
 		     (let ()
-		       ;; (print "here, curlet " (curlet))
 		       (#_load (*autoload* the-ns) (*nss* the-ns))
-		       ;; (print "loaded " the-ns " and curlet is " (curlet))
-		       ;; (print "let list " (let->list (curlet)))
 		       (let->list (curlet)))
-		     ))
-    ;;(print "here (*nss* the-ns) " (*nss* the-ns))
-    )
-  (begin
-    (print "Skipping global require for " the-ns))
-  ;; (print "required globally? ns is " (*nss* the-ns))
-  )
+		     ))))
 
-(define* (ns-require-ns-as the-ns as (target-env (outlet (curlet))))
-  ;; (print "here require ns " the-ns " as " as "in target-env " target-env)
+;; Creates the dynamic bindings in the target-env
+;; 
+;; eg
+;; (ns my.ns)
+;; (ns-require foo.bar :as b)
+;;
+;; That creates the bindings b/fun inside my.ns
+;; that call ((*nss* 'foo.bar) 'fun) and so on
+;;
+;; This is what enables the redifinitions to work!
+;; If i'm in the foo.bar namespace and change the definition
+;; of fun, this will be reflected inside my.ns
+(define* (ns-require-alias the-ns as (target-env (outlet (curlet))))
   (apply varlet target-env
 	 (with-let (unlet)
 		   (let ()
-		     ;; hmm.. here I still have acces to the-ns, as, etc
+		     ;; hmm.. here I still have acces to the-ns, as, etc.
+		     ;; good, but not clear why
 		     (map (lambda (binding)
 			    (let ((binding-symbol (string->symbol
 						   (string-append (symbol->string as) "/" (symbol->string (car binding))))))
 			      (if (not (ns-should-bind-locally? (car binding)))
 				  (values)
 				  (begin
-				    ;; (print "in ns " target-env " binding " binding "car" (car binding) " as " binding-symbol "cdr procedure? " (cdr binding))
 				    ;; (print "binding " binding-symbol)
 				    (cons binding-symbol
 					  (if (procedure? (cdr binding))
 					      (let ((ns-internal-target the-ns)
 						    (ns-internal-func (car binding)))
+						;; TODO copy the documentatoin of the forwarding function?
+						;; Could be useful in the future if something like geiser support
+						;; is added, to show the documentation of the symbol under cursor
 						(lambda args
-						  (begin
-						    ;; (print "target-env is " ns-internal-target)
-						    (eval `(apply ,ns-internal-func ',args) (*nss* ns-internal-target))
-							      ;; (print "documentation is " (documentation
-							      ;; 				 (symbol->value ',(car binding))))
-							      ;; (eval `(,(car binding) ,@args))
-							      
-							      )
+						  (eval `(apply ,ns-internal-func ',args) (*nss* ns-internal-target))
 						  ))
 					      (begin
 						(print "not a procedure, just binding it?")
 						(cdr binding)))
 					  )))))
-			  (*nss* the-ns)))
-  			     ))
-  )
+			  (*nss* the-ns))))))
 
 (define-macro* (ns-require the-ns (as #f) (force #f) )
-  ;; (print "- ns-require: " the-ns " as " as "in " *ns* )
   (let ((current-ns *ns*))
     `(begin
-      ;; (print " ... ns require outlet " (outlet (curlet)))
-      (ns-require-global ',the-ns :force ,force)
+      (ns-require-load ',the-ns :force ,force)
       (with-let ,current-ns
-      	      (ns-require-ns-as ',the-ns
+      	      (ns-require-alias ',the-ns
 				 (or ',as ',the-ns)
 				 :target-env ,current-ns))
-      ;; (print "finished require, *ns* is  " *ns*)
-      (set! *ns* ,current-ns)
-      ;; (print "reverted *ns*" *ns*)
-      )))
+      (set! *ns* ,current-ns))))
 
-;; hm the thing is how to
-;; - parse the file first to see into which environment it should be loaded
-;; - and then actually load the file there..?
-;; .. hm what does the load do actually? can I split it?
-;; s7_open_input_file
-;; (open-input-file name mode)
+;; Loads a file and if it has a (ns) definition,
+;; correctly loads it there.
+;;
+;; The proces:
+;; - loading the file in a new empty environment
+;; - setting ns-load-mode to #t
+;; 
+;; this makes the (ns ..) form to not create a new environmnet
+;; but use the existing *ns*. it also immediately unsets this flag
 (define (ns-load-file file . args)
-  ;; (#_load file *ns*)
-  ;; that should be set to false after the first ns creation
   (set! *ns-load-mode* #t)
   (set! *ns* (ns-make-empty-let))
-  ;; (print "env?? " *ns*)
-  (load file *ns*)
-  (print "loaded file " file "*ns* is " *ns*)
-  )
+  (load file *ns*))
 
 
 (define-macro (ns the-ns . body)

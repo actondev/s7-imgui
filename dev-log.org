@@ -776,3 +776,8 @@ TEST(s7_environments, autoloads_bug) {
 					      (cdr binding))))
 				    (curlet)))))))))  
   #+END_SRC
+* DONE <2020-07-17 Fri> (ns ..) forms, switch namespace from emacs
+  created the [[file:src/scheme/aod/ns.scm]] for dealing with namespaces
+  some 160 lines including plenty of comments. hope it will serve well.
+
+  See more in [[file:docs/s7.org]]
