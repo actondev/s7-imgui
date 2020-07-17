@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     cout << "argv[0] " << argv[0] << " fs::current_path " << fs::current_path() << endl;
     fs::path base_path = (fs::current_path() / argv[0]).remove_filename();
     cout << "base path " << base_path << endl;
-    
+
     fs::path scheme_path = base_path / ".." / ".." / "src" / "scheme";
     // cout << "scheme path " << scheme_path << endl;
 
@@ -29,13 +29,10 @@ int main(int argc, char **argv) {
     if (argc >= 2) {
         cout << "Passed custom scheme file " << argv[1] << endl;
         fs::path passed_file = argv[1];
-        if (passed_file.is_absolute()) {
-            aod::s7::load_file(sc, passed_file.c_str());
-        } else {
-            aod::s7::load_file(sc, (fs::current_path() /  passed_file).c_str());
+        if (!passed_file.is_absolute()) {
+            passed_file = (fs::current_path() /  passed_file);
         }
-//         s7_add_to_load_path(sc, passed_file.parent_path().c_str());
-        
+        aod::s7::load_file(sc, passed_file.c_str());
     }
 
     aod::s7::Repl repl(sc);

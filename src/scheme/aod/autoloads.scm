@@ -19,4 +19,4 @@
 (autoload 'aod.imgui.helpers "aod/imgui/helpers.scm")
 (autoload 'aod.sxs "aod/sxs.scm")
 (autoload 'debug.scm "s7/debug.scm")
-
+(autoload 'aod.benchmark "aod/benchmark.scm")

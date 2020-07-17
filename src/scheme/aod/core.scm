@@ -7,14 +7,10 @@
 ;; on the (rootlet)
 (require aod.clj)
 (require aod.ns)
-;; ignornig tests, unless:
+;; ignornig tests: test expansion/macro replaced in aod.test
 (define-expansion (test . body) #<unspecified>)
 
-(when (eq? (symbol->value '*test*) #t)
-  (display "Preparing tests:\n")
-  (require aod.test))
-
-
+;; TODO remove
 (define-macro* (aod/require what (as #f))
   (let* ((prefix (symbol->string `,(or as what)))
 	 (features-symbol (string->symbol (string-append prefix "/*features*"))))
