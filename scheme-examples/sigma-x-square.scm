@@ -59,7 +59,7 @@
 		      1)
      (igh/draw-circle-with-color circle color)
 
-     (let ((lines (sxs/lines circle :phase (*phase) :clip #f )))
+     (let ((lines (sxs/lines circle :phase (*phase) :clip #t )))
        (igh/draw-lines-with-color lines color ))
 
      (ig/dummy 100 100))

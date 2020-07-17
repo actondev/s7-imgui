@@ -193,10 +193,14 @@
 		    (clip-line-in-circle '(-100 -100 100 100) `(0 0 ,(* 2 (sqrt 2)))))
        "Line that exceeds in both ends"))
 
+(define (filter-empty args)
+  (filter pair? args))
+
 (define (clip-lines-in-circle lines circle)
-  (map (lambda (line)
-	 (clip-line-in-circle line circle))
-       lines))
+  (filter-empty
+   (map (lambda (line)
+	  (clip-line-in-circle line circle))
+	lines)))
 
 (define (rad->deg rad)
   (/ (* 180 rad) pi))

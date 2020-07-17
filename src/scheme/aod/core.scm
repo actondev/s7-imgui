@@ -151,6 +151,14 @@
 				    )
 				  args))))
 
+;; returns the last argument
+;; useful for in-drop debugging, printing what we return
+(define (print-ret . args)
+  (apply print args)
+  (if (pair? args)
+      (car (reverse args))
+      ()))
+
 (comment
  (print 'a 'b "aasa" '(a b c))
 
@@ -158,3 +166,8 @@
  ((curlet) (string->symbol "lines"))
  geom/echo
  )
+
+;; hmm not sure how it's useful
+;; from s7.html
+(define (concat . args)
+  (apply append (map (lambda (arg) (map values arg)) args)))

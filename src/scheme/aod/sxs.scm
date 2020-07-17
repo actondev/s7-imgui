@@ -203,46 +203,16 @@
  )
 
 (test "SXS lines clipped"
-      (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
-	     :clip #t)
+      (is (equivalent? '((0.0 0 -1.0 1.0) (0.0 0 -1.0 -1.0) (0.0 0 1.0 -1.0) (0.0 0 1.0 1.0))
+		       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
+			      :clip #t)))
       )
 
+;;FIXME
 (comment
- (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
+ ;; FIXME
+ ;; returns some empty lists inside
+ (lines (geom/mk-circle :cx 0 :cy 0 :r 100)
+	:phase 0.3555555555555
 	:clip #t)
- )
-
-(comment
- "about namespaces"
- (geom/echo)
- (define geom/echo (lambda ()
-		     (print "echo modified")))
-
- (set! geom/echo (lambda ()
-		     (print "echo modified")))
- (geom/echo)
- (geom/echo2)
- geom/*ns*
-
- (geom/*curlet* 'echo)
- ((geom/*curlet* 'echo))
- ((geom/*curlet* 'echo2))
-
- (set! (geom/*curlet* 'echo) (lambda () (print "echo modified!!")))
-
- (geom/echo)
- (geom/echo2)
-
- (with-let geom/*curlet*
-	   (define (echo) (print "echo modified 4!")))
-
-
- (define gecho (geom/*curlet* 'echo))
- (gecho)
- (define-expansion (gecho2 . args)
-   `((geom/*curlet* 'echo)))
-
- (gecho2)
- 
- 
  )
