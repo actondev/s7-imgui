@@ -150,22 +150,29 @@
 	  (p2-in (point-in-circle? `(,x2 ,y2) circle)))
       (cond ((and p1-in p2-in) line)
 	    (else (-expand-A-B-C-etc
+		   ;; (print "d-sq " d-sq)
 		   ;; this makes the calculations..
 		   ;; dirty but... will do for now
-		   (let* ((px1 (/ (- d b)
-				  (* 2 a)))
-			  (py1 (-fx-intersect A B C px1))
-			  (px2 (/ (- 0 b d)
-				  (* 2 a)))
-			  (py2 (-fx-intersect A B C px2)))
-		     (format *stderr* "intersect: (~A, ~A) (~A, ~A)" px1 py1 px2 py2 )
-		     (apply append (filter-points-in-circle
-				    (filter-points-in-segment `((,x1 ,y1)
-								(,x2 ,y2)
-								(,px1 ,py1)
-								(,px2 ,py2))
-							      line)
-				    circle)))
+		   (if (> d-sq 0)
+		       (let* ((px1 (/ (- d b)
+				      (* 2 a)))
+			      (py1 (-fx-intersect A B C px1))
+			      (px2 (/ (- 0 b d)
+				      (* 2 a)))
+			      (py2 (-fx-intersect A B C px2)))
+			 (apply append (filter-points-in-circle
+					(filter-points-in-segment `((,x1 ,y1)
+								    (,x2 ,y2)
+								    (,px1 ,py1)
+								    (,px2 ,py2))
+								  line)
+					circle)))
+		       ;; no intersection
+		       (begin
+			 ;; (print "no intersection????")
+			 (values)
+			 )
+		       )
 		   ))))))
 
 (test "Clip line in circle"

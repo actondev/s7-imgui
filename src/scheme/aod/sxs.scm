@@ -1,11 +1,32 @@
-(define *test* #t)
 (require aod.core)
 
-;; TEMP
-(require debug.scm)
+(require aod.test)
 
-(aod/require aod.geom :as geom)
-(provide 'aod.sxs) ;; sigma-x-square
+(ns aod.sxs)
+(ns-require aod.geom :as geom)
+
+(comment
+ *ns*
+	 )
+
+;; (test "geom loaded?"
+;;       (assert (begin
+;; 		(print "herreeeeee")
+;; 		(geom/echo)
+;; 		#t))
+;;       (assert (equivalent? '(0 0 10)
+;; 			   (let ((circle 
+;; 				  (geom/mk-circle :cx 0 :cy 0 :r 10)))
+;; 			     (print "created circle " circle)
+;; 			     circle))))
+
+;; (test "sxs: geom line offset"
+;;       (let ((line (geom/mk-line :x1 0 :y1 0 :x2 10 :y2 10)))
+;; 	(is (equivalent? '(0 0 10 10)
+;; 			 line))
+;; 	(is (equivalent? '(0 2 10 12)
+;; 			 (geom/line-offset line '(0 2))))))
+
 (display "loading aod/sxs.scm\n")
 ;; private
 (define* (-arrow-angles (dir 'right))
@@ -119,6 +140,11 @@
        (0 0)
        (,offset 0)))))
 
+(test "SXS repeat line"
+      (assert (equivalent? '((0 2 10 12) (0 -2 10 8))  (geom/repeat-line '(0 0 10 10) '((0 2) (0 -2))))))
+
+
+
 (define* (lines circle (phase 0) (clip #t))
   (let ((offset-right (list (* 2 phase (circle 2))
 			    0))
@@ -134,7 +160,7 @@
       (if clip
 	  (geom/clip-lines-in-circle lines circle)
 	  lines))))
-
+	  
 (comment
  (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
 	     :clip #t)
@@ -146,7 +172,9 @@
       (is (equivalent?
 	       '((-2.8284271247461903 0 -3.8284271247461903 1.0000000000000002) (0.0 0 -1.0 1.0000000000000002) (2.8284271247461903 0 1.8284271247461903 1.0000000000000002) (-2.8284271247461903 0 -3.8284271247461907 -1.0) (0.0 0 -1.0000000000000002 -1.0) (2.8284271247461903 0 1.82842712474619 -1.0) (-2.8284271247461903 0 -1.82842712474619 -1.0) (0.0 0 1.0000000000000002 -1.0) (2.8284271247461903 0 3.8284271247461907 -1.0) (-2.8284271247461903 0 -1.82842712474619 1.0) (0.0 0 1.0000000000000002 1.0) (2.8284271247461903 0 3.8284271247461907 1.0))
 	       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
-		      :clip #f)))
+		      :clip #f)
+
+	       ))
       )
 
 (comment
@@ -178,6 +206,11 @@
       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
 	     :clip #t)
       )
+
+(comment
+ (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
+	:clip #t)
+ )
 
 (comment
  "about namespaces"
