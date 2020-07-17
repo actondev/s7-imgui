@@ -1,7 +1,3 @@
-(provide 'aod.geom)
-(require aod.core)
-(display "in aod.geom\n")
-
 (ns aod.geom)
 
 (define (echo)
@@ -231,8 +227,6 @@
       (is (equivalent? '((1 1 2 2) (1 1 11 11))
 			   (lines-offset '((0 0 1 1) (0 0 10 10))
 					 '(1 1)))))
-
-
 
 (define* (mk-circle cx cy r)
   (list cx cy r))

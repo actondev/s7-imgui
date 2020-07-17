@@ -13,21 +13,29 @@
 ;;
 (require aod.clj) ;; for (comment .. )
 (provide 'aod.ns)
-
-;; holds the current namespace
-;; the repl running on the c-side shoudl read this to eval incoming expressions in there
-(define *ns* (rootlet))
-
 ;; can be thought either of plurar (namespaces)
 ;; or ns store..
 (define *nss* (make-hash-table))
+;; setting to #t when loading a file ala (load "foo/bar.scm")
+;; we use it to "merge" with any (ns..) declaration
+(define *ns-load-mode* #f)
 (define (ns-make-empty-let)
   (with-let (unlet)
 	    (let ()
 	      (curlet))))
+
+;; holds the current namespace
+;; the repl running on the c-side shoudl read this to eval incoming expressions in there
+(define *ns* (ns-make-empty-let))
 (define-macro (ns-create the-ns)
+  ;; should check about the *ns-load-mode*
   (format *stderr* "Creating namespace ~A\n" the-ns)
-  (set! (*nss* the-ns) (ns-make-empty-let))
+  (if *ns-load-mode*
+      (begin
+	(print "we're in load mode")
+	(set! (*nss* the-ns) *ns*)
+	(set! *ns-load-mode* #f))
+      (set! (*nss* the-ns) (ns-make-empty-let)))
   `(with-let ,(*nss* the-ns)
 	    (define *ns-name* ',the-ns)
 	    ))
@@ -132,8 +140,21 @@
       ;; (print "reverted *ns*" *ns*)
       )))
 
-(define (ns-load file . args)
-  (#_load file *ns*))
+;; hm the thing is how to
+;; - parse the file first to see into which environment it should be loaded
+;; - and then actually load the file there..?
+;; .. hm what does the load do actually? can I split it?
+;; s7_open_input_file
+;; (open-input-file name mode)
+(define (ns-load-file file . args)
+  ;; (#_load file *ns*)
+  ;; that should be set to false after the first ns creation
+  (set! *ns-load-mode* #t)
+  (set! *ns* (ns-make-empty-let))
+  ;; (print "env?? " *ns*)
+  (load file *ns*)
+  (print "loaded file " file "*ns* is " *ns*)
+  )
 
 
 (define-macro (ns the-ns . body)

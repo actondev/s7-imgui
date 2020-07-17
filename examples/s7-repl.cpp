@@ -32,7 +32,12 @@ int main(int argc, char **argv) {
         if (!passed_file.is_absolute()) {
             passed_file = (fs::current_path() /  passed_file);
         }
-        aod::s7::load_file(sc, passed_file.c_str());
+        std::string load_sexp = "(ns-load-file \"" + passed_file.string() +"\")";
+
+        // provides the ns-load-file
+        aod::s7::load_file(sc, "aod/core.scm");
+        s7_eval_c_string(sc, load_sexp.c_str());
+//         s7_load(sc, passed_file.c_str());
     }
 
     aod::s7::Repl repl(sc);

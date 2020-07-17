@@ -1,6 +1,8 @@
-(require aod.core)
-
-(require aod.test)
+;; note: if i direclty pass this file to the repl executable
+;; i need to laod the aod.test in the (rootlet) in order for
+;; the tests to run
+'(with-let (rootlet)
+	  (require aod.test))
 
 (ns aod.sxs)
 (ns-require aod.geom :as geom)
@@ -177,31 +179,6 @@
 	       ))
       )
 
-(comment
- (require debug.scm)
- (trace lines)
- (*s7* 'debug)
- (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
-	:clip #t)
-
- (*s7* 'print-length) ;; 32
- (set! (*s7* 'print-length) 80)
- ((rootlet) '*features*)
-
- (stacktrace)
- (*s7* 'stacktrace-defaults)
- (*s7* 'stacktrace)
- (set! (*s7* 'stacktrace-defaults) '(5 200 200 200 #t))
- ;; (3 45 80 45 #t)
- ;; how many frames to display
- ;; how many columns are devoted to code display,
- ;; how many columns are available for a line of data,
- ;; and where to place comments.
- (set! (*s7* 'debug) 1) ;; 3 is also nice
- (procedure-source lines)
- (untrace lines)
- )
-
 (test "SXS lines clipped"
       (is (equivalent? '((0.0 0 -1.0 1.0) (0.0 0 -1.0 -1.0) (0.0 0 1.0 -1.0) (0.0 0 1.0 1.0))
 		       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
@@ -216,3 +193,6 @@
 	:phase 0.3555555555555
 	:clip #t)
  )
+
+
+;; (print "loaded aod.sxs, *ns* " *ns*)
