@@ -14,7 +14,6 @@ aod_sources = files(
   's7/nfd.cpp',
 
   # foreign types
-  # 's7/c_primitives.cpp',
   's7/foreign_primitives.cpp',
   's7/foreign_primitives_arr.cpp',
 )

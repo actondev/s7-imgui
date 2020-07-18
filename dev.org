@@ -306,3 +306,25 @@ time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-r
    #+BEGIN_SRC sh
 ninja -C build && ./build/examples/repl src/scheme/test.scm
    #+END_SRC
+
+* Useful elisp
+   #+NAME: build-and-run-scm
+   #+BEGIN_SRC emacs-lisp :var file="src/scheme/test.scm"
+(with-temp-buffer
+  (if (= 0 (call-process "ninja" nil t t "-C" "build" ))
+      (progn
+	;; (message "OK! running scheme")
+	(let ((default-directory (projectile-project-root)))
+	  (run-scheme (concat (projectile-project-root) "build/examples/repl " file))
+	  ))
+    (progn
+      ;; (message "build failed")
+      (message (buffer-string))
+      )
+    ))
+   #+END_SRC
+
+   #+CALL: build-and-run-scm()
+
+   #+RESULTS:
+   : #<buffer *scheme*>

@@ -83,7 +83,7 @@ TEST(s7_environments, require_as) {
 
     const char* sexp1 = "(begin "
                         "(require aod.core)"
-                        "(define i1 ((*foreign* 'new-int) 1))"
+                        "(define i1 ((aod.c.foreign 'new-int) 1))"
                         "(i1)"
                         ")"
                         ;

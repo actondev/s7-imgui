@@ -106,9 +106,9 @@ int main(int argc, char *argv[]) {
      */
 
     s7_pointer primitives_env = aod::s7::make_env(sc);
-    // eg ((*foreign* 'new-bool) #t) for a bool* pointer with initial value true
+    // eg ((aod.c.foreign 'new-bool) #t) for a bool* pointer with initial value true
     aod::s7::foreign::bind_primitives(sc, primitives_env);
-    // eg ((*foreign* 'new-bool[]) 4) for a bool[4] array
+    // eg ((aod.c.foreign 'new-bool[]) 4) for a bool[4] array
     aod::s7::foreign::bind_primitives_arr(sc, primitives_env);
 
     // imgui bindings

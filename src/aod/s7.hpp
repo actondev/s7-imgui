@@ -46,9 +46,9 @@ inline s7_pointer make_env(s7_scheme *sc) {
 
 inline void bind_all(s7_scheme *sc) {
     s7_pointer primitives_env = make_env(sc);
-    // eg ((*foreign* 'new-bool) #t) for a bool* pointer with initial value true
+    // eg ((aod.c.foreign 'new-bool) #t) for a bool* pointer with initial value true
     aod::s7::foreign::bind_primitives(sc, primitives_env);
-    // eg ((*foreign* 'new-bool[]) 4) for a bool[4] array
+    // eg ((aod.c.foreign 'new-bool[]) 4) for a bool[4] array
     aod::s7::foreign::bind_primitives_arr(sc, primitives_env);
 
     // imgui bindings

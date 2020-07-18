@@ -15,7 +15,7 @@ TEST ( foreign_primitives_arr_gen, bool_arr ) {
     aod::s7::foreign::bind_primitives(sc, env); // we also handle a bool* ref
 
     s7_pointer x = s7_eval_c_string(sc,
-            "(define x ((*foreign* 'new-bool[]) 3))");
+            "(define x ((aod.c.foreign 'new-bool[]) 3))");
 
     bool *arr = (bool*) s7_c_object_value(x);
     ASSERT_EQ(false, arr[0]);
@@ -62,7 +62,7 @@ TEST ( foreign_primitives_arr_gen, int_arr ) {
     aod::s7::foreign::bind_primitives_arr(sc);
 
     s7_pointer x = s7_eval_c_string(sc,
-            "(define x ((*foreign* 'new-int[]) 3))");
+            "(define x ((aod.c.foreign 'new-int[]) 3))");
 
     int *arr = (int*) s7_c_object_value(x);
     arr[0] = 0;
@@ -86,14 +86,14 @@ TEST ( foreign_primitives_arr_gen, float_arr ) {
     s7_scheme *sc = s7_init();
     aod::s7::set_print_stderr(sc);
 
-    // can we bing all together in *foreign* ?
+    // can we bing all together in aod.c.foreign ?
     s7_pointer env = aod::s7::make_env(sc);
     aod::s7::foreign::bind_primitives_arr(sc, env);
     aod::s7::foreign::bind_primitives(sc, env);
 
 
     s7_pointer x = s7_eval_c_string(sc,
-            "(define x ((*foreign* 'new-float[]) 3))");
+            "(define x ((aod.c.foreign 'new-float[]) 3))");
 
     float *arr = (float*) s7_c_object_value(x);
     arr[0] = 0.0;

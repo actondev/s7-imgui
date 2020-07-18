@@ -15,19 +15,19 @@
 
 
 (define click-counter 0)
-(define *win-open ((*foreign* 'new-bool) #t))
+(define *win-open ((aod.c.foreign 'new-bool) #t))
 (format #t "win open is ~A\n" (*win-open))
 (set! (*win-open) #f)
 (format #t "win open is ~A\n" (*win-open))
-;; (define b ((*foreign* 'new-bool) #t))
+;; (define b ((aod.c.foreign 'new-bool) #t))
 
 ;; the exposed functions
 (define (setup)
   (display "initializing main.scm: in setup\n"))
 
-(define color-4 ((*foreign* 'new-float[]) 4))
+(define color-4 ((aod.c.foreign 'new-float[]) 4))
 ;; that should not crash the program, there should be checks
-;; (define color-4 ((*foreign* 'new-bool[]) 4))
+;; (define color-4 ((aod.c.foreign 'new-bool[]) 4))
 
 (define (adjust-color!)
   (when (defined? 'imgui/clear-color)
@@ -171,7 +171,7 @@
 		   (imgui/text "I like scheme.")
 		   (imgui/text "I am a closable window"))))
 
-(define *knob-value ((*foreign* 'new-float) 0.5))
+(define *knob-value ((aod.c.foreign 'new-float) 0.5))
 
 (define (draw-knobs)
   (imgui/m-window

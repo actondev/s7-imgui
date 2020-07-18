@@ -6,7 +6,6 @@ gtest_main_dep = gtest_proj.get_variable('gtest_main_dep')
 # gmock_dep = gtest_proj.get_variable('gmock_dep')
 test_src += files(
   'aod/s7/repl_test.cpp',
-  # 'aod/s7/c_primitives_test.cpp',
   'aod/s7/foreign_primitives_test.cpp',
   'aod/s7/foreign_primitives_arr_test.cpp',
   'aod/s7/environments_test.cpp',

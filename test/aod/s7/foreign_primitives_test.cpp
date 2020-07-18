@@ -12,7 +12,7 @@ TEST ( foreign_primitives_gen, boolean ) {
     aod::s7::foreign::bind_primitives(sc);
 
     s7_pointer b = s7_eval_c_string(sc, //
-            "(define b ((*foreign* 'new-bool) #t))" //
+            "(define b ((aod.c.foreign 'new-bool) #t))" //
             );
 
     ASSERT_TRUE(s7_is_c_object(b));
@@ -30,7 +30,7 @@ TEST ( foreign_primitives_gen, integer ) {
     aod::s7::foreign::bind_primitives(sc);
 
     s7_pointer x = s7_eval_c_string(sc, //
-            "(define x ((*foreign* 'new-int) 5))" //
+            "(define x ((aod.c.foreign 'new-int) 5))" //
             );
 
     ASSERT_TRUE(s7_is_c_object(x));

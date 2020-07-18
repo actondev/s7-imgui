@@ -23,6 +23,7 @@ int main(int argc, char **argv) {
     s7_scheme *sc = s7_init();
     aod::s7::set_print_stderr(sc);
     aod::s7::set_autoloads(sc);
+    aod::s7::bind_all(sc);
 
     s7_add_to_load_path(sc, scheme_path.c_str());
 
