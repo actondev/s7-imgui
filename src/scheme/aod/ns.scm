@@ -219,3 +219,30 @@
       (is (not (defined? 'x)))
       )
 
+(define* (ns-doc the-ns fun)
+  ;; it could be that it's not loaded in *nss* but it's defined
+  ;; from the c side. In that case (symbol->value ..) gives us the
+  ;; environment
+  (let ((env (or (symbol->value the-ns) (*nss* the-ns))))
+    (when env
+      (if fun
+	  (documentation (env fun))
+	  (begin
+	    ;; documenting the whole ns
+	    (map (lambda (fn-pair)
+		   (cons
+		    (car fn-pair)
+		    (documentation (cdr fn-pair))))
+		 (let->list env))
+	    )
+	)))
+  )
+
+(comment
+ (ns-doc 'aod.c.gl 'save-screenshot)
+ (ns-doc 'aod.c.gl)
+ (ns-doc 'aod.c.imgui)
+ (ns-doc 'aod.c.foreign)
+ (documentation ((*nss* 'aod.c.gl) 'save-screenshot))
+ (let->list (*nss* 'aod.c.gl))
+ )

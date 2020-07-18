@@ -37,4 +37,9 @@
  (defined? 'watch)
  (draw)
  (gl/save-screenshot "test.png")
+
+ ;; documentation
+ (ns-doc 'aod.c.gl)
+ (ns-doc 'aod.c.imgui)
+ (ns-doc 'aod.c.imgui-sdl)
  )
