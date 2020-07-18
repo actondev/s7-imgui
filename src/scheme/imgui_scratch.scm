@@ -3,33 +3,26 @@
 (ns-require aod.c.imgui-sdl :as igsdl)
 (ns-require aod.c.imgui :as ig)
 (ns-require aod.imgui.macros :as igm)
+(ns-require aod.c.gl :as gl) ;; for screenshots
 
 (define *ctx* (igsdl/setup 400 400))
 
-(define-macro (define-with-watch name body watch-fn)
-  `(begin
-     (define ,name ,body)
-     (set! (setter ',name)
-	   (lambda (s v e)
-	     (,watch-fn)
-	      v))
-     ))
+(define-macro (redefine-and name body then)
+  (let ((is-defined (defined? name)))
+    `(begin
+       (define ,name ,body)
+       (when ,is-defined
+	 ,then))))
 
-;; (define (do-draw)
-;;   (igm/maximized
-;;    ("imgui scratch")
-;;    (ig/text "hi there, you handsome devil"))
-;;   )
-
-(define-with-watch do-draw
+;; upon redefining do-draw funcion
+;; the (draw) will get called
+(redefine-and do-draw
   (lambda ()
     (igm/maximized
-	      ("imgui scratch")
-	      (ig/text "hi devil")
-	      (ig/text "hi devil you")))
-  (lambda ()
-    (draw)
-    ))
+     ("imgui scratch")
+     (ig/text "hi you devil")
+     (ig/text "")))
+  (draw))
 
 (define (draw)
   (igsdl/prepare *ctx*)
@@ -43,4 +36,5 @@
  (igsdl/destroy *ctx*)
  (defined? 'watch)
  (draw)
+ (gl/save-screenshot "test.png")
  )

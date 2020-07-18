@@ -781,3 +781,40 @@ TEST(s7_environments, autoloads_bug) {
   some 160 lines including plenty of comments. hope it will serve well.
 
   See more in [[file:docs/s7.org]]
+* aod.c.imgui-sdl bindings
+  to quickly prototype with imgui. the window creation and imgui drawing is done from scheme,
+  i'm not called by c.
+
+  example
+  #+BEGIN_SRC scheme
+(ns imgui-sratch)
+
+(ns-require aod.c.imgui-sdl :as igsdl)
+(ns-require aod.c.imgui :as ig)
+(ns-require aod.imgui.macros :as igm)
+
+(define *ctx* (igsdl/setup 400 400))
+
+(define (draw)
+  (igsdl/prepare *ctx*)
+
+  ;; your drawing logic here
+  ;; eg
+  (igm/maximized
+   ("imgui scratch")
+   (ig/text "hi devil")
+   (ig/text ""))
+
+  
+  (igsdl/flush *ctx*)
+  )
+
+;; drawing upon first running
+(draw)
+
+(comment
+ ;; run destroy to kill the sdl window
+ (igsdl/destroy *ctx*)
+ )
+
+  #+END_SRC
