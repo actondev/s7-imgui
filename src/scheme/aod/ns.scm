@@ -74,17 +74,24 @@
 
 ;; Loads the namespace in its own environment
 ;; and puts it in the *nss* hash table, under the 'the-ns key
-(define* (ns-require-load the-ns (force #f))
+(define* (ns-load the-ns (force #f))
   (if (or (eq? #f (*nss* the-ns))
 	  force)
       (begin
 	(ns-get-or-create the-ns)
-	(apply varlet (*nss* the-ns)
-	       ;; hmm.. unlet?
-	       (with-let (unlet)
-			 (let ()
-			   (#_load (*autoload* the-ns) (*nss* the-ns))
-			   (let->list (curlet))))))
+	(if (and (defined? the-ns)
+		 (let? (symbol->value the-ns)))
+	    (begin
+	      (print the-ns "is already defined globally. Probably c bindings")
+	      (set! (*nss* the-ns) (symbol->value the-ns))
+	      )
+	    ;; else: loading a file with autoload info
+	    ;; TODO.. check if autoload info exists? if not it should error
+	    (apply varlet (*nss* the-ns)
+		   (with-let (unlet)
+			     (let ()
+			       (#_load (*autoload* the-ns) (*nss* the-ns))
+			       (let->list (curlet)))))))
       (begin
 	(print "Skipping already ns-require'd" the-ns)
 	)))
@@ -133,7 +140,7 @@
 (define-macro* (ns-require the-ns (as #f) (force #f) )
   (let ((current-ns *ns*))
     `(begin
-      (ns-require-load ',the-ns :force ,force)
+      (ns-load ',the-ns :force ,force)
       (with-let ,current-ns
       	      (ns-require-alias ',the-ns
 				 (or ',as ',the-ns)

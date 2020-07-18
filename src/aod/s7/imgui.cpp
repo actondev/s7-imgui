@@ -679,7 +679,7 @@ void bind(s7_scheme *sc) {
     // the provide is needed to define the *features* symbol in this environment
     // this is checked to avoid duplicate requires of this environment
     s7_eval_c_string_with_environment(sc, "(provide 'aod.c.imgui)", env);
-    s7_define_variable(sc, "aod.c.imgui", s7_let_to_list(sc, env));
+    s7_define_variable(sc, "aod.c.imgui", env);
 }
 
 } // imgui

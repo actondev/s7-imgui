@@ -96,7 +96,7 @@ void free_C_TYPE(void* raw_data) {
 }
 
 int tag_C_TYPE(s7_scheme *sc) {
-     s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE)");
+     s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-C_TYPE)");
      if(s7_is_integer(res)){
 	  return s7_integer(res);
      }
@@ -219,10 +219,7 @@ namespace aod {
                     bind_int(sc, env);
                     bind_float(sc, env);
 
-                    s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*foreign*"),
-                              s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
-
-                    s7_define_variable(sc, "aod.c.foreign", s7_let_to_list(sc, env));
+                    s7_define_variable(sc, "aod.c.foreign", env);
                }
           } // foreign
      } // s7
@@ -241,7 +238,7 @@ void free_C_TYPE_arr(void *raw_data) {
 }
 
 int tag_C_TYPE_arr(s7_scheme* sc){
-     s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-C_TYPE[])");
+     s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-C_TYPE[])");
      if(s7_is_integer(res)){
 	  return s7_integer(res);
      }
@@ -380,7 +377,7 @@ namespace aod {
                <<render(template="T-primitive[]",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")>>
 
                  /**
-                    (define *int-arr ((*foreign* 'new-int[]) 3))
+                    (define *int-arr ((aod.c.foreign 'new-int[]) 3))
                     (*int-arr 0) => 0
                     (set! (*int-arr 0 1))
                     (*int-arr 1) => 1
@@ -405,10 +402,7 @@ namespace aod {
                     bind_int_arr(sc, env);
                     bind_float_arr(sc, env);
 
-                    s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*foreign*"),
-                              s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
-
-                    s7_define_variable(sc, "aod.c.foreign", s7_let_to_list(sc, env));
+		    s7_define_variable(sc, "aod.c.foreign", env);
                }
           } // foreign
      } // s7

@@ -18,7 +18,7 @@ namespace aod {
                }
                
                int tag_bool(s7_scheme *sc) {
-                    s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-bool)");
+                    s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-bool)");
                     if(s7_is_integer(res)){
                	  return s7_integer(res);
                     }
@@ -84,7 +84,7 @@ namespace aod {
                }
                
                int tag_int(s7_scheme *sc) {
-                    s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-int)");
+                    s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-int)");
                     if(s7_is_integer(res)){
                	  return s7_integer(res);
                     }
@@ -151,7 +151,7 @@ namespace aod {
                }
                
                int tag_float(s7_scheme *sc) {
-                    s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-float)");
+                    s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-float)");
                     if(s7_is_integer(res)){
                	  return s7_integer(res);
                     }
@@ -219,10 +219,7 @@ namespace aod {
                     bind_int(sc, env);
                     bind_float(sc, env);
 
-                    s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*foreign*"),
-                              s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
-
-                    s7_define_variable(sc, "aod.c.foreign", s7_let_to_list(sc, env));
+                    s7_define_variable(sc, "aod.c.foreign", env);
                }
           } // foreign
      } // s7
