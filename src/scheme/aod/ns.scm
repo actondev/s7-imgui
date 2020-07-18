@@ -42,7 +42,7 @@
 
 (define-macro (ns-create the-ns)
   ;; should check about the *ns-load-mode*
-  (format *stderr* "Creating namespace ~A\n" the-ns)
+  ;; (format *stderr* "Creating namespace ~A\n" the-ns)
   (if *ns-load-mode*
       (begin
 	(print "we're in load mode")
@@ -82,7 +82,7 @@
 	(if (and (defined? the-ns)
 		 (let? (symbol->value the-ns)))
 	    (begin
-	      (print the-ns "is already defined globally. Probably c bindings")
+	      ;; (print the-ns "is already defined globally. Probably c bindings")
 	      (set! (*nss* the-ns) (symbol->value the-ns))
 	      )
 	    ;; else: loading a file with autoload info
@@ -195,5 +195,4 @@
 
       (with-temp-ns
        (is (not (defined? 'x))))
-
       )

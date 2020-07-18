@@ -24,13 +24,14 @@
 			  (let? *ns*))
 		     *ns*
 		     (curlet))
-		 (let ((header (or (*ns* '*ns-name*)
-				   "")))
+		 (let ((header (or (*ns* '*ns-name*) ""))
+		       (*test-env* (curlet)))
 		   (call-with-exit
 		    (lambda (return)
 		      (map (lambda (e)
-			     (let ((res (eval e)))
-			       (unless res
+			     (let ((res (eval e *test-env*)))
+			       (when (and (eq? assert (symbol->value (car e)))
+					  (not res))
 				 (format *stderr* "FAIL: ~A ~A~%" header ,name)
 				 (set! res #f)
 				 (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))

@@ -308,10 +308,11 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
    #+END_SRC
 
 * Useful elisp
-   #+NAME: build-and-run-scm
-   #+BEGIN_SRC emacs-lisp :var file="src/scheme/test.scm"
-(with-temp-buffer
-  (if (= 0 (call-process "ninja" nil t t "-C" "build" ))
+   #+NAME: _build-and-run-scm
+   #+BEGIN_SRC emacs-lisp :var file="" :results silent
+(let ((build-res (with-temp-buffer
+		   (call-process "ninja" nil t t "-C" "build"))))
+  (if (= 0 build-res)
       (progn
 	;; (message "OK! running scheme")
 	(let ((default-directory (projectile-project-root)))
@@ -320,11 +321,7 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
     (progn
       ;; (message "build failed")
       (message (buffer-string))
-      )
-    ))
+      )))
    #+END_SRC
-
-   #+CALL: build-and-run-scm()
-
-   #+RESULTS:
-   : #<buffer *scheme*>
+   
+   #+CALL: _build-and-run-scm(file="src/scheme/test.scm")
