@@ -284,15 +284,6 @@ rm -r build/examples/*libc_*
     #+BEGIN_SRC sh
 time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-repl
     #+END_SRC
-
-* COMMENT Local variables
-  Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything
-  The cursor, upon opening the file, stays at the beginning
-
-# Local Variables:
-# eval: (aod.org-babel/eval-named-block "buttons")
-# eval: (org-babel-goto-named-result "buttons")
-# End:  
 * Testing
      #+BEGIN_SRC emacs-lisp :exports none
 (aod.org-babel/generate-named-buttons-inc (rx "test:"))
@@ -323,5 +314,17 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
       (message (buffer-string))
       )))
    #+END_SRC
-   
+
+   #+CALL: _build-and-run-scm(file="src/scheme/imgui_scratch.scm")
    #+CALL: _build-and-run-scm(file="src/scheme/test.scm")
+
+* COMMENT Local variables
+  Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything
+  The cursor, upon opening the file, stays at the beginning
+
+# Local Variables:
+# eval: (aod.org-babel/eval-named-block "buttons")
+# eval: (org-babel-goto-named-result "buttons")
+# eval: (setq-local org-confirm-babel-evaluate nil)
+# eval: (aod.org-babel/generate-call-buttons)
+# End:  

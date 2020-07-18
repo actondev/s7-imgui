@@ -12,6 +12,7 @@ aod_sources = files(
   'sdl/audio.cpp',
   'nfd.cpp',
   's7/nfd.cpp',
+  's7/imgui_sdl.cpp',
 
   # foreign types
   's7/foreign_primitives.cpp',

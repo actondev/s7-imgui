@@ -15,6 +15,7 @@
 #include "aod/s7/gl.hpp"
 #include "aod/s7/sdl.hpp"
 #include "aod/s7/nfd.hpp"
+#include "aod/s7/imgui_sdl.hpp"
 
 namespace aod {
 namespace s7 {
@@ -60,6 +61,8 @@ inline void bind_all(s7_scheme *sc) {
 
     // nfd: native file dialog (*nfd* 'open)
     aod::s7::nfd::bind(sc);
+
+    aod::s7::imgui_sdl::bind(sc);
 }
 
 void set_autoloads(s7_scheme *sc);

@@ -90,3 +90,18 @@ i is 2
 
 (define-expansion (identity what)
   `,what)
+
+(define-macro (set-watch var fn)
+  `(set! (setter ',var) 
+	 (lambda (s v e)
+	   ;; calling fn with old and new value
+	   (,fn (e ',var) v)
+	   v)))
+
+(comment
+ (define x 1)
+ (set-watch x (lambda (old new)
+		(print "x changed from" old "to" new)))
+ ((curlet) 'x)
+ (define x 2)
+ )

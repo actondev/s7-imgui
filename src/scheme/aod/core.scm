@@ -61,7 +61,6 @@
  ;; => (1 2 10)
  )
 
-
 ;; WIP: trying to make it so that
 ;; let's say im requiring aod.geom :as geom
 ;; I want to change the definition of some function
