@@ -105,3 +105,16 @@ i is 2
  ((curlet) 'x)
  (define x 2)
  )
+
+(define (keys coll)
+  (if (hash-table? coll)
+      (map (lambda  (el)
+	     (car el))
+	   coll)
+      (error 'wrong-type-arg "keys arg ~A is not a hash-table" coll)))
+
+(comment
+ (defined? 'keys)
+ (defined? 'hash-table?)
+ (keys *nss*)
+ )

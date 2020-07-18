@@ -9,6 +9,7 @@
 (ns-load 'aod.ns)
 (ns-load 'aod.geom)
 (ns-load 'aod.sxs)
+(ns-load 'aod.layout)
 (ns-load-file "test/c_foreign_test.scm")
 
 

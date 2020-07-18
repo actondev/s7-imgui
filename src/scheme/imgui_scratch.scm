@@ -4,6 +4,7 @@
 (ns-require aod.c.imgui :as ig)
 (ns-require aod.imgui.macros :as igm)
 (ns-require aod.c.gl :as gl) ;; for screenshots
+(ns-require aod.layout :as l)
 
 (define *ctx* (igsdl/setup 400 400))
 
@@ -35,11 +36,16 @@
 (comment
  (igsdl/destroy *ctx*)
  (defined? 'watch)
+ (define *ctx* (igsdl/setup 400 400))
  (draw)
  (gl/save-screenshot "test.png")
-
+ 
  ;; documentation
  (ns-doc 'aod.c.gl)
  (ns-doc 'aod.c.imgui)
  (ns-doc 'aod.c.imgui-sdl)
+ (ns-doc 'aod.layout)
+
+ (keys *nss*)
+ (hash-table-entries *nss*)
  )

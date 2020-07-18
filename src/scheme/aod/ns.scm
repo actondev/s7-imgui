@@ -184,7 +184,7 @@
 		,@body)
 	      (lambda args
 		;; hm cleaning up again
-		(print "with-temp-ns cleanup in catch")
+		(print "with-temp-ns cleanup in catch, args" args)
 		(set! *ns* (*nss* ',previous-ns))
 		(set! (*nss* ',previous-ns) #f)
 		(apply throw args)))
@@ -223,7 +223,8 @@
   ;; it could be that it's not loaded in *nss* but it's defined
   ;; from the c side. In that case (symbol->value ..) gives us the
   ;; environment
-  (let ((env (or (symbol->value the-ns) (*nss* the-ns))))
+  (let ((env (or (*nss* the-ns)
+		 (symbol->value the-ns))))
     (when env
       (if fun
 	  (documentation (env fun))

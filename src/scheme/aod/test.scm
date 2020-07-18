@@ -45,5 +45,7 @@
 			',test-header
 			,name
 			exc-info
-			(apply format #f exc-format-data)
+			;; there's a bug in bubbling error messages
+			;; (apply format #f exc-format-data)
+			exc-format-data
 			))))))
