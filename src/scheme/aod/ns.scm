@@ -161,7 +161,8 @@
   (set! *ns* (ns-make-empty-let))
   (load file *ns*))
 
-
+;; maybe I should make this a normal function
+;; keep things simpler..
 (define-macro (ns the-ns . body)
   `(begin
      (set! *ns* (ns-get-or-create ',the-ns))
@@ -178,11 +179,17 @@
     `(begin
        (set! (*nss* ',previous-ns) *ns*)
        (ns ',ns-symbol)
-       (let ((res (begin
-		    ,@body)))
-	 (set! *ns* (*nss* ',previous-ns))
-	 (set! (*nss* ',previous-ns) #f)
-	 res))))
+       (catch #t
+	      (lambda ()
+		,@body)
+	      (lambda args
+		;; hm cleaning up again
+		(print "with-temp-ns cleanup in catch")
+		(set! *ns* (*nss* ',previous-ns))
+		(set! (*nss* ',previous-ns) #f)
+		(apply throw args)))
+       (set! *ns* (*nss* ',previous-ns))
+       (set! (*nss* ',previous-ns) #f))))
 (comment
  (require aod.test)
  )
@@ -196,3 +203,19 @@
       (with-temp-ns
        (is (not (defined? 'x))))
       )
+
+(test "with-temp-ns cleanup"
+      (define caught-something #f)
+      (catch #t
+	     (lambda ()
+	       (with-temp-ns
+		(define x 1)
+		(is (defined? 'x))
+		i-am-going-to-fail
+		))
+	     (lambda args
+	       (set! caught-something #t)))
+      (is (eq? #t caught-something))
+      (is (not (defined? 'x)))
+      )
+

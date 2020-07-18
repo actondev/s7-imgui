@@ -1,13 +1,14 @@
-(display "in aod/test.scm\n")
 (provide 'aod.test)
 (define-macro* (assert assertion (msg ""))
+  ;; hm msg is not used
   `(begin
      (if ,assertion
 	 (begin
 	   ;; (format *stderr* "~A: ok~%" ',assertion)
 	   #t)
 	 (begin
-	   (format *stderr* "~A: ~A failed : \"~A\"~%" (*function*) ',assertion ,msg)
+	   ;; (format *stderr* "------ ~A: ~A failed~%" (*function*) ',assertion)
+	   (throw 'assertion-failed "~A: ~A~%" (*function*) ',assertion)
 	   #f))))
 
 (define is assert)
@@ -18,31 +19,31 @@
 		     ht))
 
 (define-macro (test name . body)
-  `(catch #t
-     (lambda ()
-       (with-let (if (and (defined? '*ns*)
-			  (let? *ns*))
-		     *ns*
-		     (curlet))
-		 (let ((header (or (*ns* '*ns-name*) ""))
-		       (*test-env* (curlet)))
-		   (call-with-exit
-		    (lambda (return)
-		      (map (lambda (e)
-			     (let ((res (eval e *test-env*)))
-			       (when (and (eq? assert (symbol->value (car e)))
-					  (not res))
-				 (format *stderr* "FAIL: ~A ~A~%" header ,name)
-				 (set! res #f)
-				 (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
-				 (return))))
-			   ',body)
-		      (set! (*aod.test* 'pass) (+ 1 (*aod.test* 'pass)))
-		      (format *stderr* "PASS: ~A ~A~%" header ,name)
-		      #t
-		      )))))
-     (lambda args
-       (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
-       (format *stderr* "FAIL: ~A~%\texception caught:~%\t~A~%"
-	       ,name
-	       (apply format #f (cadr args))))))
+  (let ((test-header (or (*ns* '*ns-name*) "")))
+    `(catch #t
+	    (lambda ()
+	      (with-let (if (and (defined? '*ns*)
+				 (let? *ns*))
+			    *ns*
+			    (curlet))
+			(let ((*test-env* (curlet)))
+			  (call-with-exit
+			   (lambda (return)
+			     (map (lambda (e)
+				    ;; (print "===> eval " e)
+				    (eval e *test-env*))
+				  ',body)
+			     (set! (*aod.test* 'pass) (+ 1 (*aod.test* 'pass)))
+			     (format *stderr* "PASS: ~A \"~A\"~%" ',test-header ,name)
+			     #t
+			     )))))
+	    (lambda args
+	      (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
+	      (let ((exc-format-data (cadr args))
+		    (exc-info (car args)))
+		(format *stderr* "FAIL: ~A \"~A\" \n\t~A~%\t~A~%"
+			',test-header
+			,name
+			exc-info
+			(apply format #f exc-format-data)
+			))))))

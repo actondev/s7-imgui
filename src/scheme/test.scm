@@ -15,8 +15,7 @@
 (print "======")
 (print "Passed:" (*aod.test* 'pass))
 (print "Failed:" (*aod.test* 'fail))
-(print ">")
-;; (exit (*aod.test* 'fail))
+(exit (*aod.test* 'fail))
 
 (comment
  (+ 1 2 3)
