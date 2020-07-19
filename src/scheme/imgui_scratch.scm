@@ -5,6 +5,8 @@
 (ns-require aod.imgui.macros :as igm)
 (ns-require aod.c.gl :as gl) ;; for screenshots
 (ns-require aod.layout :as l)
+(ns-require aod.sxs :as sxs)
+(ns-require aod.imgui.helpers :as igh)
 
 (define *ctx* (igsdl/setup 400 400))
 
@@ -14,15 +16,27 @@
        (define ,name ,body)
        (when ,is-defined
 	 ,then))))
+(define color (ig/frgb->u32 1 1 1))
 
+(define sxs-lines (sxs/lines '(100 100 100)))
+(define* (sxs-element cx cy (phase 0) (n 0))
+  ;; we multiply phase with N/3 (N=12) since we want to repeat every 3
+  (let ((lines (sxs/lines `(,cx ,cy 20) :phase (* 4 phase))))
+    ;; side effect
+    ;; (ig/draw-circle `(,cx ,cy 20 ,color))
+    (igh/draw-lines-with-color lines color)
+    (apply ig/draw-circle `(,cx ,cy 20 ,color))
+    )
+  )
 ;; upon redefining do-draw funcion
 ;; the (draw) will get called
 (redefine-and do-draw
   (lambda ()
     (igm/maximized
      ("imgui scratch")
-     (ig/text "hi you devil")
-     (ig/text "")))
+     (ig/text "hi you handsome devil")
+     (l/circular sxs-element :N 12 :center '(150 150) :R 100)
+     ))
   (draw))
 
 (define (draw)
@@ -33,8 +47,13 @@
 
 (draw)
 
+
+;; (igsdl/destroy *ctx*)
+;; (exit)
+
 (comment
  (igsdl/destroy *ctx*)
+ (exit)
  (defined? 'watch)
  (define *ctx* (igsdl/setup 400 400))
  (draw)
@@ -45,6 +64,8 @@
  (ns-doc 'aod.c.imgui)
  (ns-doc 'aod.c.imgui-sdl)
  (ns-doc 'aod.layout)
+ (ns-doc 'aod.sxs)
+ (ns-doc 'aod.imgui.helpers)
 
  (keys *nss*)
  (hash-table-entries *nss*)

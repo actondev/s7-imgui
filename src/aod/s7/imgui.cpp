@@ -428,14 +428,14 @@ s7_pointer circle(s7_scheme *sc, s7_pointer args) {
 
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
 
-    float cx = s7_number_to_real(sc, s7_car(args));
-    float cy = s7_number_to_real(sc, s7_cadr(args));
-    float r = s7_number_to_real(sc, s7_caddr(args));
-    unsigned int col = (unsigned int) s7_number_to_real(sc, s7_cadddr(args));
+    float cx = s7_number_to_real(sc, s7_list_ref(sc, args, 0));
+    float cy = s7_number_to_real(sc, s7_list_ref(sc, args, 1));
+    float r = s7_number_to_real(sc, s7_list_ref(sc, args, 2));
+    unsigned int col = (unsigned int) s7_number_to_real(sc, s7_list_ref(sc, args, 3));
     float thickness = 1;
     int segments = 32;
-    s7_pointer sc_segments = s7_car(s7_cddddr(args));
-    s7_pointer sc_thickness = s7_cadr(s7_cddddr(args));
+    s7_pointer sc_segments = s7_list_ref(sc, args, 4);
+    s7_pointer sc_thickness = s7_list_ref(sc, args, 5);
     if (s7_is_number(sc_segments)) {
         segments = s7_number_to_integer(sc, sc_segments);
 

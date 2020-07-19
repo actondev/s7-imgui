@@ -3,7 +3,7 @@
 (autoload 'aod.test "aod/test.scm")
 (autoload 'aod.geom "aod/geom.scm")
 (autoload 'aod.layout "aod/layout.scm")
-
+(autoload 'aod.string "aod/string.scm")
 (autoload 'imgui-macros.scm
 	  ;; fuck, the lambda is not working
 	  ;; aaaagggh

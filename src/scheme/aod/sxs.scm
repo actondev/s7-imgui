@@ -113,21 +113,28 @@
 ;; The sigma-x-square lines to draw the logo
 ;;
 ;; Could make every other function "private" actually
-(define* (lines circle (phase 0) (clip #t))
-  (let ((offset-right (list (* 2 phase (circle 2))
-			    0))
-	(offset-left (list (- (* 2 phase (circle 2)))
-			   0)))
-    (let ((lines
-	   (append
-	    (geom/lines-offset (arrows-right circle)
-			       offset-right)
-	    (geom/lines-offset (arrows-left circle)
-			       offset-left)
-	    )))
-      (if clip
-	  (geom/clip-lines-in-circle lines circle)
-	  lines))))
+(define lines
+  (let ((+documentation+ "(lines circle (phase 0) (clip #t))
+Returns a list of the lines to be drawn to paint the sxs logo.
+
+The circle is of the (cx cy r) form.
+A line is of the (x1 y1 x2 y2) form."))
+    (lambda* (circle (phase 0) (clip #t))
+	     (let* ((phase (mod phase 1))
+		    (offset-right (list (* 2 phase (circle 2))
+				       0))
+		   (offset-left (list (- (* 2 phase (circle 2)))
+				      0)))
+	       (let ((lines
+		      (append
+		       (geom/lines-offset (arrows-right circle)
+					  offset-right)
+		       (geom/lines-offset (arrows-left circle)
+					  offset-left)
+		       )))
+		 (if clip
+		     (geom/clip-lines-in-circle lines circle)
+		     lines))))))
 	  
 (test "SXS lines non-clipped"
       (is (equivalent?

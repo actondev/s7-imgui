@@ -37,15 +37,11 @@
 			     (format *stderr* "PASS: ~A \"~A\"~%" ',test-header ,name)
 			     #t
 			     )))))
-	    (lambda args
+	    (lambda (tag info)
 	      (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
-	      (let ((exc-format-data (cadr args))
-		    (exc-info (car args)))
-		(format *stderr* "FAIL: ~A \"~A\" \n\t~A~%\t~A~%"
-			',test-header
-			,name
-			exc-info
-			;; there's a bug in bubbling error messages
-			;; (apply format #f exc-format-data)
-			exc-format-data
-			))))))
+	      (format *stderr* "FAIL: ~A \"~A\" \n\t~A~%\t~A~%"
+		      ',test-header
+		      ,name
+		      tag
+		      (apply format #f info)
+		      )))))

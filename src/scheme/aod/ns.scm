@@ -15,9 +15,8 @@
 ;; better to stick with this. Easier to maintain/adjust I think.
 ;;
 ;;
-
-(require aod.clj) ;; for (comment .. )
 (provide 'aod.ns)
+(require aod.clj) ;; for (comment .. )
 
 ;; Holding all the namespaces, to be able to switch.
 ;; 
@@ -65,11 +64,12 @@
 
 (define (ns-should-bind-locally? symbol)
   (let* ((symbol-string (symbol->string symbol))
-	(first-char (symbol-string 0)))
+	 (first-char (symbol-string 0)))
     (and (not (equal? #\- first-char))
 	 (not (equal? #\* first-char))
-	 ;; sub namespaces ??
-	 ;; (not (char-position #\/ symbol-string))
+	 ;; check if there is a slash already
+	 ;; if so, it's a (ns-require) of another ns-require'd
+	 (eq? #f (char-position #\/ symbol-string))
 	 )))
 
 ;; Loads the namespace in its own environment
@@ -137,6 +137,9 @@
 					  )))))
 			  (*nss* the-ns))))))
 
+;; TODO throw an error if ns not found
+;; was scratching my head until I realised that I had a typo in the definition
+;; and then i was requiring with the "correct" name.. but the ns was not defined!
 (define-macro* (ns-require the-ns (as #f) (force #f) )
   (let ((current-ns *ns*))
     `(begin
@@ -182,12 +185,11 @@
        (catch #t
 	      (lambda ()
 		,@body)
-	      (lambda args
+	      (lambda (tag info)
 		;; hm cleaning up again
-		(print "with-temp-ns cleanup in catch, args" args)
 		(set! *ns* (*nss* ',previous-ns))
 		(set! (*nss* ',previous-ns) #f)
-		(apply throw args)))
+		(apply throw tag info)))
        (set! *ns* (*nss* ',previous-ns))
        (set! (*nss* ',previous-ns) #f))))
 (comment
@@ -219,21 +221,34 @@
       (is (not (defined? 'x)))
       )
 
+(define (-ns-is-of-subns? symbol)
+  (char-position #\/ (symbol->string symbol))
+  )
+
+(comment
+ (-ns-is-of-subns? 'ig/help)
+ (-ns-is-of-subns? 'ig)
+ )
+
 (define* (ns-doc the-ns fun)
   ;; it could be that it's not loaded in *nss* but it's defined
   ;; from the c side. In that case (symbol->value ..) gives us the
   ;; environment
-  (let ((env (or (*nss* the-ns)
-		 (symbol->value the-ns))))
+  (let ((env (if (let? the-ns)
+		 the-ns
+		 (or (*nss* the-ns)
+		     (symbol->value the-ns)))))
     (when env
       (if fun
 	  (documentation (env fun))
 	  (begin
 	    ;; documenting the whole ns
 	    (map (lambda (fn-pair)
-		   (cons
-		    (car fn-pair)
-		    (documentation (cdr fn-pair))))
+		   (if (-ns-is-of-subns? (car fn-pair))
+		       (values)
+		       (cons
+			(car fn-pair)
+			(documentation (cdr fn-pair)))))
 		 (let->list env))
 	    )
 	)))

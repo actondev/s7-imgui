@@ -91,7 +91,7 @@ i is 2
 (define-expansion (identity what)
   `,what)
 
-(define-macro (set-watch var fn)
+(define-macro (watch var fn)
   `(set! (setter ',var) 
 	 (lambda (s v e)
 	   ;; calling fn with old and new value
@@ -100,21 +100,22 @@ i is 2
 
 (comment
  (define x 1)
- (set-watch x (lambda (old new)
+ (watch x (lambda (old new)
 		(print "x changed from" old "to" new)))
  ((curlet) 'x)
  (define x 2)
  )
 
 (define (keys coll)
-  (if (hash-table? coll)
+  (if (or (hash-table? coll)
+	  (let? coll))
       (map (lambda  (el)
 	     (car el))
 	   coll)
-      (error 'wrong-type-arg "keys arg ~A is not a hash-table" coll)))
+      (error 'wrong-type-arg "keys arg ~A is not a hash-table nor a let" coll)))
 
-(comment
- (defined? 'keys)
- (defined? 'hash-table?)
- (keys *nss*)
- )
+(define (inc x)
+  (+ x 1))
+
+(define (dec x)
+  (- x 1))

@@ -509,3 +509,19 @@ inside (comment ... ) etc"
 (provide 'aod-s7)
 
    #+END_SRC
+* Error handling
+  #+BEGIN_SRC scheme
+(catch #t
+       (lambda ()
+	 ;; do some things here that might fail
+	 )
+       (lambda (tag info)
+	 (format *stderr* "Error: ~A\n" tag)
+	 ;; info is a list usually
+	 ;; car: the formatting string eg "~A is not a list but ~A"
+	 ;; and then the arguments for the formatting
+	 (apply format *stderr* info)
+	 ;; bubbling up the error
+	 (apply throw tag info)
+	 ))
+  #+END_SRC

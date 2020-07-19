@@ -5,7 +5,7 @@
 ;; starting from 12 o'clock and going clock-wise
 
 (define circular
-  (let ((+documentation+ "Circular layout. Starts from 12 o'clock, going clock-wise Calls (cb x y)"))
+  (let ((+documentation+ "Circular layout. Starts from 12 o'clock, going clock-wise Calls (cb x y :phase {0...(N-1)/N} :n {0...N}"))
     (lambda* (cb (N 12) (R 100) (center '(0 0)) (theta-offs (/ pi 2)))
       (let ((d-theta (/ (* 2 pi) N)))
 	(map (lambda (i)
