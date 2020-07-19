@@ -8,7 +8,7 @@
 (ns-require aod.sxs :as sxs)
 (ns-require aod.imgui.helpers :as igh)
 
-(define *ctx* (igsdl/setup 400 400))
+(define *ctx* (igsdl/setup 420 420))
 
 (define-macro (redefine-and name body then)
   (let ((is-defined (defined? name)))
@@ -18,14 +18,15 @@
 	 ,then))))
 (define color (ig/frgb->u32 1 1 1))
 
-(define sxs-lines (sxs/lines '(100 100 100)))
 (define* (sxs-element cx cy (phase 0) (n 0))
   ;; we multiply phase with N/3 (N=12) since we want to repeat every 3
-  (let ((lines (sxs/lines `(,cx ,cy 20) :phase (* 4 phase))))
+  (let ((lines (sxs/lines `(,cx ,cy 30) :phase (* 4 phase))))
     ;; side effect
     ;; (ig/draw-circle `(,cx ,cy 20 ,color))
+    ;;(ns-doc 'aod.c.imgui 'draw-text)
+    (ig/draw-text cx cy (format #f "~A" n) color)
     (igh/draw-lines-with-color lines color)
-    (apply ig/draw-circle `(,cx ,cy 20 ,color))
+    (apply ig/draw-circle `(,cx ,cy 35 ,color))
     )
   )
 ;; upon redefining do-draw funcion
@@ -34,8 +35,8 @@
   (lambda ()
     (igm/maximized
      ("imgui scratch")
-     (ig/text "hi you handsome devil")
-     (l/circular sxs-element :N 12 :center '(150 150) :R 100)
+     ;; (ig/text "hi you handsome devil")
+     (l/circular sxs-element :N 12 :center '(200 190) :R 150)
      ))
   (draw))
 
