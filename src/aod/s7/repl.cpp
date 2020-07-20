@@ -87,7 +87,7 @@ std::string Repl::evalLastForm() {
 
     s7_pointer eval_hook = s7_eval_c_string(sc, "(and (defined? 'aod.c.repl) (aod.c.repl '*eval-hook*))");
 
-    if (eval_hook != s7_undefined(sc)) {
+    if (eval_hook != s7_f(sc)) {
         // s7_is_function not working with the hook (returns false)
         // if (s7_is_function(eval_hook)) {
         s7_call(sc, eval_hook,
