@@ -7,6 +7,7 @@
 (ns-require aod.layout :as l)
 (ns-require aod.sxs :as sxs)
 (ns-require aod.imgui.helpers :as igh)
+(ns-require aod.colors :as colors)
 
 (define *ctx* (igsdl/setup 420 420))
 
@@ -37,7 +38,8 @@
 (define* (sxs-element cx cy (phase 0) (n 0))
   ;; we multiply phase with 4 cause we want the sigma logo to repeat 4 times
   ;; during the whole circle
-  (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase))))
+  (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase)))
+	(color (apply ig/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
     ;; (ig/draw-text cx cy (format #f "~A" n) color)
     (igh/draw-lines-with-color lines color)
     (apply ig/draw-circle `(,cx ,cy ,r ,color))

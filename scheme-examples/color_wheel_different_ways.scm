@@ -24,7 +24,7 @@
 
 (define N 12)
 
-(define rgb-N (colors/rgb-steps N))
+(define rgb-N (colors/rgb-wheel N))
 (define rgb-N-u32
   (map (lambda (rgb)
 	 (imgui.color/frgb->u32 (rgb 0) (rgb 1) (rgb 2)))

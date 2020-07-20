@@ -10,6 +10,7 @@
 (ns-load 'aod.geom)
 (ns-load 'aod.sxs)
 (ns-load 'aod.layout)
+(ns-load 'aod.colors)
 (ns-load-file "test/c_foreign_test.scm")
 
 

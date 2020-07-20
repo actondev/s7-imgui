@@ -13,6 +13,8 @@ aod_sources = files(
   'nfd.cpp',
   's7/nfd.cpp',
   's7/imgui_sdl.cpp',
+  'colors.cpp',
+  's7/colors.cpp',
 
   # foreign types
   's7/foreign_primitives.cpp',

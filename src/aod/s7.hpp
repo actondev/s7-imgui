@@ -17,6 +17,7 @@
 #include "aod/s7/nfd.hpp"
 #include "aod/s7/imgui_sdl.hpp"
 #include "aod/s7/repl.hpp"
+#include "aod/s7/colors.hpp"
 
 namespace aod {
 namespace s7 {
@@ -67,6 +68,8 @@ inline void bind_all(s7_scheme *sc) {
     // aod.c.repl :
     // *eval-hook*
     aod::s7::repl::bind(sc);
+
+    aod::s7::colors::bind(sc);
 }
 
 void set_autoloads(s7_scheme *sc);

@@ -9,6 +9,7 @@ test_src += files(
   'aod/s7/foreign_primitives_test.cpp',
   'aod/s7/foreign_primitives_arr_test.cpp',
   'aod/s7/environments_test.cpp',
+  'aod/colors_test.cpp',
   # ---
   # getting to know how things work, maybe useful for later reference
   # 'aod/s7/ffi_test_raw.cpp',

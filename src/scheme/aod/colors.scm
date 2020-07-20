@@ -1,6 +1,5 @@
-(display "loading aod/colors.scm\n")
-
-(provide 'aod.colors)
+(ns aod.colors)
+(ns-require aod.c.colors)
 ;; https://en.wikipedia.org/wiki/Hue#/media/File:HSV-RGB-comparison.svg
 ;; starts with the "red"
 (define (-triplet-ramp1 phase360)
@@ -19,48 +18,62 @@
 
 ;; phase is 0.0 .. 1.0
 (define (rgb-phase phase)
-  (let ((phase (* phase 360)))
+  (let* ((phase (mod phase 1))
+	 (phase (* phase 360)))
     (map 
      (lambda (phase3)
        (let ((phase (- phase phase3)))
-	 (colors/-triplet-ramp1 phase)))
+	 (-triplet-ramp1 phase)))
      '(0 120 240))))
 
-(define (rgb-steps steps)
+(define (triplet-phase phase)
+  (let* ((phase (mod phase 1))
+	 (phase (* phase 360)))
+    (map 
+     (lambda (phase3)
+       (let ((phase (- phase phase3)))
+	 (-triplet-ramp1 phase)))
+     '(0 120 240))))
+
+(define (rgb-wheel steps)
   (map
    (lambda (x)
-     (colors/rgb-phase (/ x steps)))
-   (range steps))
-)
+     (triplet-phase (/ x steps)))
+   (range steps)))
 
-(comment
- (equivalent?
-  (rgb-phase 0)
-  '(1 0 0))
- 
- (equivalent?
-  (rgb-phase 1)
-  '(1 0 0))
+(test "RGB phase"
+      (is (equivalent? '(1 0 0)
+		       (rgb-phase 0)))
 
- (rgb-steps 3)
- ;; =>
- ((1 0 0) (0 1 0) (0 0 1))
- 
- (rgb-steps 12)
- ;; =>
- ((1 0 0)
-  (1 1/2 0)
-  (1 1 0)
-  (1/2 1 0)
-  (0 1 0)
-  (0 1 1/2)
-  (0 1 1)
-  (0 1/2 1)
-  (0 0 1)
-  (1/2 0 1)
-  (1 0 1)
-  (1 0 1/2))
- 
- (range 3) ;; => (0 1 2)
- (iota 3) ;; => (0 1 2)
+      (is (equivalent? '(1 0 0)
+		       (rgb-phase 1)))
+      )
+(test "RGB wheel"
+      (is (equivalent? '((1 0 0) (0 1 0) (0 0 1))
+		       (rgb-wheel 3)))
+      ;; see https://www.w3schools.com/colors/colors_wheels.asp
+      ;; the RGB color wheel
+      (is (equivalent? '((1 0 0)
+			 (1 1/2 0)
+			 (1 1 0)
+			 (1/2 1 0)
+			 (0 1 0)
+			 (0 1 1/2)
+			 (0 1 1)
+			 (0 1/2 1)
+			 (0 0 1)
+			 (1/2 0 1)
+			 (1 0 1)
+			 (1 0 1/2))
+		       (rgb-wheel 12))))
+
+(define (ryb->rgb ryb)
+  (aod.c.colors/ryb->rgb ryb))
+
+(test "RYB -> RGB"
+      (is (equivalent? '(1 0 0)
+		       (ryb->rgb '(1 0 0))))
+
+      (is (equivalent? '(1 1 0)
+		       (ryb->rgb '(0 1 0))))
  )
