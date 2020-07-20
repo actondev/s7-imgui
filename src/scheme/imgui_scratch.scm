@@ -27,16 +27,21 @@
  )
 
 (define color (ig/frgb->u32 1 1 1))
+(define R 150)
+(begin
+  (define r 34)
+  (define r-internal (* 0.9 r)))
+
+(define N 12)
 
 (define* (sxs-element cx cy (phase 0) (n 0))
-  ;; we multiply phase with N/3 (N=12) since we want to repeat every 3
-  (let ((lines (sxs/lines `(,cx ,cy 30) :phase (* 4 phase))))
-    ;; side effect
-    ;; (ig/draw-circle `(,cx ,cy 20 ,color))
-    ;;(ns-doc 'aod.c.imgui 'draw-text)
-    (ig/draw-text cx cy (format #f "~A" n) color)
+  ;; we multiply phase with 4 cause we want the sigma logo to repeat 4 times
+  ;; during the whole circle
+  (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase))))
+    ;; (ig/draw-text cx cy (format #f "~A" n) color)
     (igh/draw-lines-with-color lines color)
-    (apply ig/draw-circle `(,cx ,cy 35 ,color))
+    (apply ig/draw-circle `(,cx ,cy ,r ,color))
+    ;; 
     )
   )
 ;; upon redefining do-draw funcion
@@ -45,7 +50,7 @@
   (print "Drawing!!!!!")
   (igm/maximized
    ("imgui scratch")
-   (l/circular sxs-element :N 12 :center '(200 190) :R 150 :gui #t)
+   (l/circular sxs-element :N N :center '(200 190) :R R :gui #t)
    ))
 
 (define (draw)
