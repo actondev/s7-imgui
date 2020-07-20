@@ -120,7 +120,11 @@ Returns a list of the lines to be drawn to paint the sxs logo.
 The circle is of the (cx cy r) form.
 A line is of the (x1 y1 x2 y2) form."))
     (lambda* (circle (phase 0) (clip #t))
-	     (let* ((phase (mod phase 1))
+	     (let* ((phase (mod (+
+				 (/ 2 3) ;; 2/3 offset to start at sigma
+				 ;; if not, it starts with x
+				 phase) 1))
+		    ;; offsets: (list offset-x offset-y)
 		    (offset-right (list (* 2 phase (circle 2))
 				       0))
 		   (offset-left (list (- (* 2 phase (circle 2)))
@@ -136,19 +140,21 @@ A line is of the (x1 y1 x2 y2) form."))
 		     (geom/clip-lines-in-circle lines circle)
 		     lines))))))
 	  
-(test "SXS lines non-clipped"
+(test "SXS lines non-clipped - X"
       (is (equivalent?
 	       '((-2.8284271247461903 0 -3.8284271247461903 1.0000000000000002) (0.0 0 -1.0 1.0000000000000002) (2.8284271247461903 0 1.8284271247461903 1.0000000000000002) (-2.8284271247461903 0 -3.8284271247461907 -1.0) (0.0 0 -1.0000000000000002 -1.0) (2.8284271247461903 0 1.82842712474619 -1.0) (-2.8284271247461903 0 -1.82842712474619 -1.0) (0.0 0 1.0000000000000002 -1.0) (2.8284271247461903 0 3.8284271247461907 -1.0) (-2.8284271247461903 0 -1.82842712474619 1.0) (0.0 0 1.0000000000000002 1.0) (2.8284271247461903 0 3.8284271247461907 1.0))
 	       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
-		      :clip #f)
+		      :clip #f
+		      :phase (/ 1 3))
 
 	       ))
       )
 
-(test "SXS lines clipped"
+(test "SXS lines clipped - X"
       (is (equivalent? '((0.0 0 -1.0 1.0) (0.0 0 -1.0 -1.0) (0.0 0 1.0 -1.0) (0.0 0 1.0 1.0))
 		       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
-			      :clip #t)))
+			      :clip #t
+			      :phase (/ 1 3))))
       )
 
 (comment

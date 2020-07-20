@@ -133,3 +133,9 @@ void ImGui::ColorConvertRGBtoHSV(float r, float g, float b, float& out_h, float&
     IMGUI_API void  AddBezierCurve(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col, float thickness, int num_segments = 0);
    
    #+END_SRC
+* Channels, draw list
+  #+BEGIN_SRC cpp
+void ImDrawListSplitter::Split(ImDrawList* draw_list, int channels_count);
+void ImDrawListSplitter::Merge(ImDrawList* draw_list);
+void ImDrawListSplitter::SetCurrentChannel(ImDrawList* draw_list, int idx);
+  #+END_SRC

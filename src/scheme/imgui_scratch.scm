@@ -10,12 +10,22 @@
 
 (define *ctx* (igsdl/setup 420 420))
 
-(define-macro (redefine-and name body then)
-  (let ((is-defined (defined? name)))
-    `(begin
-       (define ,name ,body)
-       (when ,is-defined
-	 ,then))))
+(set! (hook-functions (aod.c.repl '*eval-hook*))
+      (cons (lambda (hook)
+	      (if (eq? 'ns (car (hook 'form)))
+		  (begin
+		    ;;(print "just an ns form" (hook 'form))
+		    )
+		  (begin
+		    (draw))
+		  )
+	      )
+	    (hook-functions (aod.c.repl '*eval-hook*))))
+
+(comment
+ (set! (hook-functions (aod.c.repl '*eval-hook*)) ())
+ )
+
 (define color (ig/frgb->u32 1 1 1))
 
 (define* (sxs-element cx cy (phase 0) (n 0))
@@ -31,14 +41,12 @@
   )
 ;; upon redefining do-draw funcion
 ;; the (draw) will get called
-(redefine-and do-draw
-  (lambda ()
-    (igm/maximized
-     ("imgui scratch")
-     ;; (ig/text "hi you handsome devil")
-     (l/circular sxs-element :N 12 :center '(200 190) :R 150)
-     ))
-  (draw))
+(define (do-draw)
+  (print "Drawing!!!!!")
+  (igm/maximized
+   ("imgui scratch")
+   (l/circular sxs-element :N 12 :center '(200 190) :R 150 :gui #t)
+   ))
 
 (define (draw)
   (igsdl/prepare *ctx*)
@@ -48,16 +56,10 @@
 
 (draw)
 
-
-;; (igsdl/destroy *ctx*)
-;; (exit)
-
 (comment
  (igsdl/destroy *ctx*)
  (exit)
- (defined? 'watch)
- (define *ctx* (igsdl/setup 400 400))
- (draw)
+ 
  (gl/save-screenshot "test.png")
  
  ;; documentation

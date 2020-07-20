@@ -3,6 +3,7 @@
 #include <cstdio>
 #include "s7.h"
 #include <string>
+#include <regex>
 
 namespace aod {
 namespace s7 {
@@ -38,6 +39,14 @@ public:
      */
     std::string evalLastForm();
 };
+
+namespace repl {
+extern const std::regex NS_REGEXP;
+//
+// aod.c.repl bindings
+// *eval-hook* etc
+extern void bind(s7_scheme* sc);
+}
 
 } // s7
 } // aod
