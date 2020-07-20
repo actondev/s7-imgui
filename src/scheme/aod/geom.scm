@@ -1,12 +1,5 @@
 (ns aod.geom)
 
-(define (echo)
-  (print "hi from aod.geom"))
-
-(define (echo2)
-  (print "calling echo")
-  (echo))
-
 ;; TODO
 ;; working only for non-vertical lines
 ;; leaving that case for now, not needing it atm
@@ -253,3 +246,29 @@
 		       (repeat-lines '((0 0 1 1) (10 10 11 11))
 				     '((-1 0) (0 0) (1 0)))))
       )
+
+(define (radius-line circle theta)
+  (let* ((cx (circle 0))
+	 (cy (circle 1))
+	 (r (circle 2))
+	 (x (* r (cos theta)))
+	 (y (* r (sin theta))))
+    (list cx cy
+	  (+ cx x)
+	  (+ cy y))))
+
+(test "Radius lines"
+      (assert (equivalent? '(0 0 10 0)
+			   (radius-line (mk-circle :cx 0 :cy 0 :r 10)
+				       0)))
+      (assert (equivalent? '(0 0 0 10)
+			   (radius-line (mk-circle :cx 0 :cy 0 :r 10)
+				       (/ pi 2))))
+      (assert (equivalent? '(0 0 1 1)
+			   (radius-line (mk-circle :cx 0 :cy 0 :r (sqrt 2))
+				       (/ pi 4)))
+	      "Slope of 1, radius (sqrt 2) => x=y=1")
+
+      (assert (equivalent? '(0 0 -1 -1)
+			   (radius-line (mk-circle :cx 0 :cy 0 :r (sqrt 2))
+					(+ pi (/ pi 4))))))

@@ -27,48 +27,10 @@
 			   (map geom/rad->deg
 				(-arrow-angles :dir 'left)))))
 
-(define* (polar-line circle theta
-		     (mod-theta identity))
-  (let* ((cx (circle 0))
-	 (cy (circle 1))
-	 (r (circle 2))
-	 (theta (mod-theta theta))
-	 (x (* r (cos theta)))
-	 (y (* r (sin theta))))
-    (list cx cy
-	  (+ cx x)
-	  (+ cy y))))
-
-(test "Polar lines"
-      (assert (equivalent? '(0 0 10 0)
-			   (polar-line (geom/mk-circle :cx 0 :cy 0 :r 10)
-				       :theta 0)))
-      (assert (equivalent? '(0 0 0 10)
-			   (polar-line (geom/mk-circle :cx 0 :cy 0 :r 10)
-				       :theta (/ pi 2))
-			   
-			   ))
-      (assert (equivalent? '(0 0 1 1)
-			   (polar-line (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
-				       :theta (/ pi 4)))
-	      "Slope of 1, radius (sqrt 2) => x=y=1")
-
-      (assert (equivalent? '(0 0 -1 -1)
-			   (polar-line (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2)) :theta (+ pi (/ pi 4)))))
-
-      ;; fucking rounding
-      (assert (equivalent? '(0 0 -10.0 1.0e-15)
-			   (polar-line (geom/mk-circle :cx 0 :cy 0 :r 10)
-				       :theta 0 :mod-theta (lambda (x) (+ x pi))))
-	      "Mod-theta: useful for imgui drawing (needs to be clockwise")
-      ;; / polar lines
-      )
-
 (define* (arrow-lines circle (dir 'right))
   (map (lambda (theta)
-	 (polar-line circle :theta theta))
-       (-arrow-angles :dir dir))
-  )
+	 (geom/radius-line circle theta))
+       (-arrow-angles :dir dir)))
 
 (test "Drawing arrows"
       (assert (equivalent? '((0 0 -1 1) (0 0 -1 -1))
@@ -81,12 +43,12 @@
 
 (define (-arrow-right circle)
   (map (lambda (theta)
-	 (polar-line circle :theta theta))
+	 (geom/radius-line circle theta))
        (-arrow-angles :dir 'right)))
 
 (define (-arrow-left circle)
   (map (lambda (theta)
-	 (polar-line circle :theta theta))
+	 (geom/radius-line circle theta))
        (-arrow-angles :dir 'left)))
 
 (define (arrows-right circle)
