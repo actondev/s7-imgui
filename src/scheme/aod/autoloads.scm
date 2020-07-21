@@ -20,3 +20,6 @@
 (autoload 'aod.sxs "aod/sxs.scm")
 (autoload 'debug.scm "s7/debug.scm")
 (autoload 'aod.benchmark "aod/benchmark.scm")
+
+;; gui Components
+(autoload 'aod.components.sxs-wheel "aod/components/sxs-wheel.scm")

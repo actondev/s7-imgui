@@ -51,8 +51,10 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
 //    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
     bool show = true;
+    // TODO pass flags
     ImGui::Begin("maximized-window", &show,
-                 ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar
+//                  ImGuiWindowFlags_MenuBar
+                  ImGuiWindowFlags_NoTitleBar
                  | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
                  | ImGuiWindowFlags_NoNavFocus);

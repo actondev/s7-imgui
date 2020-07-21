@@ -45,3 +45,8 @@
 		      tag
 		      (apply format #f info)
 		      )))))
+
+;; hmm..  have to think this more how it should be done
+(define testgui (if (provided? 'aod.test.gui)
+		    test
+		    comment))

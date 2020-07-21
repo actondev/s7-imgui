@@ -307,7 +307,7 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
       (progn
 	;; (message "OK! running scheme")
 	(let ((default-directory (projectile-project-root)))
-	  (run-scheme (concat (projectile-project-root) "build/examples/repl " file))
+	  (run-scheme (concat (projectile-project-root) "build/repl " file))
 	  ))
     (progn
       ;; (message "build failed")
@@ -316,7 +316,10 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
    #+END_SRC
 
    #+CALL: _build-and-run-scm(file="src/scheme/imgui_scratch.scm")
-   #+CALL: _build-and-run-scm(file="src/scheme/test.scm")
+   #+CALL: _build-and-run-scm(file="test/scheme/test-all.scm")
+
+** Components
+   #+CALL: _build-and-run-scm(file="src/scheme/aod/components/sxs-wheel.scm")
 
 * COMMENT Local variables
   Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything

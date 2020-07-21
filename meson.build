@@ -68,6 +68,23 @@ if not meson.is_subproject()
     gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
     install: true,
   )
+  
+  repl = executable(
+    'repl',
+    sources: files('src/repl.cpp'),
+    dependencies : [
+      sdl2_dep, # the core library
+      sdl2main_dep, # abstracts out the main thing: windows needs WinMain
+      sdl_net_dep,
+      imgui_dep,
+      s7_dep,
+      aod_dep,
+    ],
+    link_args: link_args,
+    cpp_args: extra_args,
+    gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
+    install: true,
+  )
 
   # TODO switch building the examples with a definition option
   subdir('examples')
@@ -81,6 +98,6 @@ else
     imgui_dep,
     s7_dep,
     aod_dep,
-    ]
-    )
+  ]
+  )
 endif

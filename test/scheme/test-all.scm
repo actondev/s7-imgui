@@ -1,9 +1,11 @@
 (with-let (rootlet)
 	  ;; aod.core already required by repl in cpp
 	  (require aod.core)
+	  ;; WIP: if providing aod.test.gui the (testgui .. ) blocks will be ran
+	  (provide 'aod.test.gui)
 	  (require aod.test))
 
-(ns aod.all-tests)
+(ns aod.test-all)
 
 ;; testing files:
 (ns-load 'aod.ns)
@@ -12,6 +14,11 @@
 (ns-load 'aod.layout)
 (ns-load 'aod.colors)
 (ns-load-file "test/c_foreign_test.scm")
+
+
+;; Testing gui components?
+
+(ns-load 'aod.components.sxs-wheel)
 
 
 (print "======")

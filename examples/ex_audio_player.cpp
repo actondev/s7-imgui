@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
                                           SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WIDTH, SDL_HEIGHT,
                                           window_flags);
 
-    aod::s7::sdl::bind(sc, window);
+    aod::s7::sdl::bind_TODO_REMOVE(sc, window);
 
     if (window == NULL) {
         fprintf(stderr, "Could not create SDL window");

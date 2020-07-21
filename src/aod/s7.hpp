@@ -70,6 +70,7 @@ inline void bind_all(s7_scheme *sc) {
     aod::s7::repl::bind(sc);
 
     aod::s7::colors::bind(sc);
+    aod::s7::sdl::bind(sc);
 }
 
 void set_autoloads(s7_scheme *sc);
