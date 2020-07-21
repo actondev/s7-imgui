@@ -18,7 +18,7 @@
   (lambda* (cx cy (phase 0) (n 0))
 	   (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase)))
 		 (color (apply ig/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
-	     (igh/draw-lines-with-color lines color)
+	     (igh/draw-lines lines :color color :thickness 1)
 	     (apply ig/draw-circle `(,cx ,cy ,r ,color)))))
 
 ;; hm.. mk-state vs make vs new ??
@@ -41,29 +41,33 @@
 	 (ns-require aod.c.gl :as gl)
 	 (ns-require aod.c.sdl :as sdl)
 	 (ns-require aod.c.img :as c.img)
-	 (let* ((R 180)
-		(r 40)
-		(size (* 2 (+ R r))))
-	   (define test-element (new :R R :r r))
-	   ;; the size should be 2*(R+r)
-	   ;; hm have to add 15.. I guess there is a padding of 7
-	   (define *ctx* (igsdl/setup (+ 14 size) (+ 14 size)))
-	   (igsdl/prepare *ctx*)
-	   
-	   (draw test-element)
-	   (igsdl/flush *ctx*)
-	   (sdl/delay 20)
-	   (gl/save-screenshot "test/scheme/assets/sxs-wheel.png")
-	   (igsdl/destroy *ctx*)
-	   (is (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"
-				  "test/scheme/assets/sxs-wheel-snapshot.png"))
-	   ))
+	 (define R 180)
+	 (define r 40)
+	 (define size (* 2 (+ R r)))
+	 (define test-element (new :R R :r r))
+	 ;; the size should be 2*(R+r)
+	 ;; hm have to add 14.. I guess there is a padding of 7
+
+	 (define *ctx* (igsdl/setup (+ 14 size) (+ 14 size)))
+	 (igsdl/prepare *ctx*)
+	 (draw test-element)
+	 (igsdl/flush *ctx*)
+	 (sdl/delay 20)
+	 (gl/save-screenshot "test/scheme/assets/sxs-wheel.png")
+	 (igsdl/destroy *ctx*)
+	 (is (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"
+				"test/scheme/assets/sxs-wheel-snapshot.png"))
+	 ;; making sure the equivalent? really works
+
+	 (is (not (c.img/equivalent? "test/scheme/assets/sxs-wheel-snaphost.png"
+				     "test/scheme/assets/sxs-wheel-offset.png")))
+	 )
 
 
 (comment
  ;; drawing it
-  (igsdl/destroy *ctx*)
-  (exit)
+ (igsdl/destroy *ctx*)
+ (exit)
 
  
  (ns-require aod.c.gl :as gl)

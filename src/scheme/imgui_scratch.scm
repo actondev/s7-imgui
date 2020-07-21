@@ -41,7 +41,7 @@
   (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase)))
 	(color (apply ig/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
     ;; (ig/draw-text cx cy (format #f "~A" n) color)
-    (igh/draw-lines-with-color lines color)
+    (igh/draw-lines lines color)
     (apply ig/draw-circle `(,cx ,cy ,r ,color))
     ;; 
     )

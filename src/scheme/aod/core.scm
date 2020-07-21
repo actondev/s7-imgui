@@ -9,6 +9,7 @@
 
 ;; ignornig tests: test expansion/macro replaced in aod.test
 (define-expansion (test . body) #<unspecified>)
+(define-expansion (testgui . body) #<unspecified>)
 
 ;; TODO remove
 (define-macro* (aod/require what (as #f))
