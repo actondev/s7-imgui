@@ -119,3 +119,8 @@ i is 2
 
 (define (dec x)
   (- x 1))
+
+(define (partial fn . args)
+  (lambda rest-args
+    (apply fn (append args rest-args))
+    ))
