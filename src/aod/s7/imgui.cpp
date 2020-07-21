@@ -451,6 +451,26 @@ s7_pointer circle(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
+s7_pointer circle_filled(s7_scheme *sc, s7_pointer args) {
+    ImVec2 p = ImGui::GetCursorScreenPos();
+
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+    float cx = s7_number_to_real(sc, s7_list_ref(sc, args, 0));
+    float cy = s7_number_to_real(sc, s7_list_ref(sc, args, 1));
+    float r = s7_number_to_real(sc, s7_list_ref(sc, args, 2));
+    unsigned int col = (unsigned int) s7_number_to_real(sc, s7_list_ref(sc, args, 3));
+    float thickness = 1;
+    int segments = 0;
+    s7_pointer sc_segments = s7_list_ref(sc, args, 4);
+    if (s7_is_number(sc_segments)) {
+        segments = s7_number_to_integer(sc, sc_segments);
+    }
+
+    draw_list->AddCircleFilled(ImVec2(p.x + cx, p.y + cy), r, col, segments);
+    return s7_nil(sc);
+}
+
 s7_pointer text(s7_scheme *sc, s7_pointer args) {
     ImVec2 p = ImGui::GetCursorScreenPos();
 
@@ -513,6 +533,13 @@ void bind(s7_scheme *sc, s7_pointer env) {
                                2, // optional args: segments, thickness
                                false, // rest args
                                "(cx cy r col &optional segments thickness)"));
+    
+    s7_define(sc, env, s7_make_symbol(sc, "draw-circle-filled"),
+              s7_make_function(sc, "draw-circle", circle_filled,
+                               4, // req args: cx cy r col
+                               1, // optional args: segments, thickness
+                               false, // rest args
+                               "(cx cy r col &optional segments)"));
 
 
 

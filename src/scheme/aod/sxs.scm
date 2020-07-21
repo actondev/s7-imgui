@@ -9,6 +9,21 @@
 	   (require aod.test))
  )
 
+;; The needed length of the arrow in order to form a perfect square
+;; Cause r*cos45 = sqrt(2)/2 .. we want it to be 2/3
+;; x * sqrt(2)/2 = 2/3 * r
+;; => x= 4/(3* sqrt(2)) * r
+(define (arrow-length r)
+  (/ (* 4 r)
+     (* 3 (sqrt 2))))
+
+(define factor-arrow-length
+  (/ 4
+     (* 3 (sqrt 2))))
+
+(define factor-clip-radius
+  (/ 1 factor-arrow-length))
+
 (define* (-arrow-angles (dir 'right))
   ;; or.. I could just hardcode it.. wtf
   (let* ((angle-a (* 0.75 pi))
@@ -27,28 +42,39 @@
 			   (map geom/rad->deg
 				(-arrow-angles :dir 'left)))))
 
+;; like geom/radius-line, but we need to adjust r
+(define (sxs-radius-line circle theta)
+  (let* ((cx (circle 0))
+	 (cy (circle 1))
+	 (r (* factor-arrow-length (circle 2)))
+	 (x (* r (cos theta)))
+	 (y (* r (sin theta))))
+    (list cx cy
+	  (+ cx x)
+	  (+ cy y))))
+
 (define* (arrow-lines circle (dir 'right))
   (map (lambda (theta)
-	 (geom/radius-line circle theta))
+	 (sxs-radius-line circle theta))
        (-arrow-angles :dir dir)))
 
 (test "Drawing arrows"
-      (assert (equivalent? '((0 0 -1 1) (0 0 -1 -1))
+      (assert (equivalent? '((0 0 -0.9428090415820632 0.9428090415820634) (0 0 -0.9428090415820636 -0.9428090415820632))
 			   (arrow-lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
 					:dir 'right)))
-      (assert (equivalent? '((0 0 1 -1) (0 0 1 1))
+      (assert (equivalent? '((0 0 0.9428090415820634 -0.9428090415820632) (0 0 0.9428090415820634 0.9428090415820632))
 			   (arrow-lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
 					:dir 'left)))
       )
 
 (define (-arrow-right circle)
   (map (lambda (theta)
-	 (geom/radius-line circle theta))
+	 (sxs-radius-line circle theta))
        (-arrow-angles :dir 'right)))
 
 (define (-arrow-left circle)
   (map (lambda (theta)
-	 (geom/radius-line circle theta))
+	 (sxs-radius-line circle theta))
        (-arrow-angles :dir 'left)))
 
 (define (arrows-right circle)
@@ -99,12 +125,19 @@ A line is of the (x1 y1 x2 y2) form."))
 					  offset-left)
 		       )))
 		 (if clip
-		     (geom/clip-lines-in-circle lines circle)
+		     ;; clipping with a slightly bigger circle
+		     ;; to show the complete sigma
+		     ;; should I use this here, or on the lines.. where?
+		     (let ((circle-modified `(,(circle 0)
+					      ,(circle 1)
+					      ,(* factor-clip-radius (circle 2) ))
+					    ))
+		       (geom/clip-lines-in-circle lines circle-modified))
 		     lines))))))
 	  
 (test "SXS lines non-clipped - X"
       (is (equivalent?
-	       '((-2.8284271247461903 0 -3.8284271247461903 1.0000000000000002) (0.0 0 -1.0 1.0000000000000002) (2.8284271247461903 0 1.8284271247461903 1.0000000000000002) (-2.8284271247461903 0 -3.8284271247461907 -1.0) (0.0 0 -1.0000000000000002 -1.0) (2.8284271247461903 0 1.82842712474619 -1.0) (-2.8284271247461903 0 -1.82842712474619 -1.0) (0.0 0 1.0000000000000002 -1.0) (2.8284271247461903 0 3.8284271247461907 -1.0) (-2.8284271247461903 0 -1.82842712474619 1.0) (0.0 0 1.0000000000000002 1.0) (2.8284271247461903 0 3.8284271247461907 1.0))
+	       '((-2.8284271247461903 0 -3.7712361663282534 0.9428090415820634) (0.0 0 -0.9428090415820632 0.9428090415820634) (2.8284271247461903 0 1.8856180831641272 0.9428090415820634) (-2.8284271247461903 0 -3.771236166328254 -0.9428090415820632) (0.0 0 -0.9428090415820636 -0.9428090415820632) (2.8284271247461903 0 1.8856180831641267 -0.9428090415820632) (-2.8284271247461903 0 -1.885618083164127 -0.9428090415820632) (0.0 0 0.9428090415820634 -0.9428090415820632) (2.8284271247461903 0 3.7712361663282534 -0.9428090415820632) (-2.8284271247461903 0 -1.885618083164127 0.9428090415820632) (0.0 0 0.9428090415820634 0.9428090415820632) (2.8284271247461903 0 3.7712361663282534 0.9428090415820632))
 	       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
 		      :clip #f
 		      :phase (/ 1 3))
@@ -112,11 +145,19 @@ A line is of the (x1 y1 x2 y2) form."))
 	       ))
       )
 
+
+
 (test "SXS lines clipped - X"
-      (is (equivalent? '((0.0 0 -1.0 1.0) (0.0 0 -1.0 -1.0) (0.0 0 1.0 -1.0) (0.0 0 1.0 1.0))
+      (is (equivalent? '((0.0 0 -0.9428090415820632 0.9428090415820634) (0.0 0 -0.9428090415820636 -0.9428090415820632) (0.0 0 0.9428090415820634 -0.9428090415820632) (0.0 0 0.9428090415820634 0.9428090415820632))
 		       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
 			      :clip #t
 			      :phase (/ 1 3))))
+      )
+(test "SXS lines clipped - <> (square)"
+      (is (equivalent? '((0.9428090415820635 0 2.220446049250313e-16 0.9428090415820634) (0.9428090415820635 0 -1.1102230246251565e-16 -0.9428090415820632) (-0.9428090415820635 0 -1.1102230246251565e-16 -0.9428090415820632) (-0.9428090415820635 0 -1.1102230246251565e-16 0.9428090415820632))
+		       (lines (geom/mk-circle :cx 0 :cy 0 :r (sqrt 2))
+			      :clip #t
+			      :phase (/ 2 3))))
       )
 
 (comment

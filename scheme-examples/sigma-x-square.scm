@@ -29,7 +29,7 @@
 		      *phase
 		      0
 		      1)
-     (igh/draw-circle-with-color circle color)
+     (igh/draw-circle circle color)
 
      (let ((lines (sxs/lines circle :phase (*phase) :clip #t )))
        (igh/draw-lines lines color ))

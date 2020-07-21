@@ -14,16 +14,28 @@
 (ns-require aod.imgui.helpers :as igh)
 (ns-require aod.colors :as colors)
 
-(define* (mk-sxs-element (r 34) (r-internal 30))
+(define* (mk-sxs-element highlights (bg '(0 0 0)) (r 34) (r-internal 30))
   (lambda* (cx cy (phase 0) (n 0))
 	   (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase)))
-		 (color (apply ig/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
-	     (igh/draw-lines lines :color color :thickness 1)
-	     (apply ig/draw-circle `(,cx ,cy ,r ,color)))))
+		  (filled (highlights n))
+		  (color-negative (apply ig/frgb->u32 bg))
+		  (color (apply ig/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
+	     (igh/draw-circle `(,cx ,cy ,r)
+			      :color color
+			      :filled (highlights n)
+			      :thickness 1)
+	     (igh/draw-lines lines :color (if filled
+					      color-negative
+					      color)
+			     :thickness (if filled 2
+					    1)))))
 
 ;; hm.. mk-state vs make vs new ??
-(define* (new (N 12) (R 150) (r 34) (internal-fill 0.9))
-  (let ((element (mk-sxs-element :r r :r-internal (* internal-fill r))))
+(define* (new (N 12) (R 150) (r 30) (internal-fill 0.8))
+  (let* ((highlights (make-vector N #f))
+	 (element (mk-sxs-element
+		  :highlights highlights
+		  :r r :r-internal (* internal-fill r))))
     (curlet)))
 
 (define (draw state)
@@ -34,7 +46,26 @@
     ;; TODO.. not maximized
     (igm/maximized
      ("###")
+     '(igh/draw-circle `( 100 100 100)
+		      :filled #t)
      (l/circular element :N N :center (list center center) :R R :gui #t))))
+
+(define (set-highlight state index value)
+  (set! ((state 'highlights) index) value))
+
+(comment
+ (with-let (rootlet)
+	   (provide 'aod.test.gui)
+	   (require aod.test))
+ 
+ (set! (hook-functions (aod.c.repl '*eval-hook*))
+      (cons (lambda (hook)
+	      (igsdl/prepare *ctx*)
+	      (draw test-element)
+	      (igsdl/flush *ctx*)
+	      )
+	    (hook-functions (aod.c.repl '*eval-hook*))))
+ )
 
 (testgui "SXS Color Wheel snapshot"
 	 (ns-require aod.c.imgui-sdl :as igsdl)
@@ -42,25 +73,39 @@
 	 (ns-require aod.c.sdl :as sdl)
 	 (ns-require aod.c.img :as c.img)
 	 (define R 180)
-	 (define r 40)
+	 (define r 35)
 	 (define size (* 2 (+ R r)))
 	 (define test-element (new :R R :r r))
 	 ;; the size should be 2*(R+r)
 	 ;; hm have to add 14.. I guess there is a padding of 7
 
 	 (define *ctx* (igsdl/setup (+ 14 size) (+ 14 size)))
-	 (igsdl/prepare *ctx*)
-	 (draw test-element)
-	 (igsdl/flush *ctx*)
-	 (sdl/delay 20)
-	 (gl/save-screenshot "test/scheme/assets/sxs-wheel.png")
-	 (igsdl/destroy *ctx*)
-	 (is (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"
-				"test/scheme/assets/sxs-wheel-snapshot.png"))
-	 ;; making sure the equivalent? really works
 
-	 (is (not (c.img/equivalent? "test/scheme/assets/sxs-wheel-snaphost.png"
-				     "test/scheme/assets/sxs-wheel-offset.png")))
+	 (define (paint)
+	   (igsdl/prepare *ctx*)
+	   (draw test-element)
+	   (igsdl/flush *ctx*))
+	 ;; commenting out while developing :)
+	 (begin
+	   (paint)
+	   (sdl/delay 30)
+	   (gl/save-screenshot "test/scheme/assets/sxs-wheel.png")
+	   (set-highlight test-element 0 #t)
+	   (set-highlight test-element 4 #t)
+	   (set-highlight test-element 8 #t)
+	   (paint)
+	   (sdl/delay 30)
+	   (gl/save-screenshot "test/scheme/assets/sxs-wheel-highlight-048.png")
+	   (igsdl/destroy *ctx*)
+	   (is (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"
+	   			  "test/scheme/assets/sxs-wheel-snapshot.png"))
+	   (is (c.img/equivalent? "test/scheme/assets/sxs-wheel-highlight-048.png"
+	   			  "test/scheme/assets/sxs-wheel-highlight-048-snapshot.png"))
+
+	   ;; test the it's not always true :)
+	   (is (not (c.img/equivalent? "test/scheme/assets/sxs-wheel-snaphost.png"
+				       "test/scheme/assets/sxs-wheel-offset.png"))))
+	 
 	 )
 
 
