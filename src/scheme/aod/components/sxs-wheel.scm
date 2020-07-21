@@ -7,10 +7,8 @@
 
 (ns aod.components.sxs-wheel)
 
-;; (ns-require aod.c.imgui-sdl :as igsdl)
 (ns-require aod.c.imgui :as ig)
 (ns-require aod.imgui.macros :as igm)
-;; (ns-require aod.c.gl :as gl) ;; for screenshots
 (ns-require aod.layout :as l)
 (ns-require aod.sxs :as sxs)
 (ns-require aod.imgui.helpers :as igh)
@@ -42,6 +40,7 @@
 	 (ns-require aod.c.imgui-sdl :as igsdl)
 	 (ns-require aod.c.gl :as gl)
 	 (ns-require aod.c.sdl :as sdl)
+	 (ns-require aod.c.img :as c.img)
 	 (let* ((R 180)
 		(r 40)
 		(size (* 2 (+ R r))))
@@ -56,7 +55,8 @@
 	   (sdl/delay 20)
 	   (gl/save-screenshot "test/scheme/assets/sxs-wheel.png")
 	   (igsdl/destroy *ctx*)
-	   ;; TODO check results against a snapshot
+	   (is (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"
+				  "test/scheme/assets/sxs-wheel-snapshot.png"))
 	   ))
 
 

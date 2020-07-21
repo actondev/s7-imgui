@@ -19,6 +19,10 @@ aod_sources = files(
   # foreign types
   's7/foreign_primitives.cpp',
   's7/foreign_primitives_arr.cpp',
+
+  # img (testing for similarity)
+  'img/core.cpp',
+  's7/img.cpp',
 )
 
 gl_dep = dependency('gl', required : false)
@@ -42,6 +46,7 @@ aod_lib = library(
     gl_dep,
     sdl2_dep,
     nfd_dep,
+    stb_dep, # (only for image read/write for now)
   ]
   )
 

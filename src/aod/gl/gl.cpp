@@ -1,7 +1,7 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 // we have it in this directory for now
 // will see later on if I need this in more places
-#include "./stb_image_write.h"
+#include "stb_image_write.h"
 #include <GL/gl.h>
 #include "./gl.hpp"
 

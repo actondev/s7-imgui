@@ -18,6 +18,7 @@
 #include "aod/s7/imgui_sdl.hpp"
 #include "aod/s7/repl.hpp"
 #include "aod/s7/colors.hpp"
+#include "aod/s7/img.hpp"
 
 namespace aod {
 namespace s7 {
@@ -71,6 +72,7 @@ inline void bind_all(s7_scheme *sc) {
 
     aod::s7::colors::bind(sc);
     aod::s7::sdl::bind(sc);
+    aod::s7::img::bind(sc);
 }
 
 void set_autoloads(s7_scheme *sc);

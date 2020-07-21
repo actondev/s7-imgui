@@ -1,0 +1,4 @@
+*.png
+!*snapshot.png
+# used in a test, to make sure it's not equivalent with the snapshot
+!sxs-wheel-offset.png
