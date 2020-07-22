@@ -13,6 +13,7 @@
 (ns-load 'aod.sxs)
 (ns-load 'aod.layout)
 (ns-load 'aod.colors)
+(ns-load 'aod.midi)
 (ns-load 'aod.imgui.helpers)
 (ns-load-file "test/c_foreign_test.scm")
 (ns-load-file "test/partial_test.scm")

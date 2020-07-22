@@ -61,12 +61,15 @@ struct IMidiMsg {
 
 bool is_note_on(uint8_t status, uint8_t data1, uint8_t data2) {
     IMidiMsg msg = {status, data1, data2};
-    return msg.is_note_on();
+    return msg.is_note_on() && msg.Velocity() > 0;
 }
 
 bool is_note_off(uint8_t status, uint8_t data1, uint8_t data2) {
     IMidiMsg msg = {status, data1, data2};
-    return msg.is_note_off();
+    // hm.. I noticed that with my KeystationMini32 and RtMidi, I don't get kNoteOff
+    // but instead kNoteOn and velocity 0
+
+    return msg.is_note_off() || msg.Velocity() == 0;
 }
 
 int note_number(uint8_t status, uint8_t data1, uint8_t data2) {
