@@ -1,6 +1,20 @@
-#include "s7.h"
+#include "./s7.hpp"
+
+#include "aod/s7/imgui.hpp"
+#include "aod/s7/foreign_primitives.hpp"
+#include "aod/s7/foreign_primitives_arr.hpp"
+#include "aod/s7/imgui_addons.hpp"
+#include "aod/s7/gl.hpp"
+#include "aod/s7/sdl.hpp"
+#include "aod/s7/nfd.hpp"
+#include "aod/s7/imgui_sdl.hpp"
+#include "aod/s7/repl.hpp"
+#include "aod/s7/colors.hpp"
+#include "aod/s7/img.hpp"
+
 #include <sstream>
 #include <iostream>
+using std::cout, std::cerr, std::endl;
 
 namespace aod {
 namespace s7 {
@@ -20,11 +34,46 @@ void set_print_stderr(s7_scheme *sc) {
     s7_set_current_output_port(sc, s7_open_output_function(sc, _print_stderr));
 }
 
-void load_file(s7_scheme *sc, const char *file) {
-    if (!s7_load(sc, file)) {
-        fprintf(stderr, "can't load %s\n", file);
+void load_file(s7_scheme *sc, std::string file) {
+    if (!s7_load(sc, file.c_str())) {
+        cerr << "Cannot load " << file << endl;
     }
 }
+
+void ns_load_file(s7_scheme* sc, std::string file) {
+    std::string sexp = "(ns-load-file \"" + file + "\")";
+    s7_eval_c_string(sc, sexp.c_str());
+}
+
+void bind_all(s7_scheme *sc) {
+    s7_pointer primitives_env = s7_inlet(sc, s7_nil(sc));
+    s7_gc_protect(sc, primitives_env);
+    // eg ((aod.c.foreign 'new-bool) #t) for a bool* pointer with initial value true
+    aod::s7::foreign::bind_primitives(sc, primitives_env);
+    // eg ((aod.c.foreign 'new-bool[]) 4) for a bool[4] array
+    aod::s7::foreign::bind_primitives_arr(sc, primitives_env);
+
+    // imgui bindings
+    aod::s7::imgui::bind(sc);
+    aod::s7::imgui::bind_knob(sc);
+
+    // gl bindings (eg gl/save-screenshot)
+    aod::s7::gl::bind(sc);
+
+    // nfd: native file dialog (*nfd* 'open)
+    aod::s7::nfd::bind(sc);
+
+    aod::s7::imgui_sdl::bind(sc);
+    // aod.c.repl :
+    // *eval-hook*
+    aod::s7::repl::bind(sc);
+
+    aod::s7::colors::bind(sc);
+    aod::s7::sdl::bind(sc);
+    aod::s7::img::bind(sc);
+}
+
+
 
 /**
  * Wraps the passed sexp around a (write ..) call,
@@ -69,6 +118,19 @@ void set_autoloads(s7_scheme *sc) {
 
 
     s7_autoload_set_names(sc, autoloads, AOD_S7_AUTOLOAD);
+}
+
+s7_scheme* init(std::filesystem::path init_load_path){
+    cout << "Initializing scheme in " << init_load_path << endl;
+    s7_scheme *sc = s7_init();
+    set_print_stderr(sc);
+    set_autoloads(sc);
+    bind_all(sc);
+
+    s7_add_to_load_path(sc, init_load_path.c_str());
+    aod::s7::load_file(sc, "aod/core.scm");
+
+    return sc;
 }
 
 } // s7
