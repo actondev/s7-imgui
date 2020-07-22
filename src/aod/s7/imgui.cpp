@@ -54,7 +54,7 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
     // TODO pass flags
     ImGui::Begin("maximized-window", &show,
 //                  ImGuiWindowFlags_MenuBar
-                  ImGuiWindowFlags_NoTitleBar
+                 ImGuiWindowFlags_NoTitleBar
                  | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
                  | ImGuiWindowFlags_NoNavFocus);
@@ -460,7 +460,6 @@ s7_pointer circle_filled(s7_scheme *sc, s7_pointer args) {
     float cy = s7_number_to_real(sc, s7_list_ref(sc, args, 1));
     float r = s7_number_to_real(sc, s7_list_ref(sc, args, 2));
     unsigned int col = (unsigned int) s7_number_to_real(sc, s7_list_ref(sc, args, 3));
-    float thickness = 1;
     int segments = 0;
     s7_pointer sc_segments = s7_list_ref(sc, args, 4);
     if (s7_is_number(sc_segments)) {
@@ -533,16 +532,13 @@ void bind(s7_scheme *sc, s7_pointer env) {
                                2, // optional args: segments, thickness
                                false, // rest args
                                "(cx cy r col &optional segments thickness)"));
-    
+
     s7_define(sc, env, s7_make_symbol(sc, "draw-circle-filled"),
               s7_make_function(sc, "draw-circle", circle_filled,
                                4, // req args: cx cy r col
                                1, // optional args: segments, thickness
                                false, // rest args
                                "(cx cy r col &optional segments)"));
-
-
-
 
     s7_define_function(sc, "imgui.draw/line", line,   // ..
                        5, // req args: x1 x2 y1 y2 col
@@ -574,54 +570,28 @@ void bind(s7_scheme *sc, s7_pointer env) {
 
 namespace colors {
 
-s7_pointer float_rgb_to_u32(s7_scheme *sc, s7_pointer args) {
-    ImU32 r = (ImU32)(255 * s7_number_to_real(sc, s7_car(args)));
-    ImU32 g = (ImU32)(255 * s7_number_to_real(sc, s7_cadr(args)));
-    ImU32 b = (ImU32)(255 * s7_number_to_real(sc, s7_caddr(args)));
-    ImU32 res = IM_COL32(r, g, b, 255);
+s7_pointer color32(s7_scheme *sc, s7_pointer args) {
+    ImU32 r = s7_number_to_real(sc, s7_car(args));
+    ImU32 g = s7_number_to_real(sc, s7_cadr(args));
+    ImU32 b = s7_number_to_real(sc, s7_caddr(args));
+    ImU32 a = 255;
+    s7_pointer passed_alpha = s7_cadddr(args);
+    if (s7_is_number(passed_alpha)) {
+        a = s7_number_to_real(sc, passed_alpha);
+    }
+    ImU32 res = IM_COL32(r, g, b, a);
 
     return s7_make_integer(sc, (int) res);
 }
 
-s7_pointer int_rgb_to_u32(s7_scheme *sc, s7_pointer args) {
-    int r = s7_number_to_integer(sc, s7_car(args));
-    int g = s7_number_to_integer(sc, s7_car(args));
-    int b = s7_number_to_integer(sc, s7_car(args));
-    unsigned int res = IM_COL32(r, g, b, 255);
-
-    return s7_make_integer(sc, res);
-}
-
 void bind(s7_scheme *sc, s7_pointer env) {
-    s7_define_function(sc, "imgui.color/frgb->u32",
-                       float_rgb_to_u32, // ..
-                       3, // req args
-                       0, // optional args (the open boolean pointer)
-                       false, // rest args
-                       "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0.0 to 1.0");
-
-    s7_define(sc, env, s7_make_symbol(sc, "frgb->u32"),
-              s7_make_function(sc, "frgb->u32", float_rgb_to_u32,
+    s7_define(sc, env, s7_make_symbol(sc, "color32"),
+              s7_make_function(sc, "color32", color32,
                                3, // req args
-                               0, // optional args: thickness
+                               1, // optional args: alpha
                                false, // rest args
-                               "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0.0 to 1.0"));
-
-
-    s7_define_function(sc, "imgui.color/rgb->u32",
-                       int_rgb_to_u32, // ..
-                       3, // req args
-                       0, // optional args (the open boolean pointer)
-                       false, // rest args
-                       "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0 to 255.");
-
-    s7_define(sc, env, s7_make_symbol(sc, "rgb->u32"),
-              s7_make_function(sc, "rgb->u32", int_rgb_to_u32,
-                               3, // req args
-                               0, // optional args: thickness
-                               false, // rest args
-                               "Returns a u32 representation of the color 0xRRGGBBAA. Inputs are from 0 to 255."));
-
+                               "(color32 r g b &optional a) input ranging from 0 to 255"
+                               "Returns a u32 representation of the color 0xRRGGBBAA"));
 }
 }
 

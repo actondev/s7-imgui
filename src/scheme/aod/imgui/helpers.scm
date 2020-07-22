@@ -1,6 +1,5 @@
-(require aod.core)
-(provide 'aod.imgui.helpers)
-(aod/require aod.c.imgui :as ig)
+(ns aod.imgui.helpers)
+(ns-require aod.c.imgui :as ig)
 
 (define* (draw-circle circle (color -1) (segments 0) (filled #f) (thickness 1))
   (if filled
@@ -36,3 +35,13 @@
 		())
  
  )
+
+(define (frgb->u32 color)
+  (apply ig/color32
+	 (map (lambda (val)
+		(* val 255))
+	      color)))
+
+(test "frgb->u32 : input 0.0 .. 1.0"
+      (is (= -1 (apply ig/color32 '(255 255 255))))
+      (is (= -1 (frgb->u32 '(1 1 1)))))

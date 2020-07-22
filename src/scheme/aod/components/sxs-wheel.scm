@@ -17,18 +17,28 @@
 (define* (mk-sxs-element highlights (bg '(0 0 0)) (r 34) (r-internal 30))
   (lambda* (cx cy (phase 0) (n 0))
 	   (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase)))
-		  (filled (highlights n))
-		  (color-negative (apply ig/frgb->u32 bg))
-		  (color (apply ig/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
-	     (igh/draw-circle `(,cx ,cy ,r)
-			      :color color
-			      :filled (highlights n)
-			      :thickness 1)
-	     (igh/draw-lines lines :color (if filled
-					      color-negative
-					      color)
-			     :thickness (if filled 2
-					    1)))))
+		 (highlighted? (highlights n))
+		 (rgb (colors/ryb->rgb (colors/triplet-phase phase)))
+		 (color32-bg (igh/frgb->u32 bg))
+		 )
+	     (let ((color32-normal-alpha (igh/frgb->u32 (append rgb '(0.3))));; alpha
+		   (color32-normal (igh/frgb->u32 rgb))
+		   )
+	       (igh/draw-circle `(,cx ,cy ,r)
+				:color (if highlighted?
+					   color32-normal-alpha
+					   color32-bg
+					   )
+				:thickness 1
+				:filled #t)
+	       (igh/draw-circle `(,cx ,cy ,r)
+				:color color32-normal
+				:thickness 1
+				:segments 32)
+	       (igh/draw-lines lines
+			       :color color32-normal
+			       :thickness (if highlighted? 2
+					      1))))))
 
 ;; hm.. mk-state vs make vs new ??
 (define* (new (N 12) (R 150) (r 30) (internal-fill 0.8))
