@@ -37,7 +37,14 @@
 ;; 
 ;; The repl running on the c-side should read this to eval incoming
 ;; expressions in there
-(define *ns* (ns-make-empty-let))
+(define *ns*
+  ;; by default *ns* is the rootlet
+  ;; this helps with (ns-load-file ) if there is no (ns) form
+  ;; in that case the bindings will be loaded to rootlet
+  ;;
+  ;; Also, with the repl. when we start we should be in the (rootlet)
+  (rootlet)
+  )
 
 (define-macro (ns-create the-ns)
   ;; should check about the *ns-load-mode*
@@ -141,6 +148,9 @@
 ;; was scratching my head until I realised that I had a typo in the definition
 ;; and then i was requiring with the "correct" name.. but the ns was not defined!
 (define-macro* (ns-require the-ns (as #f) (force #f) )
+  ;; clearing the ns-load-mode flag This is needed when we call
+  ;;(ns-load-file) and the loaded file doesn't have an (ns..) form.
+  (set! *ns-load-mode* #f)
   (let ((current-ns *ns*))
     `(begin
       (ns-load ',the-ns :force ,force)
@@ -162,7 +172,15 @@
 (define (ns-load-file file . args)
   (set! *ns-load-mode* #t)
   (set! *ns* (ns-make-empty-let))
-  (load file *ns*))
+  (load file *ns*)
+  ;; if there was no (ns .. ) form in the loaded file, we add the
+  ;; bindings to the rootlet
+  (with-let *ns*
+	    (if (not (defined? '*ns-name*))
+		(apply varlet (rootlet)
+		       (let->list *ns*))
+		;; (print "indeed loaded a file with (ns ..) : " *ns-name*)
+		)))
 
 ;; maybe I should make this a normal function
 ;; keep things simpler..

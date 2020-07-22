@@ -2,6 +2,8 @@
 # if s7 found, add these files
 # if imgui found, ... and so on
 aod_sources = files(
+  # TODO move things in subfolders
+  # eg s7/s7.cpp, s7/s7.hpp for the "core" functionality
   's7.cpp',
   's7/imgui.cpp',
   's7/imgui_addons.cpp',
@@ -21,8 +23,13 @@ aod_sources = files(
   's7/foreign_primitives_arr.cpp',
 
   # img (testing for similarity)
+  # TODO rename to img/img.cpp
   'img/core.cpp',
   's7/img.cpp',
+  
+  # midi
+  'midi/midi.cpp',
+  's7/midi.cpp',
 )
 
 gl_dep = dependency('gl', required : false)
