@@ -47,8 +47,8 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(ImVec2((float) w, (float) h));
 
-//    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-//    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+   ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+   ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
     bool show = true;
     // TODO pass flags
@@ -58,7 +58,7 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
                  | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
                  | ImGuiWindowFlags_NoNavFocus);
-//    ImGui::PopStyleVar(2);
+   ImGui::PopStyleVar(2);
 
     return s7_nil(sc);
 }

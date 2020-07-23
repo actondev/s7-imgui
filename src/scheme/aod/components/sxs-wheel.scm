@@ -41,6 +41,7 @@
 					      1))))))
 
 ;; hm.. mk-state vs make vs new ??
+;; TODO calculate optima r if only R is passed
 (define* (new (N 12) (R 150) (r 30) (internal-fill 0.8))
   (let* ((highlights (make-vector N #f))
 	 (element (mk-sxs-element
