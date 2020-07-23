@@ -208,7 +208,9 @@ void destroy_embedded(embedded_window emb) {
     if (emb.dummy != nullptr) {
         SDL_DestroyWindow(emb.dummy);
     }
-    SDL_DestroyWindow(emb.window);
+    // TODO
+    // that crashes???
+    // SDL_DestroyWindow(emb.window);
 }
 
 // Note: the original (working in Windows, not in linux) way to embed with opengl, is the following:
