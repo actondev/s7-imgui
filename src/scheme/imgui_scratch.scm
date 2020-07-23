@@ -27,7 +27,7 @@
  (set! (hook-functions (aod.c.repl '*eval-hook*)) ())
  )
 
-(define color (ig/frgb->u32 1 1 1))
+(define color (igh/frgb->u32 '(1 1 1)))
 (define R 150)
 (begin
   (define r 34)
@@ -39,7 +39,7 @@
   ;; we multiply phase with 4 cause we want the sigma logo to repeat 4 times
   ;; during the whole circle
   (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase)))
-	(color (apply ig/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
+	(color (igh/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
     ;; (ig/draw-text cx cy (format #f "~A" n) color)
     (igh/draw-lines lines color)
     (apply ig/draw-circle `(,cx ,cy ,r ,color))

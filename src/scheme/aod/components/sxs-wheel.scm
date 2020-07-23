@@ -91,6 +91,7 @@
 	 ;; hm have to add 14.. I guess there is a padding of 7
 
 	 (define *ctx* (igsdl/setup (+ 14 size) (+ 14 size)))
+	 
 
 	 (define (paint)
 	   (igsdl/prepare *ctx*)
@@ -98,14 +99,19 @@
 	   (igsdl/flush *ctx*))
 	 ;; commenting out while developing :)
 	 (begin
+	   ;; aha.. on windows I had to call (paint) twice
+	   ;; to get the proper result
+	   ;; .. or maybe it's the sdl version that changed..?
 	   (paint)
-	   (sdl/delay 30)
+	   (paint)
+	   ;; (sdl/delay 10)
 	   (gl/save-screenshot "test/scheme/assets/sxs-wheel.png")
 	   (set-highlight test-element 0 #t)
 	   (set-highlight test-element 4 #t)
 	   (set-highlight test-element 8 #t)
 	   (paint)
-	   (sdl/delay 30)
+	   (paint)
+	   ;; (sdl/delay 10)
 	   (gl/save-screenshot "test/scheme/assets/sxs-wheel-highlight-048.png")
 	   (igsdl/destroy *ctx*)
 	   (is (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"

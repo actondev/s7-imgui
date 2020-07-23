@@ -1,6 +1,12 @@
 #include "imgui.h"
 #include "imgui_internal.h"
 
+#ifdef _WIN32
+#ifndef M_PI
+#define M_PI    3.14159265358979323846264338327950288   /* pi */
+#endif
+#endif
+
 namespace aod {
 namespace imgui {
 

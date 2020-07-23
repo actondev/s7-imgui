@@ -15,7 +15,9 @@
 
 #include <sstream>
 #include <iostream>
-using std::cout, std::cerr, std::endl;
+using std::cout;
+using std::cerr;
+using std::endl;
 
 namespace aod {
 namespace s7 {
@@ -36,12 +38,15 @@ void set_print_stderr(s7_scheme *sc) {
 }
 
 void load_file(s7_scheme *sc, std::string file) {
+    std::replace(file.begin(), file.end(), '\\', '/');
     if (!s7_load(sc, file.c_str())) {
         cerr << "Cannot load " << file << endl;
     }
 }
 
 void ns_load_file(s7_scheme* sc, std::string file) {
+    // fucking windows separators
+    std::replace(file.begin(), file.end(), '\\', '/');
     std::string sexp = "(ns-load-file \"" + file + "\")";
     s7_eval_c_string(sc, sexp.c_str());
 }
@@ -98,7 +103,9 @@ s7_scheme* init(std::filesystem::path init_load_path) {
     set_autoloads(sc);
     bind_all(sc);
 
-    s7_add_to_load_path(sc, init_load_path.c_str());
+    // note: path.c_str() returns const value_type*
+    // in linux it's indeed char* but in windows it's wchar_t
+    s7_add_to_load_path(sc, init_load_path.string().c_str());
     aod::s7::load_file(sc, "aod/core.scm");
 
     return sc;

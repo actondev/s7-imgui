@@ -62,7 +62,7 @@ TEST(s7_environments, autoloads) {
 TEST(s7_environments, require) {
     s7_scheme* sc = s7_init();
     aod::s7::bind_all(sc);
-    s7_add_to_load_path(sc, scheme_path.c_str());
+    s7_add_to_load_path(sc, scheme_path.string().c_str());
     aod::s7::set_autoloads(sc);
 
     const char* sexp = "(begin "
@@ -78,7 +78,7 @@ TEST(s7_environments, require) {
 TEST(s7_environments, require_as) {
     s7_scheme* sc = s7_init();
     aod::s7::bind_all(sc);
-    s7_add_to_load_path(sc, scheme_path.c_str());
+    s7_add_to_load_path(sc, scheme_path.string().c_str());
     aod::s7::set_autoloads(sc);
 
     const char* sexp1 = "(begin "

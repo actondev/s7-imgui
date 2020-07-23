@@ -3,6 +3,10 @@
 #include "aod/s7/foreign_primitives_arr.hpp"
 #include "aod/s7/foreign_primitives.hpp"
 #include "imgui_internal.h"
+#ifdef _WIN32
+// fixes gl.h errors
+#include <windows.h>
+#endif
 #include <GL/gl.h>
 
 namespace aod {

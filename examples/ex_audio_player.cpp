@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 
     aod::s7::set_print_stderr(sc);
     s7_add_to_load_path(sc, SDL_GetBasePath());
-    s7_add_to_load_path(sc, scheme_path.c_str());
+    s7_add_to_load_path(sc, scheme_path.string().c_str());
 
     aod::s7::bind_all(sc);
     aod::s7::set_autoloads(sc);
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    auto audioObject = aod::sdl::AudioObject::fromFile((base_path / "owl.wav").c_str());
+    auto audioObject = aod::sdl::AudioObject::fromFile((base_path / "owl.wav").string().c_str());
     if (audioObject) {
         audioObject->setId(1);
 

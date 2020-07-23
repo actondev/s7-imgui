@@ -135,11 +135,12 @@ meson compile -C build
 
 # useful commands
 meson setup build --reconfigure --backend vs
-meson setup --wipe build
+meson setup build --wipe --backend vs
 rm -rf build
 
 # scheme scripts
 mklink /J build\scheme src\scheme
+
    #+END_SRC
 ** COMMENT buttons
    Just building (runnable src block)
@@ -151,6 +152,13 @@ mklink /J build\scheme src\scheme
 meson compile -C build   
    #+END_SRC
 
+** Testing
+   Note: has to be ran in the build/test dir.
+   Cause of some paths.. ugh..
+   #+BEGIN_SRC sh
+cd build/test
+./gtest-all
+   #+END_SRC
 * COMMENT Temp
 ** s7: libc
    Getting some scheme files from s7
@@ -300,7 +308,7 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
 
 * Useful elisp
    #+NAME: _build-and-run-scm
-   #+BEGIN_SRC emacs-lisp :var file="" :results silent
+   #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
 (let ((build-res (with-temp-buffer
 		   (call-process "ninja" nil t t "-C" "build"))))
   (if (= 0 build-res)
@@ -315,8 +323,16 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
       )))
    #+END_SRC
 
+   #+NAME: repl
+   #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
+(run-scheme (concat (projectile-project-root) "build/repl " file))   
+   #+END_SRC
+
    #+CALL: _build-and-run-scm(file="src/scheme/imgui_scratch.scm")
    #+CALL: _build-and-run-scm(file="test/scheme/test-all.scm")
+
+   #+CALL: repl(file="test/scheme/test-all.scm")
+   #+CALL: repl(file="src/scheme/imgui_scratch.scm")
 
 ** Components
    #+CALL: _build-and-run-scm(file="src/scheme/aod/components/sxs-wheel.scm")

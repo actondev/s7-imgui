@@ -818,3 +818,64 @@ TEST(s7_environments, autoloads_bug) {
  )
 
   #+END_SRC
+* <2020-07-23 Thu> building on windows: fail
+  #+BEGIN_QUOTE
+  error C2039: 'filesystem': is not a member of 'std' [W:\dev\actondev\s7-imgui\build\src\aod\7bbcc5b@@aod@sta.vcxproj]
+  #+END_QUOTE
+** DONE filesystem path c_str()
+   #+BEGIN_QUOTE
+   's7_pointer s7_add_to_load_path(s7_scheme *,const char *)': cannot convert argument 2 from 'const std::filesystem::path::value_type *' to 'const char *'
+   #+END_QUOTE
+
+   aha. on linux =path.c_str()= returns =char*=, but on windows it's =w_char= .. ughh
+
+   Solution:
+   #+BEGIN_SRC cpp
+path.string().c_str()
+   #+END_SRC
+** VS and c++17
+   - https://github.com/mesonbuild/meson/issues/6314
+   #+BEGIN_SRC sh
+meson configure build | grep std # it's indeed c++17
+   #+END_SRC
+
+   solution (for aod lib)
+   #+BEGIN_SRC meson
+cpp_args = []
+system = host_machine.system()
+if system == 'windows'
+  cpp_args += '/std:c++17'
+endif
+
+aod_lib = library(
+  'aod',
+  # sources: aod_sources,
+  include_directories: include_directories('..'),
+  sources: aod_sources,
+  cpp_args: cpp_args,
+  # ...
+  )
+   
+   #+END_SRC
+
+   or..
+   #+BEGIN_SRC meson
+aod_lib = library(
+  'aod',
+  cpp_std: 'c++17',
+  # ..
+  )
+   #+END_SRC
+
+   uhmmm.
+   #+BEGIN_QUOTE
+subprojects\s7_imgui\src\aod\meson.build:44: WARNING: Passed invalid keyword argument "cpp_std".
+   #+END_QUOTE
+
+   #+BEGIN_SRC sh
+meson -v
+pip3 install meson --upgrade
+# hm updated from 0.54.3 to 0.55
+   #+END_SRC
+
+   hm.. now it works..?

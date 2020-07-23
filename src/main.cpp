@@ -90,7 +90,7 @@ int main(int argc, char *argv[]) {
 
     aod::s7::set_print_stderr(sc);
     std::cout << "scheme path is " << base_path / "scheme" << '\n';
-    s7_add_to_load_path(sc, (base_path / "scheme").c_str());
+    s7_add_to_load_path(sc, (base_path / "scheme").string().c_str());
 //    s7_add_to_load_path(sc, "s7");
 
     aod::s7::set_print_stderr(sc);
@@ -130,8 +130,8 @@ int main(int argc, char *argv[]) {
 //        std::cout << "cwd is " << cwd_launch << " passed file " << passed_file << '\n';
         std::cout << "path of passed file is " << passed_file.parent_path()
                   << '\n';
-        s7_add_to_load_path(sc, passed_file.parent_path().c_str());
-        aod::s7::load_file(sc, passed_file.c_str());
+        s7_add_to_load_path(sc, passed_file.parent_path().string().c_str());
+        aod::s7::load_file(sc, passed_file.string().c_str());
     } else {
         aod::s7::load_file(sc, "main.scm");
     }

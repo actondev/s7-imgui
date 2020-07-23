@@ -1,5 +1,6 @@
 #include "./sdl.hpp"
 #include "SDL_video.h"
+#include <stdio.h> // sprintf
 
 #ifdef __linux__
 #include "SDL_syswm.h"
@@ -8,8 +9,6 @@
 #include <X11/Xatom.h>
 
 #endif
-
-// HACK AHEAD
 
 /**
  * The problem was the SDL_CreateWindowFrom and the opengl flags.
@@ -42,7 +41,20 @@
  *
  */
 
+#ifdef AOD_SDL_WINDOW_FLAGS_HACK
+/*
+Enables us to modify SDL_Window flags.
+This is to enable the opengl flag when using SDL_CreateWindowFrom.
+In windows there is way with the SDL_SetHint, but in linux this is not available.
+2 solutions:
+- either include this code (but note: it's depending on the sdl version. I disabled
+  this cause I changed version and it was no longer working)
+- or use my for of sdl that contains the linux fix
+  see https://github.com/actonDev/SDL/commit/25bc95574808e140c794a6f0bbf84b8d159823e5
+*/
+
 /** \brief A union containing parameters for shaped windows. */
+
 typedef union {
     /** \brief a cutoff alpha value for binarization of the window shape's alpha channel. */
     Uint8 binarizationCutoff;
@@ -134,6 +146,7 @@ struct SDL_Window {
     SDL_Window *next;
 };
 
+#endif
 namespace aod {
 namespace sdl {
 
@@ -156,26 +169,9 @@ void fix_input(SDL_Window *window) {
             PropertyChangeMask | StructureNotifyMask |
             KeymapStateMask));
 }
-#endif
-} // x11
 
-// not working. destroying the opengl window and then creating the other one throws an error
-//SDL_Window* create_window_from(void *pParent, SDL_WindowFlags window_flags) {
-//    if (window_flags & SDL_WINDOW_OPENGL) {
-//        SDL_Window* dummy = SDL_CreateWindow("", 0, 0, 1, 1,
-//                SDL_WINDOW_OPENGL | SDL_WINDOW_HIDDEN);
-//        SDL_DestroyWindow(dummy);
-//    }
-//    SDL_Window* window = SDL_CreateWindowFrom(pParent);
-////    window->flags = window_flags; // let's see how to solve this
-//    window->flags |= window_flags;
-//
-//#ifdef __linux__
-//    x11::fix_input(window);
-//#endif
-//
-//    return window;
-//}
+} // x11
+#endif
 
 embedded_window embed_window(void *pParent, SDL_WindowFlags window_flags) {
     embedded_window emb;
@@ -185,9 +181,20 @@ embedded_window embed_window(void *pParent, SDL_WindowFlags window_flags) {
     } else {
         emb.dummy = nullptr;
     }
+
+#ifdef AOD_SDL_WINDOW_FLAGS_HACK
     emb.window = SDL_CreateWindowFrom(pParent);
-//    window->flags = window_flags; // let's see how to solve this
     emb.window->flags |= window_flags;
+#else
+    // Note: for linux this needs my SDL fork
+    // see https ://github.com/actonDev/SDL/commit/25bc95574808e140c794a6f0bbf84b8d159823e5
+    char sBuf[32];
+    sprintf(sBuf, "%p", emb.dummy);
+    SDL_SetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT, sBuf);
+    SDL_Window* window = SDL_CreateWindowFrom(pParent);
+    SDL_SetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT, nullptr);
+    emb.window = SDL_CreateWindowFrom(pParent);
+#endif
 
 #ifdef __linux__
     x11::fix_input(emb.window);
@@ -226,5 +233,5 @@ void destroy_embedded(embedded_window emb) {
 //     printf("window has opengl flag? %s\n",
 //     (flags & SDL_WINDOW_OPENGL) ? "true" : "false");
 
-}// sdl
+} // sdl
 } // aod
