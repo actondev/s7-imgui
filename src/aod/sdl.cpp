@@ -192,8 +192,9 @@ embedded_window embed_window(void *pParent, SDL_WindowFlags window_flags) {
     sprintf(sBuf, "%p", emb.dummy);
     SDL_SetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT, sBuf);
     SDL_Window* window = SDL_CreateWindowFrom(pParent);
+    // reverting the hint
     SDL_SetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT, nullptr);
-    emb.window = SDL_CreateWindowFrom(pParent);
+    emb.window = window;
 #endif
 
 #ifdef __linux__
