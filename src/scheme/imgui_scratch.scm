@@ -5,9 +5,10 @@
 (ns-require aod.imgui.macros :as igm)
 (ns-require aod.c.gl :as gl) ;; for screenshots
 (ns-require aod.layout :as l)
-(ns-require aod.sxs :as sxs)
 (ns-require aod.imgui.helpers :as igh)
 (ns-require aod.colors :as colors)
+(ns-require aod.components.piano-wheel :as piano)
+(ns-require aod.components.sxs-wheel :as sxs)
 
 (define *ctx* (igsdl/setup 420 420))
 
@@ -27,32 +28,17 @@
  (set! (hook-functions (aod.c.repl '*eval-hook*)) ())
  )
 
-(define color (igh/frgb->u32 '(1 1 1)))
-(define R 150)
-(begin
-  (define r 34)
-  (define r-internal (* 0.9 r)))
+(define sxs (sxs/new :R 150))
+(define piano (piano/new :R 80 :cx 180 :cy 180))
 
-(define N 12)
-
-(define* (sxs-element cx cy (phase 0) (n 0))
-  ;; we multiply phase with 4 cause we want the sigma logo to repeat 4 times
-  ;; during the whole circle
-  (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase)))
-	(color (igh/frgb->u32 (colors/ryb->rgb (colors/triplet-phase phase)))))
-    ;; (ig/draw-text cx cy (format #f "~A" n) color)
-    (igh/draw-lines lines color)
-    (apply ig/draw-circle `(,cx ,cy ,r ,color))
-    ;; 
-    )
-  )
 ;; upon redefining do-draw funcion
 ;; the (draw) will get called
 (define (do-draw)
   (print "Drawing!!!!!")
   (igm/maximized
    ("imgui scratch")
-   (l/circular sxs-element :N N :center '(200 190) :R R :gui #t)
+   (piano/draw piano)
+   (sxs/draw sxs)
    ))
 
 (define (draw)

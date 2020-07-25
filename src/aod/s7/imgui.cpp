@@ -520,6 +520,39 @@ s7_pointer line(s7_scheme *sc, s7_pointer args) {
 
     draw_list->AddLine(ImVec2(p.x + x1, p.y + y1), ImVec2(p.x + x2, p.y + y2),
                        col, thickness);
+
+    return s7_nil(sc);
+}
+
+s7_pointer arc(s7_scheme *sc, s7_pointer args) {
+    //     IMGUI_API void  PathArcTo(const ImVec2& center, float radius, float a_min, float a_max, int num_segments = 10);
+    ImVec2 p = ImGui::GetCursorScreenPos();
+
+    ImDrawList *draw_list = ImGui::GetWindowDrawList();
+
+    float cx = p.x + s7_number_to_real(sc, s7_list_ref(sc, args, 0));
+    float cy = p.y + s7_number_to_real(sc, s7_list_ref(sc, args, 1));
+    float r =  s7_number_to_real(sc, s7_list_ref(sc, args, 2));
+    float a_min = s7_number_to_real(sc, s7_list_ref(sc, args, 3));
+    float a_max = s7_number_to_real(sc, s7_list_ref(sc, args, 4));
+    unsigned int col = (unsigned int) s7_number_to_real(sc, s7_list_ref(sc, args, 5));
+
+
+    float thickness = 1;
+    int segments = 32;
+    s7_pointer sc_segments = s7_list_ref(sc, args, 6);
+    s7_pointer sc_thickness = s7_list_ref(sc, args, 7);
+    if (s7_is_number(sc_segments)) {
+        segments = s7_number_to_integer(sc, sc_segments);
+
+        if (s7_is_number(sc_thickness)) {
+            thickness = s7_number_to_real(sc, sc_thickness);
+        }
+    }
+
+    draw_list->PathArcTo(ImVec2(cx, cy), r, a_min, a_max, segments);
+    draw_list->PathStroke(col, false, thickness);
+
     return s7_nil(sc);
 }
 
@@ -536,6 +569,12 @@ void bind(s7_scheme *sc, s7_pointer env) {
                                2, // optional args: segments, thickness
                                false, // rest args
                                "(cx cy r col &optional segments thickness)"));
+        s7_define(sc, env, s7_make_symbol(sc, "draw-arc"),
+              s7_make_function(sc, "draw-arc", arc,
+                               6, // req args: cx cy r a_min a_max col
+                               2, // optional args: segments, thickness
+                               false, // rest args
+                               "(cx cy r a-min a-max col &optional segments thickness)"));
 
     s7_define(sc, env, s7_make_symbol(sc, "draw-circle-filled"),
               s7_make_function(sc, "draw-circle", circle_filled,

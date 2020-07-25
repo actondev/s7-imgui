@@ -22,7 +22,7 @@ a known-issue"))
 					theta))
 			     (x (+ (center 0) (* R (cos theta))))
 			     (y (+ (center 1) (* R (sin theta)))))
-			(cb x y :phase (/ i N) :n i)))
+			(cb x y :phase (/ i N) :n i :N N)))
 		    (range N))))))
 
 (test "Circular layout"

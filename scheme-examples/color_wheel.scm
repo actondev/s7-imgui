@@ -18,7 +18,7 @@
 (define N 12)
 
 ;; phase 0 .. 1 (like 0 .. 2pi)
-(define* (element x y (phase 0) (n 0))
+(define* (element x y (phase 0) (n 0) (N 1))
   (let* ((rgb (colors/rgb-phase phase))
 	 ;; red is (car rgb) or (rgb 0).. it's the same
 	 ;; green (cadr rgb) or (rgb 1) etc

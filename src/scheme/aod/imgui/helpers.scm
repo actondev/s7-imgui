@@ -13,6 +13,16 @@
 	     thickness
 	     ())))
 
+;; hmm this draws clockwise from 3 o'clock
+(define* (draw-arc circle (a-min 0) (a-max 1) (color -1) (segments 32) (thickness 1))
+  (apply ig/draw-arc (apply-values circle)
+	 a-min
+	 a-max
+	 color
+	 segments
+	 thickness
+	 ()))
+
 ;; int -1 => white
 (define* (draw-lines lines (color -1) (thickness 1))
   (map (lambda (line)

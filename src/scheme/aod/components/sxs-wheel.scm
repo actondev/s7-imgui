@@ -15,7 +15,7 @@
 (ns-require aod.colors :as colors)
 
 (define* (mk-sxs-element highlights (bg '(0 0 0)) (r 34) (r-internal 30))
-  (lambda* (cx cy (phase 0) (n 0))
+  (lambda* (cx cy (phase 0) (n 0) (N 1))
 	   (let ((lines (sxs/lines `(,cx ,cy ,r-internal) :phase (* 4 phase)))
 		 (highlighted? (highlights n))
 		 (rgb (colors/ryb->rgb (colors/triplet-phase phase)))

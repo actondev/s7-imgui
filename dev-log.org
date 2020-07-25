@@ -879,3 +879,8 @@ pip3 install meson --upgrade
    #+END_SRC
 
    hm.. now it works..?
+* drawing arc/bezier
+  #+BEGIN_SRC cpp
+    IMGUI_API void  AddBezierCurve(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col, float thickness, int num_segments = 0);
+  
+  #+END_SRC
