@@ -195,6 +195,7 @@ embedded_window embed_window(void *pParent, SDL_WindowFlags window_flags) {
     // reverting the hint
     SDL_SetHint(SDL_HINT_VIDEO_WINDOW_SHARE_PIXEL_FORMAT, nullptr);
     emb.window = window;
+    
 #endif
 
 #ifdef __linux__
@@ -205,12 +206,23 @@ embedded_window embed_window(void *pParent, SDL_WindowFlags window_flags) {
 }
 
 void destroy_embedded(embedded_window emb) {
+    // that.. again needs a patch in SDL
+#if 0
+    // SDL_DestroyWindow(SDL_Window * window)
+
+        /* Restore video mode, etc. */
+    if (!(window->flags & SDL_WINDOW_FOREIGN)) {
+        SDL_HideWindow(window);
+    }
+#endif
+    // if not.. it hangs (in windows at least)
+    // in linux it wasn't, but I was having some errors now and then
+    // maybe this solves it?
+    SDL_DestroyWindow(emb.window);
+
     if (emb.dummy != nullptr) {
         SDL_DestroyWindow(emb.dummy);
     }
-    // TODO
-    // that crashes???
-    // SDL_DestroyWindow(emb.window);
 }
 
 // Note: the original (working in Windows, not in linux) way to embed with opengl, is the following:

@@ -123,6 +123,7 @@ netcat localhost 12345
 cmd
 mklink /J subprojects\sdl2 ..\SDL
 # etc..
+exit
    #+END_SRC
 ** Building
    
@@ -333,6 +334,7 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
 
    #+CALL: repl(file="test/scheme/test-all.scm")
    #+CALL: repl(file="src/scheme/imgui_scratch.scm")
+   #+CALL: repl(file="")
 
 ** Components
    #+CALL: _build-and-run-scm(file="src/scheme/aod/components/sxs-wheel.scm")
