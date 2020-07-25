@@ -1,3 +1,8 @@
+// hm..
+// apparently I need to include it first to have os specific SDL_SysWMinfo
+// that is to get the definition SDL_VIDEO_DRIVER_X11 for example
+// that is from meson include dir order...? anyway..
+#include "SDL_config.h"
 #include "./sdl.hpp"
 #include "SDL_video.h"
 #include <stdio.h> // sprintf
