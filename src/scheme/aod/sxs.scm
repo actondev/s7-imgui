@@ -134,6 +134,9 @@ A line is of the (x1 y1 x2 y2) form."))
 					    ))
 		       (geom/clip-lines-in-circle lines circle-modified))
 		     lines))))))
+
+;; the calculation is really heavy so.. memoize to the rescue
+(set! lines (memoize lines))
 	  
 (test "SXS lines non-clipped - X"
       (is (equivalent?

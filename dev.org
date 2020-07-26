@@ -333,8 +333,13 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
    #+CALL: _build-and-run-scm(file="test/scheme/test-all.scm")
 
    #+CALL: repl(file="test/scheme/test-all.scm")
+   #+CALL: repl(file="test/scheme/test-core.scm")
+
    #+CALL: repl(file="src/scheme/imgui_scratch.scm")
    #+CALL: repl(file="")
+
+** Benchmark
+   #+CALL: repl(file="test/scheme/test-benchmark.scm")
 
 ** Components
    #+CALL: _build-and-run-scm(file="src/scheme/aod/components/sxs-wheel.scm")

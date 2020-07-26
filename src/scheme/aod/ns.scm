@@ -22,6 +22,7 @@
 ;; 
 ;; mnemonic: NameSpaceS
 (define *nss* (make-hash-table))
+(define *ns-require-dynamic* #t)
 
 ;; Setting to #t when loading a file (ns-load-file "foo/bar.scm")
 ;;
@@ -115,7 +116,7 @@
 ;; This is what enables the redifinitions to work!
 ;; If i'm in the foo.bar namespace and change the definition
 ;; of fun, this will be reflected inside my.ns
-(define* (ns-require-alias the-ns as (target-env (outlet (curlet))))
+(define* (ns-require-alias the-ns as (target-env (outlet (curlet))) (dynamic #t))
   (apply varlet target-env
 	 (with-let (unlet)
 		   (let ()
@@ -129,7 +130,14 @@
 				  (begin
 				    ;; (print "binding " binding-symbol)
 				    (cons binding-symbol
-					  (if (procedure? (cdr binding))
+					  ;; dynamic bindings for functions:
+					  ;; allows us "redefine" a functions in its own namespace
+					  ;; and have this change reflected in the other namespaces
+					  ;; that have required this
+					  ;;
+					  ;; This is enabled when we're dealing with procedures and the dynamic options is #t
+					  (if (and (procedure? (cdr binding))
+						  dynamic)
 					      (let ((ns-internal-target the-ns)
 						    (ns-internal-func (car binding)))
 						;; TODO copy the documentatoin of the forwarding function?
@@ -147,9 +155,11 @@
 ;; TODO throw an error if ns not found
 ;; was scratching my head until I realised that I had a typo in the definition
 ;; and then i was requiring with the "correct" name.. but the ns was not defined!
-(define-macro* (ns-require the-ns (as #f) (force #f) )
+(define-macro* (ns-require the-ns (as #f) (force #f) (dynamic #<undefined>))
   ;; clearing the ns-load-mode flag This is needed when we call
   ;;(ns-load-file) and the loaded file doesn't have an (ns..) form.
+  (if (eq? dynamic #<undefined>)
+      (set! dynamic *ns-require-dynamic*))
   (set! *ns-load-mode* #f)
   (let ((current-ns *ns*))
     `(begin
@@ -157,7 +167,8 @@
       (with-let ,current-ns
       	      (ns-require-alias ',the-ns
 				 (or ',as ',the-ns)
-				 :target-env ,current-ns))
+				 :target-env ,current-ns
+				 :dynamic ,dynamic))
       (set! *ns* ,current-ns))))
 
 ;; Loads a file and if it has a (ns) definition,

@@ -175,3 +175,14 @@
 ;; aod.ns has tests and may make some use of the rest of
 ;; internal funtions, so requiring at the end
 (require aod.ns)
+
+(define (memoize fn)
+  (let ((mem (make-hash-table)))
+    (lambda args
+      (or (mem args)
+	  (begin
+	    ;; (print "not found, fn" fn "args " args)
+	    (let ((ret (apply fn args)))
+	      ;; (print "ret " ret)
+	      (set! (mem args) ret)
+	      ret))))))

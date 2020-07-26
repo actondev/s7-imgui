@@ -884,3 +884,16 @@ pip3 install meson --upgrade
     IMGUI_API void  AddBezierCurve(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col, float thickness, int num_segments = 0);
   
   #+END_SRC
+* memoize, performance
+  In the first working demo of s7vst, the full each frame drawing was using ~11% cpu
+
+  but with
+
+  #+BEGIN_SRC scheme
+;; in aod/sxs.scm
+(set! lines (memoize lines))
+  #+END_SRC
+
+  Cpu is around ~5%
+
+  hooray :D
