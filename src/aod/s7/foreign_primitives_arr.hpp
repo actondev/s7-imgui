@@ -23,6 +23,7 @@ namespace aod {
 	       int tag_bool_arr(s7_scheme* sc);
 	       int tag_int_arr(s7_scheme* sc);
 	       int tag_float_arr(s7_scheme* sc);
+	       int tag_char_arr(s7_scheme* sc);
 	  }
      }
 }

@@ -112,3 +112,20 @@ TEST ( foreign_primitives_arr_gen, float_arr ) {
     ASSERT_EQ(11.1f, arr[1]);
     ASSERT_EQ(12.2f, arr[2]);
 }
+
+TEST ( foreign_primitives_arr_gen, char_arr ) {
+    s7_scheme *sc = s7_init();
+    aod::s7::set_print_stderr(sc);
+
+    s7_pointer env = aod::s7::make_env(sc);
+    aod::s7::foreign::bind_primitives_arr(sc, env);
+    aod::s7::foreign::bind_primitives(sc, env);
+
+
+    s7_pointer x = s7_eval_c_string(sc,
+            "(define x ((aod.c.foreign 'new-char[]) 128))");
+    ASSERT_STREQ("", s7_string(s7_eval_c_string(sc, "(x)")));
+    
+    s7_eval_c_string(sc, "(set! (x) \"Hi there\")");
+    ASSERT_STREQ("Hi there", s7_string(s7_eval_c_string(sc, "(x)")));
+}

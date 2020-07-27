@@ -57,7 +57,7 @@ void bind_primitives(s7_scheme *sc) {
 		  s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
 }
    #+END_SRC
-* elisp requirements
+* elisp
   The necessary elisp to be able to actually tangle this file
   
   packages:
@@ -80,6 +80,64 @@ it returns its contents"
       (goto-char (org-babel-find-named-block name))
       (let ((src (org-element-property :value (org-element-at-point))))
 	src))))
+  #+END_SRC
+
+   You can just as well evaluate this, it will render the c code the the =bool= type.
+   This is later called for all of our types
+
+  #+NAME: render
+  #+BEGIN_SRC emacs-lisp :var template="primitive-template" type="bool" s7_read="s7_boolean" s7_write="s7_make_boolean" custom-ref=-1 custom-set=-1 :wrap SRC cpp
+
+;; (let ((case-fold-search nil))
+;;   (-as-> (aod.org/src-block-content template) x
+;; 	 (replace-regexp-in-string "C_TYPE" type x t)
+;; 	 (replace-regexp-in-string "S7_READ" s7_read x t)
+;; 	 (replace-regexp-in-string "S7_WRITE" s7_write x t)
+;; 	 (if has-custom-ref (replace-regexp-in-string "s7_pointer ref_\\(.*\n?\\)*.+return" "// has custom ref" x t) x)
+;; 	 ))
+
+(let ((content (aod.org/src-block-content template))
+      (custom-ref-content (unless (eq -1 custom-ref)
+			    (aod.org/src-block-content custom-ref)))
+      (custom-set-content (unless (eq -1 custom-set)
+			    (aod.org/src-block-content custom-set))))
+  (with-temp-buffer
+    (insert content)
+    (let ((case-replace nil))
+      (beginning-of-buffer)
+      (replace-string "C_TYPE" type)
+      (beginning-of-buffer)
+      (replace-string "S7_READ" s7_read)
+      (beginning-of-buffer)
+      (replace-string "S7_WRITE" s7_write)
+
+      
+      (when custom-ref-content
+	(c-mode)
+	(beginning-of-buffer)
+	;; (message (format "point before %s" (point)))
+	(search-forward "s7_pointer ref_")
+	(push-mark)
+	(mark-defun)
+	(kill-region (region-beginning) (region-end))
+	(newline-and-indent)
+	(insert custom-ref-content)
+	)
+      (when custom-set-content
+	(c-mode)
+	(beginning-of-buffer)
+	(mark-defun) ;; huh.. this needs a reset or something
+	(search-forward "s7_pointer set_")
+	;; mark-defun behaves weirdly if we don't clear the mark
+	;; if I was replacing before the ref, here the set wasn't killed properly
+	(push-mark)
+	(mark-defun)
+	(kill-region (region-beginning) (region-end))
+	(newline-and-indent)
+	(insert custom-set-content)))
+
+    (buffer-string)
+    ))
   #+END_SRC
 
 * Primitives (bool, int, float, double)
@@ -152,20 +210,6 @@ void bind_C_TYPE(s7_scheme* sc, s7_pointer env) {
 
 // ! ---------------------------- C_TYPE ------------------------------
    #+END_SRC
-** Generating src
-   You can just as well evaluate this, it will render the c code the the =bool= type.
-   This is later called for all of our types
-
-  #+NAME: render
-  #+BEGIN_SRC emacs-lisp :var template="primitive-template" type="bool" s7_read="s7_boolean" s7_write="s7_make_boolean" :wrap SRC cpp
-(let ((case-fold-search nil))
-  (-as-> (aod.org/src-block-content template) x
-	 (replace-regexp-in-string "C_TYPE" type x t)
-	 (replace-regexp-in-string "S7_READ" s7_read x t)
-	 (replace-regexp-in-string "S7_WRITE" s7_write x t)
-	 ))
-  #+END_SRC
-
 ** foreign_primitives.hpp
   #+BEGIN_SRC cpp :tangle "foreign_primitives.hpp" :main no
 #pragma once
@@ -225,7 +269,7 @@ namespace aod {
      } // s7
 } // aod
   #+END_SRC
-* Arrays (bool[], int[], float[], double[])
+* Arrays (bool[], int[], float[], double[], char[])
 ** primite[] arr template (make,ref,set,free,bind)
    #+NAME: T-primitive[]
    #+BEGIN_SRC c
@@ -314,6 +358,27 @@ void bind_C_TYPE_arr(s7_scheme* sc, s7_pointer env) {
 
 // ! ---------------------------- C_TYPE-arr ------------------------------
    #+END_SRC
+** Custom ref/set: char*
+   #+NAME: T-ref-char
+   #+BEGIN_SRC cpp
+// custom char* reference
+s7_pointer ref_char_arr(s7_scheme *sc, s7_pointer args) {
+     char* arr = (char*) s7_c_object_value(s7_car(args));
+     return s7_make_string(sc, arr);
+}
+   #+END_SRC
+
+   #+NAME: T-set-char
+   #+BEGIN_SRC cpp
+// custom char* setter
+s7_pointer set_char_arr(s7_scheme *sc, s7_pointer args) {
+     char* arr = (char*) s7_c_object_value(s7_car(args));
+     const char* new_char = s7_string(s7_cadr(args));
+     // copy string..
+     sprintf(arr, "%s", new_char);
+     return s7_nil(sc);
+}
+   #+END_SRC
 ** Generating src
   We use the render src block defined above.
 
@@ -349,6 +414,7 @@ namespace aod {
 	       int tag_bool_arr(s7_scheme* sc);
 	       int tag_int_arr(s7_scheme* sc);
 	       int tag_float_arr(s7_scheme* sc);
+	       int tag_char_arr(s7_scheme* sc);
 	  }
      }
 }
@@ -375,6 +441,7 @@ namespace aod {
 
                  // note: s7_make_real gets a double argument, not float. hope it gets automatically casted
                <<render(template="T-primitive[]",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")>>
+	       <<render(template="T-primitive[]",type="char",custom-ref="T-ref-char", custom-set="T-set-char")>>
 
                  /**
                     (define *int-arr ((aod.c.foreign 'new-int[]) 3))
@@ -401,6 +468,7 @@ namespace aod {
                     bind_bool_arr(sc, env);
                     bind_int_arr(sc, env);
                     bind_float_arr(sc, env);
+		    bind_char_arr(sc, env);
 
 		    s7_define_variable(sc, "aod.c.foreign", env);
                }
@@ -413,6 +481,9 @@ namespace aod {
    #+CALL: render(template="T-primitive[]",type="bool",s7_read="s7_boolean",s7_write="s7_make_boolean")
 
    #+CALL: render(template="T-primitive[]",type="float",s7_read="s7_number_to_real",s7_write="s7_make_real")
+
+   #+CALL: render(template="T-primitive[]",type="char", custom-ref="T-ref-char", custom-set="T-set-char")
+
 * Further notes
   I guess that mapping c++ classes could be easily done with this method..
 * COMMENT Local variables
