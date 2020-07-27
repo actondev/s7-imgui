@@ -915,3 +915,5 @@ pip3 install meson --upgrade
   Saw a demo of using a shader with iPlug2 in oli larkin's talk (creator of iPlug)
 
   Wonder how easy (or not) would be to do something similar with s7
+* TODO ns-doc all namespaces, create documentation files
+  probably with emacs & org mode.. :)

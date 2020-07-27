@@ -709,6 +709,22 @@ s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::SliderFloat(s7_string(text), p_value, min, max));
 }
 
+s7_pointer slider_int(s7_scheme *sc, s7_pointer args) {
+    s7_pointer text = s7_car(args);
+    if (!s7_is_string(text)) {
+        return (s7_wrong_type_arg_error(sc, "slider-int", 1, text,
+                                        "expecting string (title)"));
+    }
+
+    int* p_value = (int*) s7_c_object_value_checked(s7_cadr(args),
+                   aod::s7::foreign::tag_int(sc));
+
+    int min = s7_integer(s7_caddr(args));
+    int max = s7_integer(s7_cadddr(args));
+
+    return s7_make_boolean(sc, ImGui::SliderInt(s7_string(text), p_value, min, max));
+}
+
 s7_pointer color_edit_3(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text)) {
@@ -753,6 +769,14 @@ void bind(s7_scheme* sc, s7_pointer env) {
                                0, // optional args: thickness
                                false, // rest args
                                "SliderFloat"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "slider-int"),
+              s7_make_function(sc, "slider-int", slider_int,
+                               4, // req args
+                               0, // optional args: thickness
+                               false, // rest args
+                               "(label value min max)\n"
+                               "value is a *int pointer (from aod.c.foreign/new-int)"));
 
 }
 }
