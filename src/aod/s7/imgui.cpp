@@ -13,6 +13,60 @@ namespace aod {
 namespace s7 {
 namespace imgui {
 
+namespace state {
+
+s7_pointer IsItemDeactivatedAfterEdit(s7_scheme* sc, s7_pointer args) {
+    return s7_make_boolean(sc, ImGui::IsItemDeactivatedAfterEdit());
+}
+
+//IsItemDeactivated
+s7_pointer IsItemDeactivated(s7_scheme* sc, s7_pointer args) {
+    return s7_make_boolean(sc, ImGui::IsItemDeactivated());
+}
+// IsItemFocused
+s7_pointer IsItemFocused(s7_scheme* sc, s7_pointer args) {
+    return s7_make_boolean(sc, ImGui::IsItemFocused());
+}
+
+s7_pointer SetItemDefaultFocus(s7_scheme* sc, s7_pointer args) {
+    ImGui::SetItemDefaultFocus();
+
+    return s7_nil(sc);
+}
+// SetKeyboardFocusHere
+s7_pointer SetKeyboardFocusHere(s7_scheme* sc, s7_pointer args) {
+    int offset = 0;
+    if (s7_is_number(s7_car(args))) {
+        offset = s7_integer(s7_car(args));
+    }
+    ImGui::SetKeyboardFocusHere(offset);
+
+    return s7_nil(sc);
+}
+
+void bind(s7_scheme* sc, s7_pointer env) {
+    s7_define(sc, env, s7_make_symbol(sc, "is-item-deactivated-after-edit"),
+              s7_make_function(sc, "is-item-deactivated-after-edit", IsItemDeactivatedAfterEdit, 0, 0, false,
+                               "IsItemDeactivatedAfterEdit"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "is-item-deactivated"),
+              s7_make_function(sc, "is-item-deactivated", IsItemDeactivated, 0, 0, false,
+                               "IsItemDeactivated"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "set-item-default-focus"),
+              s7_make_function(sc, "set-item-default-focus", SetItemDefaultFocus, 0, 0, false,
+                               "SetItemDefaultFocus"));
+    s7_define(sc, env, s7_make_symbol(sc, "is-item-focused"),
+              s7_make_function(sc, "is-item-focused", IsItemFocused, 0, 0, false,
+                               "IsItemFocused"));
+    // SetKeyboardFocusHere
+    s7_define(sc, env, s7_make_symbol(sc, "set-keyboard-focus-here"),
+              s7_make_function(sc, "set-keyboard-focus-here", SetKeyboardFocusHere, 0, 1, false,
+                               "SetKeyboardFocusHere (&optional offset)\n"
+                               "focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget"));
+}
+}
+
 namespace windows {
 s7_pointer begin(s7_scheme *sc, s7_pointer args) {
     s7_pointer title = s7_car(args);
@@ -731,7 +785,8 @@ s7_pointer text_input(s7_scheme* sc, s7_pointer args) {
     }
 
     // shit.. I have to know the buffer size
-    return s7_make_boolean(sc, ImGui::InputText("input text", str, s7_integer(sc_size)));
+    // maybe in future accept user flags
+    return s7_make_boolean(sc, ImGui::InputText(s7_string(sc_label), str, s7_integer(sc_size), ImGuiInputTextFlags_EnterReturnsTrue));
 }
 
 
@@ -758,6 +813,7 @@ void bind(s7_scheme *sc) {
     colors::bind(sc, env);
     sliders::bind(sc, env);
     inputs::bind(sc, env);
+    state::bind(sc, env);
 
     // the provide is needed to define the *features* symbol in this environment
     // this is checked to avoid duplicate requires of this environment

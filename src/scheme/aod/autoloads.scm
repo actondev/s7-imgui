@@ -25,3 +25,4 @@
 ;; gui Components
 (autoload 'aod.components.sxs-wheel "aod/components/sxs-wheel.scm")
 (autoload 'aod.components.piano-wheel "aod/components/piano-wheel.scm")
+(autoload 'aod.components.input "aod/components/input.scm")
