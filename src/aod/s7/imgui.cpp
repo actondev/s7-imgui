@@ -51,8 +51,8 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(ImVec2((float) w, (float) h));
 
-   ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-   ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 
     bool show = true;
     // TODO pass flags
@@ -62,7 +62,7 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
                  | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                  | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
                  | ImGuiWindowFlags_NoNavFocus);
-   ImGui::PopStyleVar(2);
+    ImGui::PopStyleVar(2);
 
     return s7_nil(sc);
 }
@@ -569,7 +569,7 @@ void bind(s7_scheme *sc, s7_pointer env) {
                                2, // optional args: segments, thickness
                                false, // rest args
                                "(cx cy r col &optional segments thickness)"));
-        s7_define(sc, env, s7_make_symbol(sc, "draw-arc"),
+    s7_define(sc, env, s7_make_symbol(sc, "draw-arc"),
               s7_make_function(sc, "draw-arc", arc,
                                6, // req args: cx cy r a_min a_max col
                                2, // optional args: segments, thickness
@@ -703,6 +703,46 @@ void bind(s7_scheme* sc, s7_pointer env) {
 }
 }
 
+namespace inputs {
+s7_pointer text_input(s7_scheme* sc, s7_pointer args) {
+    /*
+     static char str0[128] = "Hello, world!";
+     ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
+     */
+    s7_pointer sc_label = s7_car(args);
+
+
+    if (!s7_is_string(sc_label)) {
+        return (s7_wrong_type_arg_error(sc, "text", 1, sc_label,
+                                        "expecting string"));
+    }
+
+    char* str = (char*) s7_c_object_value_checked(s7_cadr(args),
+                aod::s7::foreign::tag_char_arr(sc));
+    if (str == NULL) {
+        return (s7_wrong_type_arg_error(sc, "text", 2, s7_cadr(args),
+                                        "expecting char* from aod.c.foreign/new-char[]"));
+    }
+
+    s7_pointer sc_size = s7_caddr(args);
+    if (!s7_is_number(sc_size)) {
+        return (s7_wrong_type_arg_error(sc, "text", 3, sc_size,
+                                        "expecting number for buffer size"));
+    }
+
+    // shit.. I have to know the buffer size
+    return s7_make_boolean(sc, ImGui::InputText("input text", str, s7_integer(sc_size)));
+}
+
+
+void bind(s7_scheme *sc, s7_pointer env) {
+    s7_define(sc, env, s7_make_symbol(sc, "text-input"),
+              s7_make_function(sc, "text-input", text_input, 3, // label, char* point
+                               0, false,
+                               "(label *char buffer-size)"));
+}
+
+}
 // exposed function (inc in header)
 void bind(s7_scheme *sc) {
 //     using namespace menus;
@@ -717,6 +757,7 @@ void bind(s7_scheme *sc) {
     draw::bind(sc, env);
     colors::bind(sc, env);
     sliders::bind(sc, env);
+    inputs::bind(sc, env);
 
     // the provide is needed to define the *features* symbol in this environment
     // this is checked to avoid duplicate requires of this environment
@@ -727,3 +768,4 @@ void bind(s7_scheme *sc) {
 } // imgui
 } // s7
 } // aod
+

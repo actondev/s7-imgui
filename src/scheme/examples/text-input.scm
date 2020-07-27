@@ -6,8 +6,15 @@
 (define (setup)
   (display "initializing main.scm: in setup\n"))
 
+(define str-size 128)
+(define *str (c/new-char[] str-size))
+
 (define (draw)
-  (igm/maximized ("gui repl")
-		 (ig/button "hi there"))
+  (igm/maximized
+   ("gui repl")
+   (ig/button "hi there")
+   (ig/text-input "Gimme some text" *str str-size))
   )
 
+(comment
+ )
