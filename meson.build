@@ -53,6 +53,7 @@ meson.override_dependency('imgui', imgui_dep)
 subdir('src')
 
 if not meson.is_subproject()
+  # hm probably remove the app
   app = executable(
     's7-imgui',
     dependencies : [
@@ -62,6 +63,25 @@ if not meson.is_subproject()
       imgui_dep,
       s7_dep,
       app_dep,
+    ],
+    link_args: link_args,
+    cpp_args: extra_args,
+    gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
+    install: true,
+  )
+
+  gui_repl = executable(
+    'gui_repl',
+    sources: files(
+      'src/gui_repl.cpp',
+    ),
+    dependencies : [
+      sdl2_dep, # the core library
+      sdl2main_dep, # abstracts out the main thing: windows needs WinMain
+      sdl_net_dep,
+      imgui_dep,
+      s7_dep,
+      aod_dep,
     ],
     link_args: link_args,
     cpp_args: extra_args,

@@ -447,7 +447,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   #+END_SRC
 
   But, instead of that, if we link against the =sdl2_main= library, this is taken care of
-* TODO opengl screenshot
+* DONE opengl screenshot
   https://stackoverflow.com/questions/5862097/sdl-opengl-screenshot-is-black#5867170
 * DONE <2020-07-01 Wed> windows: cannot build
   #+BEGIN_QUOTE
@@ -471,8 +471,8 @@ c++.exe: error: iphlpapi.lib: No such file or directory
 meson setup build-mingw
 ninja -C build-mingw
    #+END_SRC
-* TODO <2020-07-01 Wed> todo list: more bindings, mutex [3/7]
-** TODO bindings
+* DONE <2020-07-01 Wed> todo list: more bindings, mutex [4/4]
+** bindings
    wrote some ffi utils, creating c-objects and sharing between c<->scheme
 
    TODO
@@ -555,10 +555,10 @@ ImGui::SameLine();
      #+END_SRC
 
      I prefer the simpler, first version
-** TODO mutex
+** mutex
    I can crash the application when sending quickly from the repl the =(draw)= definition. expected :)
    - use a mutex around the main loop
-** TODO s7 ffi: free functions
+** DONE s7 ffi: free functions
    delete void* isn't very smart.. fix this :)
    but.. why wasn't the compiler complaining??
 
@@ -567,7 +567,7 @@ ImGui::SameLine();
    S7 doesn't have a precise garbage collector
 
    updated the test, indeed the =free= gets called
-** TODO gfx like calls
+** gfx like calls
    SCHEDULED: <2020-07-03 Fri>
 
    - circle
@@ -575,8 +575,8 @@ ImGui::SameLine();
    - text
    - triangle
    - ..etc
-* TODO org-mode literate programming: creating foreign types
-* TODO Drawing (gfx style)
+* DONE org-mode literate programming: creating foreign types
+* Drawing (gfx style)
   see
   - [[file:../subprojects/imgui-1.76/imgui_demo.cpp]]
   - [[file:../src/aod/imgui/addons.cpp::Knob]]
@@ -636,7 +636,15 @@ $(OBJDIR)/nfd_gtk.o: ../../src/nfd_gtk.c
   #+END_SRC
 * C++ private functions, hiding implentation from header etc
   https://stackoverflow.com/a/28734794
-* TODO <2020-07-12 Sun> s7 bug
+* DONE <2020-07-12 Sun> s7 bug
+  Done
+  #+BEGIN_QUOTE
+  Thanks for the bug report.  This is actually a bug in the
+documentation -- the array of names should be *sorted alphabetically*,
+but I forgot to mention that in s7.html.
+
+  #+END_QUOTE
+
   sent to the mailing list
   #+BEGIN_SRC cpp
 TEST(s7_environments, autoloads_bug) {
@@ -897,3 +905,13 @@ pip3 install meson --upgrade
   Cpu is around ~5%
 
   hooray :D
+* TODO imgui.. ImDrawList cache?
+  Could I maybe cache certaing components?
+  How I imagine it:
+  - define-imgui or something
+  - uses its own drawlist on each call
+  - invalidates the drawlist if there is a mouse event or something..
+* TODO s7 & opengl shaders?
+  Saw a demo of using a shader with iPlug2 in oli larkin's talk (creator of iPlug)
+
+  Wonder how easy (or not) would be to do something similar with s7

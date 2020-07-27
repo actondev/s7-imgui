@@ -8,5 +8,6 @@
 
 (define (draw)
   (igm/maximized ("gui repl")
-	     (ig/text "hi there"))
+		 (ig/button "hi there"))
   )
+
