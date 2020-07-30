@@ -525,3 +525,18 @@ inside (comment ... ) etc"
 	 (apply throw tag info)
 	 ))
   #+END_SRC
+* Write -> read (serialize / unserialize)
+  #+BEGIN_SRC scheme
+;; the following are equivalent
+
+(object->string my-obj :readable)  
+(format #f "~W" my-obj)
+  #+END_SRC
+* Setters
+  #+BEGIN_QUOTE
+   The setter function takes two arguments, the symbol and the new
+   value, and returns the value that is actually set. If the setter
+   function accepts a third argument, the current (symbol-relative)
+   environment is also passed (the weird argument order is an
+   historical artifact).
+  #+END_QUOTE

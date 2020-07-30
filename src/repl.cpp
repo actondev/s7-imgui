@@ -41,7 +41,8 @@ int main(int argc, char **argv) {
         }
         fprintf(stderr, "Passed file %s\n", passed_file.string().c_str());
         aod::s7::load_file(sc, "aod/core.scm");
-        aod::s7::ns_load_file(sc, passed_file.string());
+//         aod::s7::ns_load_file(sc, passed_file.string());
+        aod::s7::load_file(sc, passed_file.string());
 //         s7_load(sc, passed_file.c_str());
     }
 

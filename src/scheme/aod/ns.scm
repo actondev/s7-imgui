@@ -207,10 +207,15 @@
 
 (define-macro (with-temp-ns . body)
   (let ((ns-symbol (gensym "temp-ns"))
-	(previous-ns (gensym "*ns-temp*")))
+	(previous-ns (gensym "temp-ns-prev")))
     `(begin
        (set! (*nss* ',previous-ns) *ns*)
-       (ns ',ns-symbol)
+       ;; ughhh ns is macro
+       ;; calling (ns ',ns-symbol) results the ns-symbol
+       ;; to be quoted twice!
+       ;; (apply ns (list ',ns-symbol))
+       ;; or, don't quote it
+       (ns ,ns-symbol)
        (catch #t
 	      (lambda ()
 		,@body)
@@ -218,9 +223,11 @@
 		;; hm cleaning up again
 		(set! *ns* (*nss* ',previous-ns))
 		(set! (*nss* ',previous-ns) #f)
+		(set! (*nss* ',ns-symbol) #f)
 		(apply throw tag info)))
        (set! *ns* (*nss* ',previous-ns))
-       (set! (*nss* ',previous-ns) #f))))
+       (set! (*nss* ',previous-ns) #f)
+       (set! (*nss* ',ns-symbol) #f))))
 (comment
  (require aod.test)
  )

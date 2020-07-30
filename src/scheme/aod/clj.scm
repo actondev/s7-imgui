@@ -9,6 +9,9 @@
 ;; #<unspecified> or () is better?
 (define-expansion (comment . body) #<unspecified>)
 
+;; hm that fails
+;; (define-expansion (comment . body) (values))
+
 (define map-indexed
   (let ((+documentation+ "(map-indexed f coll)
 Applies f to the collection coll.

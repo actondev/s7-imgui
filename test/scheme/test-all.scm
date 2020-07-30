@@ -27,7 +27,34 @@
 (print "======")
 (print "Passed:" (*aod.test* 'pass))
 (print "Failed:" (*aod.test* 'fail))
+
+(print "======")
+(print (keys *nss*))
+(print "Writing namespaces documentation to ns-doc.el")
+(call-with-output-file "docs/ns-doc.el"
+  (lambda (out)
+    (let-temporarily (((*s7* 'print-length) 100000000000000000))
+		     (format out "~A"
+			     (map (lambda (ns)
+				    ;; (print "ns" ns)
+				    (if (let? (cdr ns))
+					(cons (car ns)
+					      (ns-doc (car ns)))
+					(values)))
+				  *nss*)))))
+
 (exit (*aod.test* 'fail))
+
+(comment
+ (map (lambda (ns)
+		   (print "ns" ns)
+		   (if (let? (cdr ns))
+		       (cons (car ns)
+			     (car ns))
+		       (cons (car ns)
+			     "not ns")))
+      *nss*)
+ )
 
 (comment
  (+ 1 2 3)
