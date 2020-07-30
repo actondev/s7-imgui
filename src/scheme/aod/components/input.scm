@@ -21,10 +21,13 @@
 	       (ig/align-text-to-frame-padding)
 	       (ig/text text))
 	     (when (ig/button "Edit")
-	       (set! (state 'editing?) #t)))))
+	       (set! (state 'editing?) #t)
+	       (set! ((state '*str)) text)
+	       ))))
 	(begin
 	  (ig/set-keyboard-focus-here)
-	  (ig/text-input "###" (state '*str) char-size)
+	  ;; TODO store an id in state?
+	  (ig/text-input "##text-input" (state '*str) char-size)
 	  (cond ((ig/is-item-deactivated-after-edit)
 		 (with-input-from-string ((state '*str))
 		   (lambda ()

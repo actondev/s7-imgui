@@ -32,7 +32,7 @@ public:
      *
      * If the result is true, you can then call the evalLastForm
      */
-    bool handleInput(std::string str, bool clearPreviousInput = false);
+    bool handleInput(const char* str, bool clearPreviousInput = false);
 
     /**
      * Should be called after handleInput returns true
