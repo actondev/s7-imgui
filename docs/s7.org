@@ -540,3 +540,53 @@ inside (comment ... ) etc"
    environment is also passed (the weird argument order is an
    historical artifact).
   #+END_QUOTE
+* Parsing arguments efficiently
+  s7_list_ref is not efficienty (it iterates through the cdr):
+  
+  #+BEGIN_SRC cpp
+s7_pointer s7_list_ref(s7_scheme *sc, s7_pointer lst, s7_int num)
+{
+  s7_int i;
+  s7_pointer x;
+  for (x = lst, i = 0; (i < num) && (is_pair(x)); i++, x = cdr(x)) {}
+  if ((i == num) && (is_pair(x)))
+    return(car(x));
+  return(sc->nil);
+}  
+  #+END_SRC
+
+ Instead, prefer this: (I think it's verbose enough)
+
+  #+BEGIN_SRC cpp
+s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
+    s7_pointer text = s7_car(args);
+    if (!s7_is_string(text)) {
+        return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 1, text,
+                                        "Expecting a string (title)"));
+    }
+    
+    // args[1..]
+    args = s7_cdr(args);
+
+    float *p_value = (float*) s7_c_object_value_checked(s7_car(args),
+                     aod::s7::foreign::tag_float(sc));
+
+    static const char* default_format = "%.3f";
+    const char* format = default_format;
+
+    // args[2..]
+    args = s7_cdr(args);
+    float min = (float) s7_real(s7_car(args));
+    // [3...]
+    args = s7_cdr(args);
+    float max = (float) s7_real(s7_car(args));
+
+    // [4...]
+    args = s7_cdr(args);
+    if (s7_is_string(s7_car(args))) {
+        format = s7_string(s7_car(args));
+    }
+
+    return s7_make_boolean(sc, ImGui::SliderFloat(s7_string(text), p_value, min, max, format));
+}  
+  #+END_SRC

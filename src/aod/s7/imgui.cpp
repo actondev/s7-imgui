@@ -699,14 +699,30 @@ s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
         return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 1, text,
                                         "Expecting a string (title)"));
     }
+    
+    // args[1..]
+    args = s7_cdr(args);
 
-    float *p_value = (float*) s7_c_object_value_checked(s7_cadr(args),
+    float *p_value = (float*) s7_c_object_value_checked(s7_car(args),
                      aod::s7::foreign::tag_float(sc));
 
-    float min = (float) s7_real(s7_caddr(args));
-    float max = (float) s7_real(s7_cadddr(args));
+    static const char* default_format = "%.3f";
+    const char* format = default_format;
 
-    return s7_make_boolean(sc, ImGui::SliderFloat(s7_string(text), p_value, min, max));
+    // args[2..]
+    args = s7_cdr(args);
+    float min = (float) s7_real(s7_car(args));
+    // [3...]
+    args = s7_cdr(args);
+    float max = (float) s7_real(s7_car(args));
+
+    // [4...]
+    args = s7_cdr(args);
+    if (s7_is_string(s7_car(args))) {
+        format = s7_string(s7_car(args));
+    }
+
+    return s7_make_boolean(sc, ImGui::SliderFloat(s7_string(text), p_value, min, max, format));
 }
 
 s7_pointer slider_int(s7_scheme *sc, s7_pointer args) {
@@ -757,18 +773,19 @@ void bind(s7_scheme* sc, s7_pointer env) {
                                false, // rest args
                                "ColorEdit3"));
 
+    static const char* help_slider_float = "(slider-float label *value min max &optional (format \"%.3f\"))";
 
     s7_define_function(sc, "imgui/slider-float", slider_float,   // ..
                        4, // req args
-                       0, // optional args
+                       1, // optional args
                        false, // rest args
-                       "SliderFloat");
+                       help_slider_float);
     s7_define(sc, env, s7_make_symbol(sc, "slider-float"),
               s7_make_function(sc, "slider-float", slider_float,
                                4, // req args
-                               0, // optional args: thickness
+                               1, // optional args: thickness
                                false, // rest args
-                               "SliderFloat"));
+                               help_slider_float));
 
     s7_define(sc, env, s7_make_symbol(sc, "slider-int"),
               s7_make_function(sc, "slider-int", slider_int,

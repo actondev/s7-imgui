@@ -139,3 +139,20 @@ void ImDrawListSplitter::Split(ImDrawList* draw_list, int channels_count);
 void ImDrawListSplitter::Merge(ImDrawList* draw_list);
 void ImDrawListSplitter::SetCurrentChannel(ImDrawList* draw_list, int idx);
   #+END_SRC
+* Int Slider : grab size
+
+  #+BEGIN_SRC cpp
+template<typename TYPE, typename SIGNEDTYPE, typename FLOATTYPE>
+bool ImGui::SliderBehaviorT(const ImRect& bb, ImGuiID id, ImGuiDataType data_type, TYPE* v, const TYPE v_min, const TYPE v_max, const char* format, float power, ImGuiSliderFlags flags, ImRect* out_grab_bb)
+{
+
+     // ..
+     const bool is_decimal = (data_type == ImGuiDataType_Float) || (data_type == ImGuiDataType_Double);
+     // ..
+     if (!is_decimal && v_range >= 0)                                             // v_range < 0 may happen on integer overflows
+	  grab_sz = ImMax((float)(slider_sz / (v_range + 1)), style.GrabMinSize);  // For integer sliders: if possible have the grab size represent 1 unit
+  
+
+// ...
+}
+  #+END_SRC
