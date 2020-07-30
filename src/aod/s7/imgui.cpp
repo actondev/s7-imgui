@@ -162,6 +162,12 @@ void bind(s7_scheme *sc, s7_pointer env) {
 
 namespace general { // anonymous namespace: the functions
 
+s7_pointer AlignTextToFramePadding(s7_scheme *sc, s7_pointer) {
+    ImGui::AlignTextToFramePadding();
+
+    return s7_nil(sc);
+}
+
 s7_pointer spacing(s7_scheme *sc, s7_pointer) {
     ImGui::Spacing();
 
@@ -197,6 +203,19 @@ s7_pointer text(s7_scheme *sc, s7_pointer args) {
     return (s7_nil(sc));
 }
 
+/**
+ * Not properly done
+ */
+s7_pointer label(s7_scheme *sc, s7_pointer args) {
+    s7_pointer text = s7_car(args);
+    if (!s7_is_string(text))
+        return (s7_wrong_type_arg_error(sc, "aod.s7/text", 1, text,
+                                        "text should get a string argument"));
+
+    ImGui::LabelText("", "%s", s7_string(text));
+    return (s7_nil(sc));
+}
+
 s7_pointer button(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text))
@@ -223,7 +242,7 @@ void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "spacing"),
               s7_make_function(sc, "spacing", spacing, 0, 0, false,
                                "(spacing)"));
-    
+
     s7_define_function(sc, "imgui/text", text,   // ..
                        1, // req args
                        0, // optional args
@@ -233,6 +252,14 @@ void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "text"),
               s7_make_function(sc, "text", text, 1, 0, false,
                                "Text"));
+    s7_define(sc, env, s7_make_symbol(sc, "label"),
+              s7_make_function(sc, "label", label, 1, 0, false,
+                               "(label text) TODO not really properly done"));
+    
+    // AlignTextToFramePadding
+    s7_define(sc, env, s7_make_symbol(sc, "align-text-to-frame-padding"),
+              s7_make_function(sc, "align-text-to-frame-padding", AlignTextToFramePadding, 0, 0, false,
+                               "(align-text-to-frame-padding)"));
 
     s7_define_function(sc, "imgui/button", button,   // ..
                        1, // req args
@@ -836,14 +863,17 @@ s7_pointer text_input(s7_scheme* sc, s7_pointer args) {
                                         "expecting string"));
     }
 
-    char* str = (char*) s7_c_object_value_checked(s7_cadr(args),
+    args = s7_cdr(args);
+
+    char* str = (char*) s7_c_object_value_checked(s7_car(args),
                 aod::s7::foreign::tag_char_arr(sc));
     if (str == NULL) {
-        return (s7_wrong_type_arg_error(sc, "text", 2, s7_cadr(args),
+        return (s7_wrong_type_arg_error(sc, "text", 2, s7_car(args),
                                         "expecting char* from aod.c.foreign/new-char[]"));
     }
 
-    s7_pointer sc_size = s7_caddr(args);
+    args = s7_cdr(args);
+    s7_pointer sc_size = s7_car(args);
     if (!s7_is_number(sc_size)) {
         return (s7_wrong_type_arg_error(sc, "text", 3, sc_size,
                                         "expecting number for buffer size"));
@@ -854,12 +884,69 @@ s7_pointer text_input(s7_scheme* sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::InputText(s7_string(sc_label), str, s7_integer(sc_size), ImGuiInputTextFlags_EnterReturnsTrue));
 }
 
+static const char* help_combo = "(combo name *index labels)\n"
+                                "- *index as returned from aod.c.foreign/new-int\n"
+                                "- labels is a 0 separated string. eg \"labelA\\0labelB\\0\\0\"";
+
+s7_pointer combo(s7_scheme* sc, s7_pointer args) {
+    /*
+     static char str0[128] = "Hello, world!";
+     ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
+     */
+
+//     ImGui::Combo("Combo", &item, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
+
+    if (!s7_is_string(s7_car(args))) {
+        return (s7_wrong_type_arg_error(sc, "text", 1, s7_car(args),
+                                        "expecting string"));
+    }
+    const char* name = s7_string(s7_car(args));
+
+    args = s7_cdr(args);
+
+    int* index = (int*) s7_c_object_value_checked(s7_car(args),
+                 aod::s7::foreign::tag_int(sc));
+
+    if (index == NULL) {
+        return (s7_wrong_type_arg_error(sc, "index", 2, s7_car(args),
+                                        "expecting int* from aod.c.foreign/new-int"));
+    }
+
+    args = s7_cdr(args);
+    s7_pointer labels = s7_car(args);
+    int n_labels = s7_list_length(sc, labels);
+//     char** c_labels = new char*[n_labels];
+
+    const char* preview = "";
+    int flags = ImGuiComboFlags_NoPreview;
+    bool clicked = false;
+    if (ImGui::BeginCombo(name, preview, flags)) { // The second parameter is the label previewed before opening the combo.
+        for (int i = 0; i < n_labels; i++) {
+//             bool selected = false;
+            bool is_selected = (i == *index);
+            if (ImGui::Selectable(s7_string(s7_car(labels)), &is_selected)) {
+                *index = i;
+                clicked = true;
+            }
+            labels = s7_cdr(labels);
+        }
+        ImGui::EndCombo();
+    }
+
+    return s7_make_boolean(sc, clicked);
+}
+
 
 void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "text-input"),
               s7_make_function(sc, "text-input", text_input, 3, // label, char* point
                                0, false,
                                "(label *char buffer-size)"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "combo"),
+              s7_make_function(sc, "combo", combo, 3,
+                               0, false,
+                               help_combo));
 }
 
 }
