@@ -162,6 +162,12 @@ void bind(s7_scheme *sc, s7_pointer env) {
 
 namespace general { // anonymous namespace: the functions
 
+s7_pointer spacing(s7_scheme *sc, s7_pointer) {
+    ImGui::Spacing();
+
+    return s7_nil(sc);
+}
+
 s7_pointer checkbox(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text)) {
@@ -201,9 +207,23 @@ s7_pointer button(s7_scheme *sc, s7_pointer args) {
     return (s7_make_boolean(sc, clicked));
 }
 
+static const char* help_small_button = "(small-button text)";
+s7_pointer small_button(s7_scheme *sc, s7_pointer args) {
+    s7_pointer text = s7_car(args);
+    if (!s7_is_string(text))
+        return (s7_wrong_type_arg_error(sc, "aod.s7/button", 1, text,
+                                        "button should get a string argument"));
+
+    bool clicked = ImGui::SmallButton(s7_string(text));
+    return (s7_make_boolean(sc, clicked));
+}
 
 
 void bind(s7_scheme *sc, s7_pointer env) {
+    s7_define(sc, env, s7_make_symbol(sc, "spacing"),
+              s7_make_function(sc, "spacing", spacing, 0, 0, false,
+                               "(spacing)"));
+    
     s7_define_function(sc, "imgui/text", text,   // ..
                        1, // req args
                        0, // optional args
@@ -223,6 +243,10 @@ void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "button"),
               s7_make_function(sc, "button", button, 1, 0, false,
                                "Button"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "small-button"),
+              s7_make_function(sc, "small-button", small_button, 1, 0, false,
+                               help_small_button));
 
     s7_define_function(sc, "imgui/checkbox", checkbox,   // ..
                        2, // req args
@@ -253,7 +277,7 @@ s7_pointer begin_main_menu_bar(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::BeginMainMenuBar());
 }
 
-s7_pointer end_main_menu_bar(s7_scheme *sc, s7_pointer args) {
+s7_pointer end_main_menu_bar(s7_scheme *sc, s7_pointer) {
     ImGui::EndMainMenuBar();
 
     return s7_nil(sc);
@@ -268,14 +292,14 @@ s7_pointer begin_menu(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::BeginMenu(s7_string(text)));
 }
 
-s7_pointer end_menu(s7_scheme *sc, s7_pointer args) {
+s7_pointer end_menu(s7_scheme *sc, s7_pointer) {
     ImGui::EndMenu();
 
     return s7_nil(sc);
 }
 
 // separator is general not for menus. but for now stays here :)
-s7_pointer separator(s7_scheme *sc, s7_pointer args) {
+s7_pointer separator(s7_scheme *sc, s7_pointer) {
     ImGui::Separator();
 
     return s7_nil(sc);
@@ -699,7 +723,7 @@ s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
         return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 1, text,
                                         "Expecting a string (title)"));
     }
-    
+
     // args[1..]
     args = s7_cdr(args);
 

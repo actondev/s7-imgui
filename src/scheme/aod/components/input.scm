@@ -18,7 +18,7 @@
 	  (let ((text (format #f "~A" (state 'value))))
 	    (igm/horizontal
 	     (ig/text text)
-	     (when (ig/button "Edit")
+	     (when (ig/small-button "Edit")
 	       (set! (state 'editing?) #t)))))
 	(begin
 	  (ig/set-keyboard-focus-here)
