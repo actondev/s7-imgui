@@ -8,6 +8,7 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
+#include "./colors.hpp"
 
 namespace aod {
 namespace s7 {
@@ -255,7 +256,7 @@ void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "label"),
               s7_make_function(sc, "label", label, 1, 0, false,
                                "(label text) TODO not really properly done"));
-    
+
     // AlignTextToFramePadding
     s7_define(sc, env, s7_make_symbol(sc, "align-text-to-frame-padding"),
               s7_make_function(sc, "align-text-to-frame-padding", AlignTextToFramePadding, 0, 0, false,
@@ -718,6 +719,20 @@ void bind(s7_scheme *sc, s7_pointer env) {
 
 namespace colors {
 
+static const char* help_set_color = "(set-color color-index color-u32)";
+s7_pointer set_color(s7_scheme* sc, s7_pointer args) {
+    s7_pointer index = s7_car(args);
+    args = s7_cdr(args);
+    s7_pointer color = s7_car(args);
+
+    unsigned int col32 = (unsigned int) s7_integer(color);
+
+    ImGuiStyle& style = ImGui::GetStyle();
+    style.Colors[s7_integer(index)] = ImColor(col32);
+
+    return s7_nil(sc);
+}
+
 s7_pointer color32(s7_scheme *sc, s7_pointer args) {
     ImU32 r = s7_number_to_real(sc, s7_car(args));
     ImU32 g = s7_number_to_real(sc, s7_cadr(args));
@@ -740,6 +755,11 @@ void bind(s7_scheme *sc, s7_pointer env) {
                                false, // rest args
                                "(color32 r g b &optional a) input ranging from 0 to 255"
                                "Returns a u32 representation of the color 0xRRGGBBAA"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "set-color"),
+              s7_make_function(sc, "set-color", set_color,
+                               2, 0, false,
+                               help_set_color));
 }
 }
 
@@ -966,6 +986,7 @@ void bind(s7_scheme *sc) {
     sliders::bind(sc, env);
     inputs::bind(sc, env);
     state::bind(sc, env);
+    aod::s7::imgui::colors::bind(sc);
 
     // the provide is needed to define the *features* symbol in this environment
     // this is checked to avoid duplicate requires of this environment

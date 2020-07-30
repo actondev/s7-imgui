@@ -18,12 +18,12 @@
 #include "aod/s7/repl.hpp"
 #include "aod/tcp_server.hpp"
 #include "aod/path.hpp"
-#include "aod/s7/imgui.hpp"
+#include "aod/s7/imgui/imgui.hpp"
 #include <sstream>
 #include <iostream>
 #include "aod/s7/foreign_primitives.hpp"
 #include "aod/s7/foreign_primitives_arr.hpp"
-#include "aod/s7/imgui_addons.hpp"
+#include "aod/s7/imgui/addons.hpp"
 #include "aod/s7/gl.hpp"
 #include "aod/s7/sdl.hpp"
 #include <iostream>

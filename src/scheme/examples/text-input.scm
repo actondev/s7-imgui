@@ -2,10 +2,15 @@
 (ns-require aod.c.imgui :as ig)
 (ns-require aod.c.foreign :as c)
 (ns-require aod.components.input :as input)
+(ns-require aod.c.imgui.col :as igc)
+(ns-require aod.imgui.helpers :as igh)
+
 
 ;; the exposed functions
 (define (setup)
-  (display "initializing main.scm: in setup\n"))
+  (display "initializing main.scm: in setup\n")
+  (ig/set-color igc/FrameBg (igh/frgb->u32 '(0.3 0.3 0.3)))
+  )
 
 (define str-size 128)
 (define *str (c/new-char[] str-size))

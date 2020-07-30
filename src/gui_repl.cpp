@@ -6,7 +6,6 @@
 // **Prefer using the code in the example_sdl_opengl3/ folder**
 // See imgui_impl_sdl.cpp for details.
 
-#include "aod/imgui/addons.hpp"
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl2.h"
@@ -18,14 +17,8 @@
 #include "aod/s7/repl.hpp"
 #include "aod/tcp_server.hpp"
 #include "aod/path.hpp"
-#include "aod/s7/imgui.hpp"
 #include <sstream>
 #include <iostream>
-#include "aod/s7/foreign_primitives.hpp"
-#include "aod/s7/foreign_primitives_arr.hpp"
-#include "aod/s7/imgui_addons.hpp"
-#include "aod/s7/gl.hpp"
-#include "aod/s7/sdl.hpp"
 #include <iostream>
 #include <filesystem>
 #include <mutex>
@@ -87,6 +80,11 @@ int guiLoop() {
     ImGui_ImplOpenGL2_Init();
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(30, 30, 30, 255));
+    
+    s7_pointer setup_fn = s7_name_to_value(sc, "setup");
+    if(setup_fn != s7_undefined(sc)){
+        s7_call(sc, setup_fn, s7_nil(sc));
+    }
 
     //While application is running
     bool have_drawn = false;
