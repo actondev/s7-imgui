@@ -104,14 +104,17 @@
 	   ;; .. or maybe it's the sdl version that changed..?
 	   (paint)
 	   (paint)
-	   ;; (sdl/delay 10)
+	   ;; in windows by painting twice it's ok
+	   ;; but in linux I have to wait..
+	   ;; damn, first time have to wait >30ms? if not the screenshot is blank
+	   (sdl/delay 40)
 	   (gl/save-screenshot "test/scheme/assets/sxs-wheel.png")
 	   (set-highlight test-element 0 #t)
 	   (set-highlight test-element 4 #t)
 	   (set-highlight test-element 8 #t)
 	   (paint)
 	   (paint)
-	   ;; (sdl/delay 10)
+	   (sdl/delay 10)
 	   (gl/save-screenshot "test/scheme/assets/sxs-wheel-highlight-048.png")
 	   (igsdl/destroy *ctx*)
 	   (is (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"

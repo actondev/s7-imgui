@@ -20,7 +20,7 @@ s7_pointer equivalent(s7_scheme* sc, s7_pointer args) {
     const char* img1_char = s7_string(img1);
     const char* img2_char = s7_string(img2);
     bool res = aod::img::are_equivalent(img1_char, img2_char);
-    fprintf(stderr, "tested %s against %s, result %d\n", img1_char, img2_char, res ? 1 : 0);
+    // fprintf(stderr, "tested %s against %s, result %d\n", img1_char, img2_char, res ? 1 : 0);
 
     return s7_make_boolean(sc, res);
 }

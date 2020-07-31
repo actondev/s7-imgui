@@ -2,7 +2,7 @@
 	  ;; aod.core already required by repl in cpp
 	  (require aod.core)
 	  ;; WIP: if providing aod.test.gui the (testgui .. ) blocks will be ran
-	  ;; (provide 'aod.test.gui)
+	  (provide 'aod.test.gui)
 	  (require aod.test))
 
 (ns aod.test-all)
@@ -29,7 +29,6 @@
 (print "Failed:" (*aod.test* 'fail))
 
 (print "======")
-(print (keys *nss*))
 (print "Writing namespaces documentation to ns-doc.el")
 (call-with-output-file "docs/ns-doc.el"
   (lambda (out)

@@ -29,6 +29,8 @@
 
    Again, the =.cproject= was needed for the indexer to work. I copied it from a new generated meson project.
 
+   Also I've found the =KDevelop= works quite well. This is what I'm using lately.
+
 ** TODO macOS
    Feel free to test it & make a PR. I don't have any mac/hackintosh.
 
@@ -44,10 +46,28 @@
 
   So there you go.
 
+* Testing
+** C++ (gtest)
+   + [ ] fix/think about the needed =pwd= while running the tests (for loading scheme files & testing screenshots etc)
+
+   right now you have to be in the =build/test= dir (assuming =build= is the directory you configured meson with)
+
+** Scheme
+   I'm running the =build/repl src/scheme/test-all.scm= command
+
+   - tests normal scheme things (see [[file:src/scheme/aod/test.scm]] file for how it's impleneted)
+   - tests also a GUI window against snapshots: see [[file:src/scheme/aod/components/sxs-wheel.scm]] which tests against [[file:test/scheme/assets/sxs-wheel-snapshot.png]] for exmaple
+
 * Roadmap
   - [X] proof of concept
     - embed =s7= and draw something with imgui from =s7=
-    - open a tcp REPL and work with =cmuscheme= in =emacs=
-  - [ ] (semi)complete the bindings of imgui for s7: checkboxes, lists, menubar etc
-  - [ ] video demonstration / getting started: windows and/or linux
-
+    - use a REPL and work with =cmuscheme= in =emacs=
+  - [X] (semi)complete the bindings of imgui for s7: checkboxes, lists, menubar etc
+  - [ ] video demonstration / getting started: windows and/or linux \\
+    I'm thinking of doing a really basic text editor (open - edit - save) with imgui/scheme etc. Live coding using the REPL
+  - [ ] create a documentation of the =namespaces= from C bindings but as well from provided scheme files. \\
+    - see the generated [[file:docs/ns-doc.el]] for now
+    - the idea is to generate an =org= or =markadown= file from this
+    - hide "private" things from the documentation (probably names that start with =-=)
+  - [ ] Think about the =namespaces=. See https://github.com/actonDev/s7-imgui/issues/3 . Any input from schemers would be greatly appreciated
+    
