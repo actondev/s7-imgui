@@ -349,6 +349,7 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
    #+END_SRC
    #+CALL: gui_repl()
    #+CALL: gui_repl(file="src/scheme/examples/text-input.scm")
+   #+CALL: gui_repl(file="src/scheme/examples/text-editor.scm")
 
 ** Benchmark
    #+CALL: repl(file="test/scheme/test-benchmark.scm")

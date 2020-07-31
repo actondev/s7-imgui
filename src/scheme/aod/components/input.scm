@@ -27,7 +27,7 @@
 	(begin
 	  (ig/set-keyboard-focus-here)
 	  ;; TODO store an id in state?
-	  (ig/text-input "##text-input" (state '*str) char-size)
+	  (ig/input-text "##text-input" (state '*str) char-size)
 	  (cond ((ig/is-item-deactivated-after-edit)
 		 (with-input-from-string ((state '*str))
 		   (lambda ()

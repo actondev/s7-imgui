@@ -883,7 +883,8 @@ void bind(s7_scheme* sc, s7_pointer env) {
 }
 
 namespace inputs {
-s7_pointer text_input(s7_scheme* sc, s7_pointer args) {
+const char* help_input_text = "(input-text label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]";
+s7_pointer input_text(s7_scheme* sc, s7_pointer args) {
     /*
      static char str0[128] = "Hello, world!";
      ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
@@ -915,6 +916,37 @@ s7_pointer text_input(s7_scheme* sc, s7_pointer args) {
     // shit.. I have to know the buffer size
     // maybe in future accept user flags
     return s7_make_boolean(sc, ImGui::InputText(s7_string(sc_label), str, s7_integer(sc_size), ImGuiInputTextFlags_EnterReturnsTrue));
+}
+
+const char* help_input_text_multiline = "(input-text-multiline label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]";
+s7_pointer input_text_multiline(s7_scheme* sc, s7_pointer args) {
+    s7_pointer sc_label = s7_car(args);
+
+
+    if (!s7_is_string(sc_label)) {
+        return (s7_wrong_type_arg_error(sc, "text", 1, sc_label,
+                                        "expecting string"));
+    }
+
+    args = s7_cdr(args);
+
+    char* str = (char*) s7_c_object_value_checked(s7_car(args),
+                aod::s7::foreign::tag_char_arr(sc));
+    if (str == NULL) {
+        return (s7_wrong_type_arg_error(sc, "text", 2, s7_car(args),
+                                        "expecting char* from aod.c.foreign/new-char[]"));
+    }
+
+    args = s7_cdr(args);
+    s7_pointer sc_size = s7_car(args);
+    if (!s7_is_number(sc_size)) {
+        return (s7_wrong_type_arg_error(sc, "text", 3, sc_size,
+                                        "expecting number for buffer size"));
+    }
+
+    // shit.. I have to know the buffer size
+    // maybe in future accept user flags
+    return s7_make_boolean(sc, ImGui::InputTextMultiline(s7_string(sc_label), str, s7_integer(sc_size)));
 }
 
 static const char* help_combo = "(combo name *index labels)\n"
@@ -971,10 +1003,15 @@ s7_pointer combo(s7_scheme* sc, s7_pointer args) {
 
 
 void bind(s7_scheme *sc, s7_pointer env) {
-    s7_define(sc, env, s7_make_symbol(sc, "text-input"),
-              s7_make_function(sc, "text-input", text_input, 3, // label, char* point
+    s7_define(sc, env, s7_make_symbol(sc, "input-text"),
+              s7_make_function(sc, "input-text", input_text, 3, // label, char*, size
                                0, false,
-                               "(label *char buffer-size)"));
+                               help_input_text));
+    
+    s7_define(sc, env, s7_make_symbol(sc, "input-text-multiline"),
+              s7_make_function(sc, "input-text-multiline", input_text_multiline, 3, // label, char*, size
+                               0, false,
+                              help_input_text_multiline));
 
     s7_define(sc, env, s7_make_symbol(sc, "combo"),
               s7_make_function(sc, "combo", combo, 3,

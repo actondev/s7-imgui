@@ -23,7 +23,7 @@
 (define (draw)
   (igm/maximized
    ("gui repl")
-   (ig/text-input "Gimme some text 2" *str2 str-size)
+   (ig/input-text "Gimme some text 2" *str2 str-size)
    (ig/text "input component")
    (when (input/draw input-data)
      (let ((form (input-data 'value)))
