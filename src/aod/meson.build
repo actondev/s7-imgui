@@ -7,7 +7,7 @@ aod_sources = files(
   's7.cpp',
   's7/imgui/imgui.cpp',
   's7/imgui/addons.cpp',
-  's7/imgui/colors.cpp',
+  's7/imgui/enums.cpp',
   's7/repl.cpp',
   'imgui/addons.cpp',
   's7/sdl.cpp',

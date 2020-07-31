@@ -5,7 +5,7 @@
 namespace aod {
 namespace s7 {
 namespace imgui {
-namespace colors {
+namespace enums {
 
 // binds all the color constants under aod.c.imgui.col
 void bind(s7_scheme *sc);

@@ -8,7 +8,7 @@
 #include <windows.h>
 #endif
 #include <GL/gl.h>
-#include "./colors.hpp"
+#include "./enums.hpp"
 
 namespace aod {
 namespace s7 {
@@ -89,11 +89,24 @@ s7_pointer begin(s7_scheme *sc, s7_pointer args) {
     return (s7_nil(sc));
 }
 
+const char* help_begin_maximized = "(begin-maximized title &optional window-flags) NOT PART OF IMGUI: A convenient way to do a maximized window\n"
+                                   "window-flags is just one int with bit flags set. There are already plenty set like NoTitleBar, NoResize etc.";
 s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
     s7_pointer title = s7_car(args);
     if (!s7_is_string(title))
         return (s7_wrong_type_arg_error(sc, "imgui/begin-maximized", 1, title,
                                         "First argument is title, should be a string~A"));
+
+    ImGuiWindowFlags flags = ImGuiWindowFlags_NoTitleBar
+                             | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+                             | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
+                             | ImGuiWindowFlags_NoNavFocus;
+                             
+    args = s7_cdr(args);
+    s7_pointer sc_flags = s7_car(args);
+    if(s7_is_number(sc_flags)){
+        flags |= s7_integer(sc_flags);
+    }
 
     GLint viewport[4];
     glGetIntegerv(GL_VIEWPORT, viewport);
@@ -111,12 +124,12 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
 
     bool show = true;
     // TODO pass flags
-    ImGui::Begin("maximized-window", &show,
-//                  ImGuiWindowFlags_MenuBar
-                 ImGuiWindowFlags_NoTitleBar
-                 | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
-                 | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
-                 | ImGuiWindowFlags_NoNavFocus);
+    // hm.. id..
+
+
+    ImGui::Begin(s7_string(title), &show,
+                 flags
+                );
     ImGui::PopStyleVar(2);
 
     return s7_nil(sc);
@@ -131,9 +144,9 @@ void bind(s7_scheme *sc, s7_pointer env) {
 
     s7_define_function(sc, "imgui/begin-maximized", begin_maximized,   // ..
                        1, // req args
-                       0,
+                       1,
                        false, // rest args
-                       "Begin a/the maximized window");
+                       help_begin_maximized);
 
     s7_define_function(sc, "imgui/begin", begin,   // ..
                        1, // req args
@@ -152,7 +165,7 @@ void bind(s7_scheme *sc, s7_pointer env) {
                                "Begin a window"));
 
     s7_define(sc, env, s7_make_symbol(sc, "begin-maximized"),
-              s7_make_function(sc, "begin-maximized", begin_maximized, 1, 0, false,
+              s7_make_function(sc, "begin-maximized", begin_maximized, 1, 1, false,
                                "Begin the maximized window"));
     s7_define(sc, env, s7_make_symbol(sc, "end"),
               s7_make_function(sc, "end", end, 0, 0, false,
@@ -986,7 +999,7 @@ void bind(s7_scheme *sc) {
     sliders::bind(sc, env);
     inputs::bind(sc, env);
     state::bind(sc, env);
-    aod::s7::imgui::colors::bind(sc);
+    aod::s7::imgui::enums::bind(sc);
 
     // the provide is needed to define the *features* symbol in this environment
     // this is checked to avoid duplicate requires of this environment

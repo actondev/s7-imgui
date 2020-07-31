@@ -3,10 +3,9 @@
 namespace aod {
 namespace s7 {
 namespace imgui {
-namespace colors {
+namespace enums {
 
-// binds all the color constants under aod.c.imgui.col
-void bind(s7_scheme *sc) {
+void bind_colors(s7_scheme* sc) {
     s7_pointer env = s7_inlet(sc, s7_nil(sc));
     s7_gc_protect(sc, env);
 
@@ -106,8 +105,70 @@ void bind(s7_scheme *sc) {
               s7_make_integer(sc, ImGuiCol_NavWindowingDimBg));
     s7_define(sc, env, s7_make_symbol(sc, "ModalWindowDimBg"),
               s7_make_integer(sc, ImGuiCol_ModalWindowDimBg));
-    
+
     s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "aod.c.imgui.col"), env);
+}
+
+void bind_window_flags(s7_scheme* sc) {
+    s7_pointer env = s7_inlet(sc, s7_nil(sc));
+    s7_gc_protect(sc, env);
+    
+    s7_define(sc, env, s7_make_symbol(sc, "None"),
+              s7_make_integer(sc, ImGuiWindowFlags_None));
+    s7_define(sc, env, s7_make_symbol(sc, "NoTitleBar"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoTitleBar));
+    s7_define(sc, env, s7_make_symbol(sc, "NoResize"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoResize));
+    s7_define(sc, env, s7_make_symbol(sc, "NoMove"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoMove));
+    s7_define(sc, env, s7_make_symbol(sc, "NoScrollbar"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoScrollbar));
+    s7_define(sc, env, s7_make_symbol(sc, "NoScrollWithMouse"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoScrollWithMouse));
+    s7_define(sc, env, s7_make_symbol(sc, "NoCollapse"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoCollapse));
+    s7_define(sc, env, s7_make_symbol(sc, "AlwaysAutoResize"),
+              s7_make_integer(sc, ImGuiWindowFlags_AlwaysAutoResize));
+    s7_define(sc, env, s7_make_symbol(sc, "NoBackground"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoBackground));
+    s7_define(sc, env, s7_make_symbol(sc, "NoSavedSettings"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoSavedSettings));
+    s7_define(sc, env, s7_make_symbol(sc, "NoMouseInputs"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoMouseInputs));
+    s7_define(sc, env, s7_make_symbol(sc, "MenuBar"),
+              s7_make_integer(sc, ImGuiWindowFlags_MenuBar));
+    s7_define(sc, env, s7_make_symbol(sc, "HorizontalScrollbar"),
+              s7_make_integer(sc, ImGuiWindowFlags_HorizontalScrollbar));
+    s7_define(sc, env, s7_make_symbol(sc, "NoFocusOnAppearing"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoFocusOnAppearing));
+    s7_define(sc, env, s7_make_symbol(sc, "NoBringToFrontOnFocus"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoBringToFrontOnFocus));
+    s7_define(sc, env, s7_make_symbol(sc, "AlwaysVerticalScrollbar"),
+              s7_make_integer(sc, ImGuiWindowFlags_AlwaysVerticalScrollbar));
+    s7_define(sc, env, s7_make_symbol(sc, "AlwaysHorizontalScrollbar"),
+              s7_make_integer(sc, ImGuiWindowFlags_AlwaysHorizontalScrollbar));
+    s7_define(sc, env, s7_make_symbol(sc, "AlwaysUseWindowPadding"),
+              s7_make_integer(sc, ImGuiWindowFlags_AlwaysUseWindowPadding));
+    s7_define(sc, env, s7_make_symbol(sc, "NoNavInputs"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoNavInputs));
+    s7_define(sc, env, s7_make_symbol(sc, "NoNavFocus"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoNavFocus));
+    s7_define(sc, env, s7_make_symbol(sc, "UnsavedDocument"),
+              s7_make_integer(sc, ImGuiWindowFlags_UnsavedDocument));
+    s7_define(sc, env, s7_make_symbol(sc, "NoNav"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoNav));
+    s7_define(sc, env, s7_make_symbol(sc, "NoDecoration"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoDecoration));
+    s7_define(sc, env, s7_make_symbol(sc, "NoInputs"),
+              s7_make_integer(sc, ImGuiWindowFlags_NoInputs));
+    
+    s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "aod.c.imgui.window-flags"), env);
+}
+
+// binds all the color constants under aod.c.imgui.col
+void bind(s7_scheme *sc) {
+    bind_colors(sc);
+    bind_window_flags(sc);
 }
 
 }
