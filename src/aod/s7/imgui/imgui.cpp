@@ -101,10 +101,10 @@ s7_pointer begin_maximized(s7_scheme *sc, s7_pointer args) {
                              | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
                              | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus
                              | ImGuiWindowFlags_NoNavFocus;
-                             
+
     args = s7_cdr(args);
     s7_pointer sc_flags = s7_car(args);
-    if(s7_is_number(sc_flags)){
+    if (s7_is_number(sc_flags)) {
         flags |= s7_integer(sc_flags);
     }
 
@@ -946,7 +946,13 @@ s7_pointer input_text_multiline(s7_scheme* sc, s7_pointer args) {
 
     // shit.. I have to know the buffer size
     // maybe in future accept user flags
-    return s7_make_boolean(sc, ImGui::InputTextMultiline(s7_string(sc_label), str, s7_integer(sc_size)));
+    auto el_size = ImVec2(-FLT_MIN, -FLT_MIN);
+    return s7_make_boolean(sc, ImGui::InputTextMultiline(
+                               s7_string(sc_label),
+                               str,
+                               s7_integer(sc_size),
+                               el_size
+                           ));
 }
 
 static const char* help_combo = "(combo name *index labels)\n"
@@ -1007,11 +1013,11 @@ void bind(s7_scheme *sc, s7_pointer env) {
               s7_make_function(sc, "input-text", input_text, 3, // label, char*, size
                                0, false,
                                help_input_text));
-    
+
     s7_define(sc, env, s7_make_symbol(sc, "input-text-multiline"),
               s7_make_function(sc, "input-text-multiline", input_text_multiline, 3, // label, char*, size
                                0, false,
-                              help_input_text_multiline));
+                               help_input_text_multiline));
 
     s7_define(sc, env, s7_make_symbol(sc, "combo"),
               s7_make_function(sc, "combo", combo, 3,
