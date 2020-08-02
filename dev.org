@@ -1,15 +1,20 @@
 #+PROPERTY: header-args:sh :session *s7-imgui* :var root=(projectile-project-root)
 # #+STARTUP: content
 * COMMENT quick dev buttons
-   #+NAME: buttons
-   #+BEGIN_SRC emacs-lisp
+  #+NAME: buttons
+  #+BEGIN_SRC emacs-lisp
 (aod.org-babel/generate-named-buttons-inc ">")
-   #+END_SRC
+  #+END_SRC
 
-   #+RESULTS: buttons
-   | [>win:build] | [>repl] | [>test] | [>gui-repl] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
+  #+RESULTS: buttons
+  | [>win:build] | [>repl] | [>test] | [>gui-repl] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
 
 * Linux
+  Setting up
+  #+BEGIN_SRC sh
+meson setup build
+  #+END_SRC
+
 ** Necessary symlinks
    #+BEGIN_SRC sh
 ln -s `readlink -f src/scheme` build/scheme
@@ -27,11 +32,6 @@ ls -alh subprojects/sdl_net # subprojects/sdl_net -> xxxx/SDL_net
 ln -s `readlink -f ../nativefiledialog` subprojects/nfd
    #+END_SRC
 ** Building
-   Setting up
-   #+BEGIN_SRC sh
-meson setup build
-   #+END_SRC
-
    Build
    #+NAME: >build
    #+BEGIN_SRC sh
@@ -65,7 +65,7 @@ meson setup --wipe build
 rm -rf build
     #+END_SRC
 ** Building for release
-      Setting up
+   Setting up
    #+BEGIN_SRC sh
 meson setup build/release -Dbuildtype=release
 meson configure build/release # validating the buildtype
@@ -102,12 +102,6 @@ ninja -C build && ./build/s7-imgui
 ninja -C build test
    #+END_SRC
 
-   To run specific tests:
-
-   #+BEGIN_SRC sh
-./build/test/gtest-all --gtest_filter=c_primitives.float_arr
-   #+END_SRC
-
 ** TCP repl
    You can just connect from your terminal to the running instance
    #+BEGIN_SRC sh :session *socket*
@@ -115,13 +109,13 @@ netcat localhost 12345
    #+END_SRC
 
    However, using emacs is the way to go
-  #+NAME: >repl
-  #+BEGIN_SRC emacs-lisp
+   #+NAME: >repl
+   #+BEGIN_SRC emacs-lisp
 (save-selected-window
   (run-scheme "netcat localhost 1234")
   ;; sending something to see if the repl process is alive
   (scheme-send-string "\n"))
-  #+END_SRC
+   #+END_SRC
 * Windows
 ** Necessary symlinks
    #+BEGIN_SRC sh
@@ -191,33 +185,49 @@ ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
    #+END_SRC
 
 * Testing
-  Have to be ran under the =build/test= directory (assuming you ran =meson setup build=)
+
+** C++ (gtest)
+   Have to be ran under the =build/test= directory (assuming you ran =meson setup build=)
+   #+NAME: >test
    #+BEGIN_SRC sh :session *test* :dir "build/test"
 ./gtest-all
+   #+END_SRC
+
+   To run specific tests:
+   #+BEGIN_SRC sh :session *test* :dir "build/test"
+./gtest-all --gtest_filter=c_primitives.float_arr
+   #+END_SRC
+
+** Scheme
+   #+BEGIN_SRC sh
+build/repl test/scheme/test-all.scm
+build/repl test/scheme/test-core.scm
    #+END_SRC
 
    #+CALL: repl(file="test/scheme/test-all.scm")
    #+CALL: repl(file="test/scheme/test-core.scm")
 
 * Repl
-   #+NAME: repl
-   #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
+  Normal Repl
+  #+NAME: repl
+  #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
 (run-scheme (concat (projectile-project-root) "build/repl " file))   
-   #+END_SRC
+  #+END_SRC
 
-   #+CALL: repl(file="test/scheme/test-all.scm")
-   #+CALL: repl(file="test/scheme/test-core.scm")
+  #+CALL: repl(file="test/scheme/test-all.scm")
+  #+CALL: repl(file="test/scheme/test-core.scm")
 
-   #+CALL: repl(file="src/scheme/imgui_scratch.scm")
-   #+CALL: repl(file="")
+  #+CALL: repl(file="src/scheme/imgui_scratch.scm")
+  #+CALL: repl(file="")
 
-   #+NAME: gui-repl
-   #+BEGIN_SRC emacs-lisp :var file="src/scheme/main.scm" :results silent
+  "GUI" Repl. The C++ code will call =setup= and =draw= functions
+  #+NAME: gui-repl
+  #+BEGIN_SRC emacs-lisp :var file="src/scheme/main.scm" :results silent
 (run-scheme (concat (projectile-project-root) "build/gui_repl " file))   
-   #+END_SRC
-   #+CALL: gui-repl()
-   #+CALL: gui-repl(file="src/scheme/examples/text-input.scm")
-   #+CALL: gui-repl(file="src/scheme/examples/text-editor.scm")
+  #+END_SRC
+  #+CALL: gui-repl()
+  #+CALL: gui-repl(file="src/scheme/examples/text-input.scm")
+  #+CALL: gui-repl(file="src/scheme/examples/text-editor.scm")
 
 ** Benchmark
    #+CALL: repl(file="test/scheme/test-benchmark.scm")
@@ -229,9 +239,9 @@ ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
   Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything
   The cursor, upon opening the file, stays at the beginning
 
-# Local Variables:
-# eval: (aod.org-babel/eval-named-block "buttons")
-# eval: (org-babel-goto-named-result "buttons")
-# eval: (setq-local org-confirm-babel-evaluate nil)
-# eval: (aod.org-babel/generate-call-buttons)
-# End:  
+  # Local Variables:
+  # eval: (aod.org-babel/eval-named-block "buttons")
+  # eval: (org-babel-goto-named-result "buttons")
+  # eval: (setq-local org-confirm-babel-evaluate nil)
+  # eval: (aod.org-babel/generate-call-buttons)
+  # End:  
