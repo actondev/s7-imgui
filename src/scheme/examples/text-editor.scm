@@ -5,11 +5,8 @@
 	      (aod.c.imgui :as ig)
 	      (aod.imgui.macros :as igm)
 	      (aod.c.nfd)
+	      (aod.io :as io)
 	      (aod.c.imgui.window-flags :as igw)))
-
-(define (setup)
-  ()
-  )
 
 (define buffer-size 2048)
 (define *buffer (c/new-char[] buffer-size))
@@ -29,33 +26,16 @@
 
 (set! (*file-contents*) "S7 text editor")
 
-(define (open-file)
+(define (open)
   ;; returns the opened file contents
   (let ((file (aod.c.nfd/open)))
     (when file
-      (call-with-input-file file
-	(lambda (in)
-	  (call-with-output-string
-	   (lambda (out)
-	     (catch 'wrong-type-arg ; s7 raises this error if write-char gets #<eof>
-		    (lambda () 
-		      (do () ()	; read/write until #<eof>
-			(write-char (read-char in) out)))
-		    (lambda err 
-		      out)))))))))
+      (set! (*file-contents*) (io/get-file-contents file)))))
 
-(define (save contents)
+(define (save)
   (let ((file (aod.c.nfd/save)))
-    (call-with-output-file file
-      (lambda (out)
-	(call-with-input-string
-	 contents
-	 (lambda (in)
-	   (catch 'wrong-type-arg ; s7 raises this error if write-char gets #<eof>
-		  (lambda () 
-		    (do () ()		; read/write until #<eof>
-		      (write-char (read-char in) out)))
-		  (lambda err ()))))))))
+    (when file
+      (io/put-file-contents file (*file-contents*)))))
 
 (define (draw-menu)
   (igm/menu-bar
@@ -64,10 +44,10 @@
     ("File")
     (igm/menu-item ("Open")
 		   (print "Clicked open")
-		   (set! (*file-contents*) (open-file)))
+		   (open))
     (igm/menu-item ("Save")
 		   (print "Clicked save")
-		   (save (*file-contents*))))))
+		   (save)))))
 
 (define (draw)
   (igm/maximized

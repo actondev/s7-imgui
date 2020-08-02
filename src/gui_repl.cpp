@@ -40,10 +40,11 @@ using std::endl;
 namespace fs = std::filesystem;
 
 // globals, cause that's how we like it
-std::mutex gui_loop_mutex;
+std::mutex g_gui_loop_mutex;
 s7_scheme* sc;
 bool running = true;
-bool redraw = false;
+bool g_force_redraw = false;
+
 
 int guiLoop() {
 
@@ -80,71 +81,74 @@ int guiLoop() {
     ImGui_ImplOpenGL2_Init();
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(30, 30, 30, 255));
-    
+
     s7_pointer setup_fn = s7_name_to_value(sc, "setup");
-    if(setup_fn != s7_undefined(sc)){
+    if (setup_fn != s7_undefined(sc)) {
         s7_call(sc, setup_fn, s7_nil(sc));
     }
 
     //While application is running
-    bool have_drawn = false;
+//     bool have_drawn = false;
+    unsigned int redraws_after_no_events = 0;
     while (running) {
-        {
-            bool have_events = false;
-            std::unique_lock<std::mutex> lock_loop(gui_loop_mutex);
 
-            SDL_Event e;
+        bool have_events = false;
+        std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
 
-            //Handle events on queue
-            while (SDL_PollEvent(&e) != 0) {
+        SDL_Event e;
+
+        //Handle events on queue
+        while (SDL_PollEvent(&e) != 0) {
 //            printf("SDL event\n");
-                have_events = true;
-                //User requests quit
-                switch (e.type) {
-                case SDL_QUIT:
-                    printf("SDL_QUIT event\n");
-                    running = false;
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                case SDL_MOUSEBUTTONUP:
-                    // ImGui_ImplSDL2_ProcessEvent(&e);
-                    fprintf(stderr, "Mouse down/up at (%d,%d)\n", e.motion.x,
-                            e.motion.y);
-                    break;
-                }
-                ImGui_ImplSDL2_ProcessEvent(&e);
-            }
-            if (!running) {
+            have_events = true;
+            redraws_after_no_events = 0;
+            //User requests quit
+            switch (e.type) {
+            case SDL_QUIT:
+                printf("SDL_QUIT event\n");
+                running = false;
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+            case SDL_MOUSEBUTTONUP:
+//                     fprintf(stderr, "Mouse down/up at (%d,%d)\n", e.motion.x,
+//                             e.motion.y);
                 break;
             }
-            if (have_drawn && !have_events && !redraw) {
-                // no need to redraw
-                // hm.. reaper in linux hangs with this
-                // lock_loop.release();
-                std::this_thread::sleep_for(std::chrono::milliseconds(10));
-                continue;
-            }
-            redraw = false;
+            ImGui_ImplSDL2_ProcessEvent(&e);
+        }
+        if (!running) {
+            break;
+        }
+        if (redraws_after_no_events > 2 && !g_force_redraw) {
+            // no need to redraw!
+            lock_loop.unlock();
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            continue;
+        }
+        g_force_redraw = false;
 
-            ImGui_ImplOpenGL2_NewFrame();
-            ImGui_ImplSDL2_NewFrame(window);
-            ImGui::NewFrame();
-
-            s7_eval_c_string(sc, "(draw)");
-
-            ImGui::Render();
-
-            glViewport(0, 0, (int) io.DisplaySize.x, (int) io.DisplaySize.y);
-            // glClearColor is freezing if the window has been closed
-            glClearColor((GLclampf) clear_color.x, (GLclampf) clear_color.y,
-                         (GLclampf) clear_color.z, (GLclampf) clear_color.w);
-            glClear(GL_COLOR_BUFFER_BIT);
-            //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
-            ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-            SDL_GL_SwapWindow(window);
-            have_drawn = true;
+        if (!have_events) {
+            redraws_after_no_events++;
         }
 
+        ImGui_ImplOpenGL2_NewFrame();
+        ImGui_ImplSDL2_NewFrame(window);
+        ImGui::NewFrame();
+
+        s7_eval_c_string(sc, "(draw)");
+
+        ImGui::Render();
+
+        glViewport(0, 0, (int) io.DisplaySize.x, (int) io.DisplaySize.y);
+        // glClearColor is freezing if the window has been closed
+        glClearColor((GLclampf) clear_color.x, (GLclampf) clear_color.y,
+                     (GLclampf) clear_color.z, (GLclampf) clear_color.w);
+        glClear(GL_COLOR_BUFFER_BIT);
+        //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context where shaders may be bound
+        ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+        SDL_GL_SwapWindow(window);
+
+        lock_loop.unlock();
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     printf("guiLoop: quit gui event loop, cleaning up \n");
@@ -203,10 +207,11 @@ int main(int argc, char *argv[]) {
     char buffer[512];
     while (running) {
         fgets(buffer, 512, stdin);
+        std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
         if (repl.handleInput(buffer)) {
             auto result = repl.evalLastForm();
             cout << endl << result << endl << "> ";
-            redraw = true;
+            g_force_redraw = true;
         }
     }
 

@@ -4,6 +4,7 @@
 (autoload 'aod.geom "aod/geom.scm")
 (autoload 'aod.layout "aod/layout.scm")
 (autoload 'aod.string "aod/string.scm")
+(autoload 'aod.io "aod/io.scm")
 (autoload 'imgui-macros.scm
 	  ;; fuck, the lambda is not working
 	  ;; aaaagggh
