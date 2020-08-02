@@ -933,3 +933,20 @@ pip3 install meson --upgrade
 
 (define *file-contents* (make-file-contents *buffer))  
   #+END_SRC
+* emacs-lisp
+  Removed it, but it's nice to keep
+     #+NAME: _build-and-run-scm
+   #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
+(let ((build-res (with-temp-buffer
+		   (call-process "ninja" nil t t "-C" "build"))))
+  (if (= 0 build-res)
+      (progn
+	;; (message "OK! running scheme")
+	(let ((default-directory (projectile-project-root)))
+	  (run-scheme (concat (projectile-project-root) "build/repl " file))
+	  ))
+    (progn
+      ;; (message "build failed")
+      (message (buffer-string))
+      )))
+   #+END_SRC

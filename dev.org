@@ -3,17 +3,17 @@
 * COMMENT quick dev buttons
    #+NAME: buttons
    #+BEGIN_SRC emacs-lisp
-;; TODO  that not any is.. well wrong
-;; (aod.org-babel/generate-named-buttons-inc (rx (and ">" (not (any ">win")))))
 (aod.org-babel/generate-named-buttons-inc ">")
    #+END_SRC
 
    #+RESULTS: buttons
-   | [>clean_libc] | [>win:build] | [>repl] | [>test] | [>gui-repl] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
+   | [>win:build] | [>repl] | [>test] | [>gui-repl] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
 
-* S7-Imgui
-  Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
 * Linux
+** Necessary symlinks
+   #+BEGIN_SRC sh
+ln -s `readlink -f src/scheme` build/scheme
+   #+END_SRC
 ** Optional: using existing repositories for subprojects
    #+BEGIN_SRC sh
 ln -s `readlink -f ../SDL` subprojects/sdl2
@@ -123,6 +123,12 @@ netcat localhost 12345
   (scheme-send-string "\n"))
   #+END_SRC
 * Windows
+** Necessary symlinks
+   #+BEGIN_SRC sh
+cmd
+mklink /J build\scheme src\scheme
+exit
+   #+END_SRC
 ** Optional: using existing repositories for subprojects
    #+BEGIN_SRC sh :session *s7-imgui-cmd*
 cmd
@@ -165,36 +171,7 @@ meson compile -C build
 cd build/test
 ./gtest-all
    #+END_SRC
-* COMMENT Temp
-** s7: libc
-   Getting some scheme files from s7
-   Not sure if I can use this on windows though
-   #+BEGIN_SRC sh
-mkdir src/scheme/s7
-cp subprojects/s7/libc.scm src/scheme/s7/libc.scm
-cp subprojects/s7/r7rs.scm src/scheme/s7/r7rs.scm
-cp subprojects/s7/cload.scm src/scheme/s7/cload.scm
-cp subprojects/s7/s7.h src/scheme/s7/
-ls src/scheme/s7/
-   #+END_SRC
-
-   Clearing out the generated/compile libc
-
-   #+NAME: >clean_libc
-   #+BEGIN_SRC sh
-rm src/scheme/s7/libc_s7*
-   #+END_SRC
-
 * Bundled examples
-
-** COMMENT examples buttons
-   #+BEGIN_SRC emacs-lisp
-(aod.org-babel/generate-named-buttons-inc (rx (or "ex.c:" (regexp ">build$"))))
-   #+END_SRC
-
-   #+RESULTS:
-   | [ex.c:repl-emacs] | [ex.c:repl] | [ex.c:audio_player] | [ex.c:imgui] | [>build] |
-
 ** imgui demo
    #+NAME: ex.c:imgui
    #+BEGIN_SRC sh
@@ -202,7 +179,8 @@ ninja -C build
 
 ./build/examples/example_imgui
    #+END_SRC
-** audio player
+** COMMENT audio player
+   (owl.wav not there, cannot really bother with this now)
    #+NAME: ex.c:audio_player
    #+BEGIN_SRC sh
 ninja -C build
@@ -212,130 +190,20 @@ ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
 ./build/examples/ex_audio_player
    #+END_SRC
 
-** repl
-   #+NAME: ex.c:repl
-   #+BEGIN_SRC sh
-ninja -C build && ./build/examples/repl src/scheme/aod/sxs.scm
-   #+END_SRC
-
-   #+NAME: ex.c:repl-emacs
-   #+BEGIN_SRC emacs-lisp
-(with-temp-buffer
-  (if (= 0 (call-process "ninja" nil t t "-C" "build" ))
-      (progn
-	;; (message "OK! running scheme")
-	(let ((default-directory (projectile-project-root)))
-	  (run-scheme (concat (projectile-project-root) "build/examples/repl src/scheme/aod/sxs.scm "))
-	  ))
-    (progn
-      ;; (message "build failed")
-      (message (buffer-string))
-      )
-    ))
-   #+END_SRC
-
-   #+BEGIN_SRC emacs-lisp
-(message "hi")
-(run-scheme (concat (projectile-project-root) "build/examples/repl"))
-   #+END_SRC
-
-** scheme app examples
-   #+BEGIN_SRC emacs-lisp :exports none
-(aod.org-babel/generate-named-buttons-inc (rx (or "ex.scm:" (regexp ">build$"))))
-   #+END_SRC
-
-   #+RESULTS:
-   | [ex.scm:s-x-s] | [ex.scm:all-screenshots] | [ex.scm:color-wheel] | [ex.scm:maximized] | [ex.scm:shapes] | [ex.scm:menu] | [>build] |
-
-   #+NAME: ex.scm:menu
-   #+BEGIN_SRC sh
-./build/s7-imgui `pwd`/scheme-examples/menu.scm
-   #+END_SRC
-
-   #+NAME: ex.scm:shapes
-   #+BEGIN_SRC sh
-./build/s7-imgui `pwd`/scheme-examples/shapes.scm
-   #+END_SRC
-
-   #+NAME: ex.scm:maximized
-   #+BEGIN_SRC sh
-./build/s7-imgui `pwd`/scheme-examples/maximized.scm
-   #+END_SRC
-
-   #+NAME: ex.scm:color-wheel
-   #+BEGIN_SRC sh
-./build/s7-imgui `pwd`/scheme-examples/color_wheel.scm
-   #+END_SRC
-
-   #+NAME: ex.scm:all-screenshots
-   #+BEGIN_SRC sh
-rm scheme-examples/*.png
-./build/s7-imgui `pwd`/scheme-examples/menu.scm
-./build/s7-imgui `pwd`/scheme-examples/shapes.scm
-./build/s7-imgui `pwd`/scheme-examples/maximized.scm
-./build/s7-imgui `pwd`/scheme-examples/color_wheel.scm
-   #+END_SRC
-
-   #+NAME: ex.scm:s-x-s
-   #+BEGIN_SRC sh :exports none
-ninja -C build && ./build/s7-imgui `pwd`/scheme-examples/sigma-x-square.scm
-   #+END_SRC
-** COMMENT s7 repl.scm
-   Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)
-   #+BEGIN_SRC sh
-ninja -C build
-ln -s `pwd`/examples/scheme build/default/examples/scheme # for eclipse builds
-ln -s `pwd`/examples/scheme build/examples/scheme # for emacs/shell builds
-
-# this needs s7.h to work
-cp subprojects/s7/s7.h build/examples/
-./build/examples/s7-repl
-
-# clean:
-rm -r build/examples/*libc_*
-   #+END_SRC
-*** it's fast!
-    #+BEGIN_SRC sh
-time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-repl
-    #+END_SRC
 * Testing
-     #+BEGIN_SRC emacs-lisp :exports none
-(aod.org-babel/generate-named-buttons-inc (rx "test:"))
+  Have to be ran under the =build/test= directory (assuming you ran =meson setup build=)
+   #+BEGIN_SRC sh :session *test* :dir "build/test"
+./gtest-all
    #+END_SRC
 
-   #+RESULTS:
-   | [test:scheme] |
+   #+CALL: repl(file="test/scheme/test-all.scm")
+   #+CALL: repl(file="test/scheme/test-core.scm")
 
-   Testing scheme
-   #+NAME: test:scheme
-   #+BEGIN_SRC sh
-ninja -C build && ./build/examples/repl src/scheme/test.scm
-   #+END_SRC
-
-* Useful elisp
-   #+NAME: _build-and-run-scm
-   #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
-(let ((build-res (with-temp-buffer
-		   (call-process "ninja" nil t t "-C" "build"))))
-  (if (= 0 build-res)
-      (progn
-	;; (message "OK! running scheme")
-	(let ((default-directory (projectile-project-root)))
-	  (run-scheme (concat (projectile-project-root) "build/repl " file))
-	  ))
-    (progn
-      ;; (message "build failed")
-      (message (buffer-string))
-      )))
-   #+END_SRC
-
+* Repl
    #+NAME: repl
    #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
 (run-scheme (concat (projectile-project-root) "build/repl " file))   
    #+END_SRC
-
-   #+CALL: _build-and-run-scm(file="src/scheme/imgui_scratch.scm")
-   #+CALL: _build-and-run-scm(file="test/scheme/test-all.scm")
 
    #+CALL: repl(file="test/scheme/test-all.scm")
    #+CALL: repl(file="test/scheme/test-core.scm")

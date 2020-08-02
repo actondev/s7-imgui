@@ -1,4 +1,4 @@
-(ns imgui-sratch)
+;; (ns imgui-sratch)
 
 (ns-require aod.c.imgui-sdl :as igsdl)
 (ns-require aod.c.imgui :as ig)
