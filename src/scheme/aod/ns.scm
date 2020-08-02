@@ -62,7 +62,7 @@
 
 (define (ns-get-or-create the-ns)
   ;; can also do (ns (rootlet) :require ...)
-  (cond ((equivalent? '(rootlet) the-ns)
+  (cond ((eq? 'rootlet the-ns)
 	 (rootlet))
 	(else
 	 (begin

@@ -1,6 +1,6 @@
  ;; loading this into rootlet so that from c side I can direclty call
  ;; (draw) etc
-(ns (rootlet)
+(ns rootlet
     :require ((aod.c.foreign :as c)
 	      (aod.c.imgui :as ig)
 	      (aod.imgui.macros :as igm)
@@ -27,7 +27,6 @@
 (set! (*file-contents*) "S7 text editor")
 
 (define (open)
-  ;; returns the opened file contents
   (let ((file (aod.c.nfd/open)))
     (when file
       (set! (*file-contents*) (io/get-file-contents file)))))
