@@ -186,3 +186,55 @@
 	      ;; (print "ret " ret)
 	      (set! (mem args) ret)
 	      ret))))))
+
+;; if-let, when-let
+;; only for one variable
+;; TODO
+;; - validate input? only one
+;; syntax is clj like, passing one list (symbol val)
+;; eg (when-let (x #f) ..)
+(define-macro (if-let binding then else)
+  `(let ((,(car binding) ,(cadr binding)))
+     (if ,(car binding)
+	 ,then
+	 ,else)))
+
+(define-macro (when-let binding . body)
+  `(let ((,(car binding) ,(cadr binding)))
+     (when ,(car bindings)
+       ,@body)))
+
+;; from s7 stuff.scm
+(define-macro (and-let* vars . body)      ; bind vars, if any is #f stop, else evaluate body with those bindings
+  (if (list? vars)
+      `(let () (and ,@(map (lambda (v) (cons 'define v)) vars) (begin ,@body)))
+      (error 'wrong-type-arg "and-let* var list is ~S" vars)))
+
+(define when-let* and-let*)
+
+(define-macro (if-let* vars then else)      ; bind vars, if all are #t evaluate "then", otherwise "else"
+  (if (list? vars)
+      `(let ()
+	 (if (and ,@(map (lambda (v) (cons 'define v)) vars))
+	     ,then
+	     ,else))
+      (error 'wrong-type-arg "and-let* var list is ~S" vars)))
+
+(comment
+ (if-let (x #t)
+	 1
+	 2)
+
+ (when-let (x #f)
+	   (print "one")
+	   (print "two"))
+ 
+ (if-let* ((x #t)
+	  (y #t))
+	 (print "true?")
+	 (print "false?"))
+
+ (when-let* ((x #f))
+	   (print "this")
+	   (print "that"))
+ )

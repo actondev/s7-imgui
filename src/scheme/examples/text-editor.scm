@@ -10,31 +10,18 @@
 
 (define buffer-size 2048)
 (define *buffer (c/new-char[] buffer-size))
-(define (make-file-contents *char)
-  ;; dilambda is a quick way to define getters and setters
-  (dilambda
-   ;; getter
-   (lambda ()
-     (*char))
-   (lambda (v)
-     (if (< buffer-size (length v))
-	 (print "text bigger than buffer-size!")
-	 (begin
-	   (set! (*char) v))))))
-
-(define *file-contents* (make-file-contents *buffer))
-
-(set! (*file-contents*) "S7 text editor")
 
 (define (open)
-  (let ((file (aod.c.nfd/open)))
-    (when file
-      (set! (*file-contents*) (io/slurp file)))))
+  (and-let* ((file (aod.c.nfd/open))
+	     (contents (io/slurp file)))
+	    (if (< buffer-size (length contents))
+		(print "text bigger than buffer-size!")
+		(set! (*buffer) contents))))
 
 (define (save)
-  (let ((file (aod.c.nfd/save)))
-    (when file
-      (io/spit file (*file-contents*)))))
+  (if-let* ((file (aod.c.nfd/save)))
+	   (io/spit file (*buffer))
+	   (print "User cancelled!")))
 
 (define (draw-menu)
   (igm/menu-bar
@@ -55,3 +42,4 @@
    (ig/input-text-multiline "##text-input" *buffer buffer-size) 
    ;; 
    ))
+

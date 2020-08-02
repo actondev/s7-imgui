@@ -917,3 +917,19 @@ pip3 install meson --upgrade
   Wonder how easy (or not) would be to do something similar with s7
 * TODO ns-doc all namespaces, create documentation files
   probably with emacs & org mode.. :)
+* Dilambdas
+  #+BEGIN_SRC scheme
+(define (make-file-contents *char)
+  ;; dilambda is a quick way to define getters and setters
+  (dilambda
+   ;; getter
+   (lambda ()
+     (*char))
+   (lambda (v)
+     (if (< buffer-size (length v))
+	 (print "text bigger than buffer-size!")
+	 (begin
+	   (set! (*char) v))))))
+
+(define *file-contents* (make-file-contents *buffer))  
+  #+END_SRC
