@@ -9,7 +9,7 @@
    #+END_SRC
 
    #+RESULTS: buttons
-   | [>clean_libc] | [>win:build] | [>repl] | [>test] | [>gui_repl] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
+   | [>clean_libc] | [>win:build] | [>repl] | [>test] | [>gui-repl] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
 
 * S7-Imgui
   Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
@@ -89,7 +89,7 @@ ninja -C build && ./build/s7-imgui
 ./build/s7-imgui
    #+END_SRC
 
-   #+NAME: >gui_repl
+   #+NAME: >gui-repl
    #+BEGIN_SRC sh
 ./build/gui_repl
    #+END_SRC
@@ -343,13 +343,13 @@ ninja -C build && ./build/examples/repl src/scheme/test.scm
    #+CALL: repl(file="src/scheme/imgui_scratch.scm")
    #+CALL: repl(file="")
 
-   #+NAME: gui_repl
+   #+NAME: gui-repl
    #+BEGIN_SRC emacs-lisp :var file="src/scheme/main.scm" :results silent
 (run-scheme (concat (projectile-project-root) "build/gui_repl " file))   
    #+END_SRC
-   #+CALL: gui_repl()
-   #+CALL: gui_repl(file="src/scheme/examples/text-input.scm")
-   #+CALL: gui_repl(file="src/scheme/examples/text-editor.scm")
+   #+CALL: gui-repl()
+   #+CALL: gui-repl(file="src/scheme/examples/text-input.scm")
+   #+CALL: gui-repl(file="src/scheme/examples/text-editor.scm")
 
 ** Benchmark
    #+CALL: repl(file="test/scheme/test-benchmark.scm")

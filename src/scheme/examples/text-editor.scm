@@ -29,12 +29,12 @@
 (define (open)
   (let ((file (aod.c.nfd/open)))
     (when file
-      (set! (*file-contents*) (io/get-file-contents file)))))
+      (set! (*file-contents*) (io/slurp file)))))
 
 (define (save)
   (let ((file (aod.c.nfd/save)))
     (when file
-      (io/put-file-contents file (*file-contents*)))))
+      (io/spit file (*file-contents*)))))
 
 (define (draw-menu)
   (igm/menu-bar
