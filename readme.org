@@ -1,6 +1,8 @@
 * S7 & ImGui
   Using [[https://ccrma.stanford.edu/software/snd/snd/s7.html][s7 scheme]] alongside [[https://github.com/ocornut/imgui][ImGui]] to (interactively) build (cross platform) GUI apps.
 
+  You can see a video demonstration (of =0.1.0=) [[https://youtu.be/MgHsl0u26MY][here]].
+
   Cross platform build: linux & windows with [[https://mesonbuild.com/][meson]] build system
   
   Tested under
@@ -58,11 +60,12 @@
     - embed =s7= and draw something with imgui from =s7=
     - use a REPL and work with =cmuscheme= in =emacs=
   - [X] (semi)complete the bindings of imgui for s7: checkboxes, lists, menubar etc
-  - [ ] video demonstration / getting started: windows and/or linux \\
+  - [X] video demonstration / getting started: windows and/or linux \\
     I'm thinking of doing a really basic text editor (open - edit - save) with imgui/scheme etc. Live coding using the REPL
+    see https://youtu.be/MgHsl0u26MY
   - [ ] create a documentation of the =namespaces= from C bindings but as well from provided scheme files. \\
     - see the generated [[file:docs/ns-doc.el]] for now
     - the idea is to generate an =org= or =markadown= file from this
     - hide "private" things from the documentation (probably names that start with =-=)
-  - [ ] Think about the =namespaces=. See https://github.com/actonDev/s7-imgui/issues/3 . Any input from schemers would be greatly appreciated
+  - [ ] Think (again) about the =namespaces=. See https://github.com/actonDev/s7-imgui/issues/3 . Any input from schemers would be greatly appreciated
     
