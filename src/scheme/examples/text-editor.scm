@@ -1,8 +1,11 @@
-(ns-require aod.c.imgui :as ig)
-(ns-require aod.imgui.macros :as igm)
-(ns-require aod.c.imgui.window-flags :as igw)
-(ns-require aod.c.nfd)
-(ns-require aod.c.foreign :as c)
+ ;; loading this into rootlet so that from c side I can direclty call
+ ;; (draw) etc
+(ns (rootlet)
+    :require ((aod.c.foreign :as c)
+	      (aod.c.imgui :as ig)
+	      (aod.imgui.macros :as igm)
+	      (aod.c.nfd)
+	      (aod.c.imgui.window-flags :as igw)))
 
 (define (setup)
   ()

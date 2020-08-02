@@ -61,10 +61,15 @@
 	    ))
 
 (define (ns-get-or-create the-ns)
-  (unless (*nss* the-ns)
-    ;; note: ns-create is a macro, gotta call it with apply
-    (apply ns-create (list the-ns)))
-  (*nss* the-ns))
+  ;; can also do (ns (rootlet) :require ...)
+  (cond ((equivalent? '(rootlet) the-ns)
+	 (rootlet))
+	(else
+	 (begin
+	   (unless (*nss* the-ns)
+	     ;; note: ns-create is a macro, gotta call it with apply
+	     (apply ns-create (list the-ns)))
+	   (*nss* the-ns)))))
 
 (define (ns-should-bind-globally? symbol)
   (let ((first-char ((symbol->string symbol) 0)))
@@ -195,9 +200,12 @@
 
 ;; maybe I should make this a normal function
 ;; keep things simpler..
-(define-macro (ns the-ns . body)
+(define-macro* (ns the-ns (require ()))
   `(begin
      (set! *ns* (ns-get-or-create ',the-ns))
+     (map (lambda (require-form)
+	    (apply ns-require require-form))
+	  ',require)
      ',the-ns)
   )
 

@@ -160,6 +160,8 @@ int guiLoop() {
     SDL_Quit();
 
     printf("guiLoop: ----- gui loop quit ------\n");
+    // fgets is blocking, so we have to forcefully quit
+    exit(0);
     return 0;
 }
 
