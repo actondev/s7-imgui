@@ -10,7 +10,7 @@
 	     (apply format *stderr* info)
 	     (newline))))
 
-(define-macro (begin args . body)
+(define-macro (window args . body)
   `(begin
      (,ig/begin ,@args)
      (,safe ,@body)

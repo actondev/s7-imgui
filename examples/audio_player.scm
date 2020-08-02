@@ -36,7 +36,7 @@
      (audio/glitch)
      ))
     
-    (igm/begin ("test window 2")
+    (igm/window ("test window 2")
 	       ;; no menu flags.. gotta work on the flags thing
 	       '(igm/menu-bar ()
 			 (igm/menu ("file")))
