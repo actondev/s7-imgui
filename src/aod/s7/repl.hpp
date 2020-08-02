@@ -3,6 +3,7 @@
 #include <cstdio>
 #include "s7.h"
 #include <string>
+#include <regex>
 
 namespace aod {
 namespace s7 {
@@ -31,13 +32,21 @@ public:
      *
      * If the result is true, you can then call the evalLastForm
      */
-    bool handleInput(std::string str, bool clearPreviousInput = false);
+    bool handleInput(const char* str, bool clearPreviousInput = false);
 
     /**
      * Should be called after handleInput returns true
      */
     std::string evalLastForm();
 };
+
+namespace repl {
+extern const std::regex NS_REGEXP;
+//
+// aod.c.repl bindings
+// *eval-hook* etc
+extern void bind(s7_scheme* sc);
+}
 
 } // s7
 } // aod

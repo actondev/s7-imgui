@@ -18,12 +18,12 @@
 #include "aod/s7/repl.hpp"
 #include "aod/tcp_server.hpp"
 #include "aod/path.hpp"
-#include "aod/s7/imgui.hpp"
+#include "aod/s7/imgui/imgui.hpp"
 #include <sstream>
 #include <iostream>
 #include "aod/s7/foreign_primitives.hpp"
 #include "aod/s7/foreign_primitives_arr.hpp"
-#include "aod/s7/imgui_addons.hpp"
+#include "aod/s7/imgui/addons.hpp"
 #include "aod/s7/gl.hpp"
 #include "aod/s7/sdl.hpp"
 #include <iostream>
@@ -113,7 +113,7 @@ int main(int argc, char *argv[]) {
 
     aod::s7::set_print_stderr(sc);
     s7_add_to_load_path(sc, SDL_GetBasePath());
-    s7_add_to_load_path(sc, scheme_path.c_str());
+    s7_add_to_load_path(sc, scheme_path.string().c_str());
 
     aod::s7::bind_all(sc);
     aod::s7::set_autoloads(sc);
@@ -150,7 +150,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    auto audioObject = aod::sdl::AudioObject::fromFile((base_path / "owl.wav").c_str());
+    auto audioObject = aod::sdl::AudioObject::fromFile((base_path / "owl.wav").string().c_str());
     if (audioObject) {
         audioObject->setId(1);
 
@@ -178,7 +178,7 @@ int main(int argc, char *argv[]) {
                                           SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, SDL_WIDTH, SDL_HEIGHT,
                                           window_flags);
 
-    aod::s7::sdl::bind(sc, window);
+    aod::s7::sdl::bind_TODO_REMOVE(sc, window);
 
     if (window == NULL) {
         fprintf(stderr, "Could not create SDL window");

@@ -2,53 +2,124 @@
 ;; putting the autload info here, among other necessary things (that I use often)
 (provide 'aod.core)
 
-(autoload 'aod.clj "aod/clj.scm")
+(load "aod/autoloads.scm")
 ;; comment, map-indexed, dotimes, range, mod
 ;; on the (rootlet)
 (require aod.clj)
 
-(autoload 'aod.layout "aod/layout.scm")
+;; ignornig tests: test expansion/macro replaced in aod.test
+(define-expansion (test . body) #<unspecified>)
+(define-expansion (testgui . body) #<unspecified>)
 
-(autoload 'imgui-macros.scm
-	  ;; fuck, the lambda is not working
-	  ;; aaaagggh
-	  
-	  ;; (lambda (e)
-	  ;;   (unless (provided? 'imgui-macros)
-	  ;;     (load "aod/imgui_macros.scm")))
-	  "aod/imgui_macros.scm"
-	  )
+(define (filter pred col)
+  (let loop ((res (list ))
+	     (s col))
+    (if (pair? s)
+	(begin
+	  (when (pred (car s))
+	    (set! res (append res (list (car s)))))
+	  (loop res (cdr s)))
+	res)))
 
-(autoload 'aod.imgui.macros "aod/imgui/macros.scm")
+(comment
+ (filter (lambda (x)
+	   (> x 0))
+	 '( 0 1 2 -1 -5 10))
+ ;; => (1 2 10)
+ )
 
-(define-macro* (aod/require what (as #f))
-  (let* ((prefix (symbol->string `,(or as what)))
-	(features-symbol (string->symbol (string-append prefix "/*features*"))))
-    `(if (defined? ',features-symbol)
-	(format *stderr* "WARNING: ~A already required as ~A\n" ',what ,prefix)
-	;; else, doing the bidings:
-	(if (defined? ',what)
-	    ;; bindings from c
-	    (apply varlet (curlet)
-		   (map (lambda (binding)
-			  (let ((binding-symbol (string->symbol 
-						 (string-append ,prefix "/" (symbol->string (car binding))))))
-			    ;; (format *stderr* "binding from c ~A\n" binding-symbol)
-			    (cons binding-symbol 
-				  (cdr binding))))
-			,what))
-	     ;; normal autload, symbol "what" not present
-	    (apply varlet (curlet)
-		   (with-let (unlet)
-			     (let ()
-			       ;; note: we use load cause if we required already nothing will happen!
-			       ;; (*autoload* ',what) gives us the file name
-			       (load (*autoload* ',what) (curlet))
-			       (map (lambda (binding)
-				      (let ((binding-symbol (string->symbol 
-							     (string-append ,prefix "/" (symbol->string (car binding))))))
-					;; (format *stderr* "binding from autoload ~A\n" binding-symbol)
-					(cons binding-symbol 
-					      (cdr binding))))
-				    (curlet)))))))))
+(define (print . args)
+  (format *stderr* "~A\n" (apply string-append
+				 (map
+				  (lambda (x)
+				    (format #f "~A " x)
+				    )
+				  args))))
 
+;; returns the last argument
+;; useful for in-drop debugging, printing what we return
+(define (print-ret . args)
+  (apply print args)
+  (if (pair? args)
+      (car (reverse args))
+      ()))
+
+(comment
+ (print 'a 'b "aasa" '(a b c))
+
+ (let->list (curlet))
+ ((curlet) (string->symbol "lines"))
+ geom/echo
+ )
+
+;; hmm not sure how it's useful
+;; from s7.html
+(define (concat . args)
+  (apply append (map (lambda (arg) (map values arg)) args)))
+
+;; aod.ns has tests and may make some use of the rest of
+;; internal funtions, so requiring at the end
+(require aod.ns)
+
+(define (memoize fn)
+  (let ((mem (make-hash-table)))
+    (lambda args
+      (or (mem args)
+	  (begin
+	    ;; (print "not found, fn" fn "args " args)
+	    (let ((ret (apply fn args)))
+	      ;; (print "ret " ret)
+	      (set! (mem args) ret)
+	      ret))))))
+
+;; if-let, when-let
+;; only for one variable
+;; TODO
+;; - validate input? only one
+;; syntax is clj like, passing one list (symbol val)
+;; eg (when-let (x #f) ..)
+(define-macro (if-let binding then else)
+  `(let ((,(car binding) ,(cadr binding)))
+     (if ,(car binding)
+	 ,then
+	 ,else)))
+
+(define-macro (when-let binding . body)
+  `(let ((,(car binding) ,(cadr binding)))
+     (when ,(car bindings)
+       ,@body)))
+
+;; from s7 stuff.scm
+(define-macro (and-let* vars . body)      ; bind vars, if any is #f stop, else evaluate body with those bindings
+  (if (list? vars)
+      `(let () (and ,@(map (lambda (v) (cons 'define v)) vars) (begin ,@body)))
+      (error 'wrong-type-arg "and-let* var list is ~S" vars)))
+
+(define when-let* and-let*)
+
+(define-macro (if-let* vars then else)      ; bind vars, if all are #t evaluate "then", otherwise "else"
+  (if (list? vars)
+      `(let ()
+	 (if (and ,@(map (lambda (v) (cons 'define v)) vars))
+	     ,then
+	     ,else))
+      (error 'wrong-type-arg "and-let* var list is ~S" vars)))
+
+(comment
+ (if-let (x #t)
+	 1
+	 2)
+
+ (when-let (x #f)
+	   (print "one")
+	   (print "two"))
+ 
+ (if-let* ((x #t)
+	  (y #t))
+	 (print "true?")
+	 (print "false?"))
+
+ (when-let* ((x #f))
+	   (print "this")
+	   (print "that"))
+ )

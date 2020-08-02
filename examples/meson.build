@@ -58,3 +58,16 @@ example_audio_player = executable(
     ],
   install: true,
   )
+
+
+example_repl = executable(
+  'repl',
+  sources: files (
+ 's7-repl.cpp',
+  ),
+  dependencies: [
+    sdl2_dep,
+    aod_dep,
+    ],
+  install: true,
+  )

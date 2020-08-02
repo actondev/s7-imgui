@@ -3,17 +3,17 @@
 * COMMENT quick dev buttons
    #+NAME: buttons
    #+BEGIN_SRC emacs-lisp
-;; TODO  that not any is.. well wrong
-;; (aod.org-babel/generate-named-buttons-inc (rx (and ">" (not (any ">win")))))
 (aod.org-babel/generate-named-buttons-inc ">")
    #+END_SRC
 
    #+RESULTS: buttons
-   | [>clean_libc] | [>win:build] | [>repl] | [>test] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
+   | [>win:build] | [>repl] | [>test] | [>gui-repl] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
 
-* S7-Imgui
-  Fast & iterative developement of GUI applications with =S7 scheme= & =imgui=
 * Linux
+** Necessary symlinks
+   #+BEGIN_SRC sh
+ln -s `readlink -f src/scheme` build/scheme
+   #+END_SRC
 ** Optional: using existing repositories for subprojects
    #+BEGIN_SRC sh
 ln -s `readlink -f ../SDL` subprojects/sdl2
@@ -89,6 +89,11 @@ ninja -C build && ./build/s7-imgui
 ./build/s7-imgui
    #+END_SRC
 
+   #+NAME: >gui-repl
+   #+BEGIN_SRC sh
+./build/gui_repl
+   #+END_SRC
+
 ** Running the tests
    #+NAME: >test
    #+BEGIN_SRC sh
@@ -118,11 +123,18 @@ netcat localhost 12345
   (scheme-send-string "\n"))
   #+END_SRC
 * Windows
+** Necessary symlinks
+   #+BEGIN_SRC sh
+cmd
+mklink /J build\scheme src\scheme
+exit
+   #+END_SRC
 ** Optional: using existing repositories for subprojects
    #+BEGIN_SRC sh :session *s7-imgui-cmd*
 cmd
 mklink /J subprojects\sdl2 ..\SDL
 # etc..
+exit
    #+END_SRC
 ** Building
    
@@ -135,11 +147,12 @@ meson compile -C build
 
 # useful commands
 meson setup build --reconfigure --backend vs
-meson setup --wipe build
+meson setup build --wipe --backend vs
 rm -rf build
 
 # scheme scripts
 mklink /J build\scheme src\scheme
+
    #+END_SRC
 ** COMMENT buttons
    Just building (runnable src block)
@@ -151,36 +164,14 @@ mklink /J build\scheme src\scheme
 meson compile -C build   
    #+END_SRC
 
-* COMMENT Temp
-** s7: libc
-   Getting some scheme files from s7
-   Not sure if I can use this on windows though
+** Testing
+   Note: has to be ran in the build/test dir.
+   Cause of some paths.. ugh..
    #+BEGIN_SRC sh
-mkdir src/scheme/s7
-cp subprojects/s7/libc.scm src/scheme/s7/libc.scm
-cp subprojects/s7/r7rs.scm src/scheme/s7/r7rs.scm
-cp subprojects/s7/cload.scm src/scheme/s7/cload.scm
-cp subprojects/s7/s7.h src/scheme/s7/
-ls src/scheme/s7/
+cd build/test
+./gtest-all
    #+END_SRC
-
-   Clearing out the generated/compile libc
-
-   #+NAME: >clean_libc
-   #+BEGIN_SRC sh
-rm src/scheme/s7/libc_s7*
-   #+END_SRC
-
 * Bundled examples
-
-** COMMENT examples buttons
-   #+BEGIN_SRC emacs-lisp
-(aod.org-babel/generate-named-buttons-inc (rx (or "ex.c:" (regexp ">build$"))))
-   #+END_SRC
-
-   #+RESULTS:
-   | [ex.c:audio_player] | [ex.c:imgui] | [>build] |
-
 ** imgui demo
    #+NAME: ex.c:imgui
    #+BEGIN_SRC sh
@@ -188,7 +179,8 @@ ninja -C build
 
 ./build/examples/example_imgui
    #+END_SRC
-** audio player
+** COMMENT audio player
+   (owl.wav not there, cannot really bother with this now)
    #+NAME: ex.c:audio_player
    #+BEGIN_SRC sh
 ninja -C build
@@ -198,60 +190,40 @@ ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
 ./build/examples/ex_audio_player
    #+END_SRC
 
-** scheme app examples
-   #+BEGIN_SRC emacs-lisp :exports none
-(aod.org-babel/generate-named-buttons-inc (rx (or "ex.scm:" (regexp ">build$"))))
+* Testing
+  Have to be ran under the =build/test= directory (assuming you ran =meson setup build=)
+   #+BEGIN_SRC sh :session *test* :dir "build/test"
+./gtest-all
    #+END_SRC
 
-   #+RESULTS:
-   | [ex.scm:all-screenshots] | [ex.scm:color-wheel] | [ex.scm:maximized] | [ex.scm:shapes] | [ex.scm:menu] | [>build] |
+   #+CALL: repl(file="test/scheme/test-all.scm")
+   #+CALL: repl(file="test/scheme/test-core.scm")
 
-   #+NAME: ex.scm:menu
-   #+BEGIN_SRC sh
-./build/s7-imgui `pwd`/scheme-examples/menu.scm
+* Repl
+   #+NAME: repl
+   #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
+(run-scheme (concat (projectile-project-root) "build/repl " file))   
    #+END_SRC
 
-   #+NAME: ex.scm:shapes
-   #+BEGIN_SRC sh
-./build/s7-imgui `pwd`/scheme-examples/shapes.scm
-   #+END_SRC
+   #+CALL: repl(file="test/scheme/test-all.scm")
+   #+CALL: repl(file="test/scheme/test-core.scm")
 
-   #+NAME: ex.scm:maximized
-   #+BEGIN_SRC sh
-./build/s7-imgui `pwd`/scheme-examples/maximized.scm
-   #+END_SRC
+   #+CALL: repl(file="src/scheme/imgui_scratch.scm")
+   #+CALL: repl(file="")
 
-   #+NAME: ex.scm:color-wheel
-   #+BEGIN_SRC sh
-./build/s7-imgui `pwd`/scheme-examples/color_wheel.scm
+   #+NAME: gui-repl
+   #+BEGIN_SRC emacs-lisp :var file="src/scheme/main.scm" :results silent
+(run-scheme (concat (projectile-project-root) "build/gui_repl " file))   
    #+END_SRC
+   #+CALL: gui-repl()
+   #+CALL: gui-repl(file="src/scheme/examples/text-input.scm")
+   #+CALL: gui-repl(file="src/scheme/examples/text-editor.scm")
 
-   #+NAME: ex.scm:all-screenshots
-   #+BEGIN_SRC sh
-rm scheme-examples/*.png
-./build/s7-imgui `pwd`/scheme-examples/menu.scm
-./build/s7-imgui `pwd`/scheme-examples/shapes.scm
-./build/s7-imgui `pwd`/scheme-examples/maximized.scm
-./build/s7-imgui `pwd`/scheme-examples/color_wheel.scm
-   #+END_SRC
-** COMMENT s7 repl.scm
-   Using SDL for the base path, s7 for repl and optionally start a repl into a remote s7 instance (over socket)
-   #+BEGIN_SRC sh
-ninja -C build
-ln -s `pwd`/examples/scheme build/default/examples/scheme # for eclipse builds
-ln -s `pwd`/examples/scheme build/examples/scheme # for emacs/shell builds
+** Benchmark
+   #+CALL: repl(file="test/scheme/test-benchmark.scm")
 
-# this needs s7.h to work
-cp subprojects/s7/s7.h build/examples/
-./build/examples/s7-repl
-
-# clean:
-rm -r build/examples/*libc_*
-   #+END_SRC
-*** it's fast!
-    #+BEGIN_SRC sh
-time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-repl
-    #+END_SRC
+** Components
+   #+CALL: _build-and-run-scm(file="src/scheme/aod/components/sxs-wheel.scm")
 
 * COMMENT Local variables
   Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything
@@ -260,4 +232,6 @@ time echo "(begin (display (+ 1 2 3)) (newline) (exit))" | ./build/examples/s7-r
 # Local Variables:
 # eval: (aod.org-babel/eval-named-block "buttons")
 # eval: (org-babel-goto-named-result "buttons")
+# eval: (setq-local org-confirm-babel-evaluate nil)
+# eval: (aod.org-babel/generate-call-buttons)
 # End:  

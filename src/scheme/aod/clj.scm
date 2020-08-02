@@ -9,6 +9,9 @@
 ;; #<unspecified> or () is better?
 (define-expansion (comment . body) #<unspecified>)
 
+;; hm that fails
+;; (define-expansion (comment . body) (values))
+
 (define map-indexed
   (let ((+documentation+ "(map-indexed f coll)
 Applies f to the collection coll.
@@ -79,3 +82,48 @@ i is 2
 (define range iota)
 (define mod modulo)
 
+(define-macro (not= . args)
+  `(not (= ,@args)))
+
+#;
+(define-expansion (pow base power)
+(expt base power))
+
+(define pow expt)
+
+(define-expansion (identity what)
+  `,what)
+
+(define-macro (watch var fn)
+  `(set! (setter ',var) 
+	 (lambda (s v e)
+	   ;; calling fn with old and new value
+	   (,fn (e ',var) v)
+	   v)))
+
+(comment
+ (define x 1)
+ (watch x (lambda (old new)
+		(print "x changed from" old "to" new)))
+ ((curlet) 'x)
+ (define x 2)
+ )
+
+(define (keys coll)
+  (if (or (hash-table? coll)
+	  (let? coll))
+      (map (lambda  (el)
+	     (car el))
+	   coll)
+      (error 'wrong-type-arg "keys arg ~A is not a hash-table nor a let" coll)))
+
+(define (inc x)
+  (+ x 1))
+
+(define (dec x)
+  (- x 1))
+
+(define (partial fn . args)
+  (lambda rest-args
+    (apply fn (append args rest-args))
+    ))

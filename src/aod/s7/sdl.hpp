@@ -10,7 +10,9 @@ namespace sdl {
  * Notice extra space to avoid c++ warning -Wcomment
  * defines under sdl/ *window* and (sdl/set-window-size! w h)
  */
-void bind(s7_scheme *sc, SDL_Window *window);
+void bind_TODO_REMOVE(s7_scheme *sc, SDL_Window *window);
+void bind(s7_scheme *sc);
+
 }
 }
 }

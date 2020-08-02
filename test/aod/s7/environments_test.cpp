@@ -21,7 +21,7 @@ TEST(s7_environments, autoloads_bug) {
 
     s7_scheme* sc1 = s7_init();
     s7_autoload_set_names(sc1, autoloads, 3);
-    char* sexp = "(begin "
+    const char* sexp = "(begin "
                  "(require aod.lib1)"
                  "(require aod.lib2)"
                  "1)";
@@ -30,7 +30,7 @@ TEST(s7_environments, autoloads_bug) {
 
     s7_scheme* sc2 = s7_init();
     s7_autoload_set_names(sc2, autoloads, 3);
-    char* sexp2 = "(begin "
+    const char* sexp2 = "(begin "
                   "(require aod.extra.foo)"
                   "2)";
     // THAT FAILS!!
@@ -62,13 +62,13 @@ TEST(s7_environments, autoloads) {
 TEST(s7_environments, require) {
     s7_scheme* sc = s7_init();
     aod::s7::bind_all(sc);
-    s7_add_to_load_path(sc, scheme_path.c_str());
+    s7_add_to_load_path(sc, scheme_path.string().c_str());
     aod::s7::set_autoloads(sc);
 
     const char* sexp = "(begin "
                        "(require aod.core)"
-                       "(aod/require aod.foreign)"
-                       "(define i2 (aod.foreign/new-int 2))"
+                       "(ns-require aod.c.foreign)"
+                       "(define i2 (aod.c.foreign/new-int 2))"
                        "(i2)"
                        ")"
                        ;
@@ -78,12 +78,12 @@ TEST(s7_environments, require) {
 TEST(s7_environments, require_as) {
     s7_scheme* sc = s7_init();
     aod::s7::bind_all(sc);
-    s7_add_to_load_path(sc, scheme_path.c_str());
+    s7_add_to_load_path(sc, scheme_path.string().c_str());
     aod::s7::set_autoloads(sc);
 
     const char* sexp1 = "(begin "
                         "(require aod.core)"
-                        "(define i1 ((*foreign* 'new-int) 1))"
+                        "(define i1 ((aod.c.foreign 'new-int) 1))"
                         "(i1)"
                         ")"
                         ;
@@ -93,7 +93,7 @@ TEST(s7_environments, require_as) {
     const char* sexp2 = "(begin "
                         "(require aod.core)"
                         "(comment aha)"
-                        "(aod/require aod.foreign :as c)"
+                        "(ns-require aod.c.foreign :as c)"
                         "(define i2 (c/new-int 2))"
                         "(i2)"
                         ")"
@@ -103,11 +103,11 @@ TEST(s7_environments, require_as) {
     const char* sexp3 = "(begin "
                         "(require aod.core)"
                         "(comment YUP cause aod.clj is already normally required from aod.core)"
-                        "(aod/require aod.clj)"
+                        "(ns-require aod.clj)"
                         "(aod.clj/comment AHA clj style require with aod/require)"
-                        "(aod/require aod.clj :as my-clj-things)"
+                        "(ns-require aod.clj :as my-clj-things)"
                         "(my-clj-things/comment AHA 2! clj style require with aod/require)"
-                        "(aod/require aod.clj :as my-clj-things)" // should see a warning that it's already defined
+                        "(ns-require aod.clj :as my-clj-things)" // should see a warning that it's already defined
                         "3)"
                         ;
     ASSERT_EQ(3, s7_integer(s7_eval_c_string(sc, sexp3)));

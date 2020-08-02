@@ -24,14 +24,14 @@
 
 (define N 12)
 
-(define rgb-N (colors/rgb-steps N))
+(define rgb-N (colors/rgb-wheel N))
 (define rgb-N-u32
   (map (lambda (rgb)
 	 (imgui.color/frgb->u32 (rgb 0) (rgb 1) (rgb 2)))
        rgb-N))
 
 ;; phase 0 .. 1 (like 0 .. 2pi)
-(define* (element x y (phase 0) (n 0))
+(define* (element x y (phase 0) (n 0) (N 1))
   (let* ((rgb (colors/rgb-phase phase))
 	 (red (car rgb))
 	 (green (cadr rgb))

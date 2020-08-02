@@ -21,7 +21,7 @@ namespace aod {
                }
                
                int tag_bool_arr(s7_scheme* sc){
-                    s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-bool[])");
+                    s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-bool[])");
                     if(s7_is_integer(res)){
                	  return s7_integer(res);
                     }
@@ -107,7 +107,7 @@ namespace aod {
                }
                
                int tag_int_arr(s7_scheme* sc){
-                    s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-int[])");
+                    s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-int[])");
                     if(s7_is_integer(res)){
                	  return s7_integer(res);
                     }
@@ -194,7 +194,7 @@ namespace aod {
                }
                
                int tag_float_arr(s7_scheme* sc){
-                    s7_pointer res = s7_eval_c_string(sc, "(*foreign* 'type-float[])");
+                    s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-float[])");
                     if(s7_is_integer(res)){
                	  return s7_integer(res);
                     }
@@ -270,9 +270,74 @@ namespace aod {
                
                // ! ---------------------------- float-arr ------------------------------
                
+	       
+	       // ------------------------------ char-arr ------------------------------
+	       
+	       void free_char_arr(void *raw_data) {
+	            char* data = (char*) raw_data;
+	            delete[] data;
+	       }
+	       
+	       int tag_char_arr(s7_scheme* sc){
+	            s7_pointer res = s7_eval_c_string(sc, "(aod.c.foreign 'type-char[])");
+	            if(s7_is_integer(res)){
+	       	  return s7_integer(res);
+	            }
+	            return -1;
+	       }
+	       
+	       
+	       s7_pointer make_char_arr(s7_scheme *sc, s7_pointer args) {
+	            int len = s7_integer(s7_car(args));
+	            if (len == 0) {
+	       	  return (s7_wrong_number_of_args_error(sc,
+	       						"char_arr creating needs 1 positive argument for its length: ~S", args));
+	            }
+	            /* fprintf(stderr, "making char[] of length %d\n", len); */
+	            char* data = new char[len]{}; // {} is for default initialization. eg false for bool, 0 for numbers
+	       
+	            int type = tag_char_arr(sc);
+	            s7_pointer obj = s7_make_c_object(sc, type, (void*) data);
+	       
+	            return obj;
+	       }
+	       
+	       // custom char* reference
+	       s7_pointer ref_char_arr(s7_scheme *sc, s7_pointer args) {
+	            char* arr = (char*) s7_c_object_value(s7_car(args));
+	            return s7_make_string(sc, arr);
+	       }
+	       
+	       // custom char* setter
+	       s7_pointer set_char_arr(s7_scheme *sc, s7_pointer args) {
+	            char* arr = (char*) s7_c_object_value(s7_car(args));
+	            const char* new_char = s7_string(s7_cadr(args));
+	            // copy string..
+	            sprintf(arr, "%s", new_char);
+	            return s7_nil(sc);
+	       }
+	       
+	       void bind_char_arr(s7_scheme* sc, s7_pointer env) {
+	            /* s7_pointer env = s7_inlet(sc, s7_nil(sc)); */
+	            /* s7_gc_protect(sc, env); */
+	       
+	            // --- bool ----
+	            s7_int type = s7_make_c_type(sc, "<char-arr>");
+	            s7_define(sc, env, s7_make_symbol(sc, "type-char[]"),
+	       	       s7_make_integer(sc, type));
+	            s7_define(sc, env, s7_make_symbol(sc, "new-char[]"),
+	       	       s7_make_function(sc, "new-char[]", make_char_arr, 1, 0, false,
+	       				"creates a heap allocated char[] (c-object)"));
+	            s7_c_type_set_ref(sc, type, ref_char_arr);
+	            s7_c_type_set_set(sc, type, set_char_arr);
+	            s7_c_type_set_free(sc, type, free_char_arr);
+	       }
+	       
+	       // ! ---------------------------- char-arr ------------------------------
+	       
 
                  /**
-                    (define *int-arr ((*foreign* 'new-int[]) 3))
+                    (define *int-arr ((aod.c.foreign 'new-int[]) 3))
                     (*int-arr 0) => 0
                     (set! (*int-arr 0 1))
                     (*int-arr 1) => 1
@@ -296,13 +361,10 @@ namespace aod {
                     bind_bool_arr(sc, env);
                     bind_int_arr(sc, env);
                     bind_float_arr(sc, env);
+		    bind_char_arr(sc, env);
 
-                    s7_define(sc, s7_curlet(sc), s7_make_symbol(sc, "*foreign*"),
-                              s7_sublet(sc, s7_nil(sc), s7_let_to_list(sc, env)));
-
-                    s7_define_variable(sc, "aod.foreign", s7_let_to_list(sc, env));
+		    s7_define_variable(sc, "aod.c.foreign", env);
                }
           } // foreign
      } // s7
 } // aod
-

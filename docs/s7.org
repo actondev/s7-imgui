@@ -67,8 +67,20 @@ void add1_init(s7_scheme *sc)
      s7_define_function(sc, "add1", add1, 1, 0, false, "(add1 int) adds 1 to int");
 }
    #+END_SRC
-** arguments
+** C side: processing passed arguments from scheme
    #+BEGIN_SRC c
+float x1 = s7_number_to_real(sc, s7_list_ref(sc, args, 0));
+float y1 = s7_number_to_real(sc, s7_list_ref(sc, args, 1));
+// .. and so on
+// as seen on https://github.com/createuniverses/praxis/blob/7ad27b80f48cf1b0e60af7a3b0c66db296c5f588/lispCallbacks.cpp
+// instead of car, cadr caddr etc
+   #+END_SRC
+** Types
+   #+BEGIN_SRC c
+int tag = s7_new_type("some_type..?", NULL, NULL, NULL, NULL, NULL, NULL);   
+   #+END_SRC
+*** s7_define_functionsarguments
+    #+BEGIN_SRC c
 s7_pointer s7_define_function(s7_scheme *sc,
 			      const char *name,
 			      s7_function fnc, 
@@ -77,7 +89,7 @@ s7_pointer s7_define_function(s7_scheme *sc,
 			      bool rest_arg,
 			      const char *doc
      );
-   #+END_SRC
+    #+END_SRC
 
 ** Checking s7_integer
    The =s7_is_integer= check
@@ -393,3 +405,188 @@ f1
   #+END_QUOTE
 
   The =provide= simply puts that symbol into the =*features*= list.
+* Macros, expansions etc
+  #+BEGIN_QUOTE
+   define-expansion defines a macro that expands at read-time. It has
+   the same syntax as define-macro, and (in normal use) the same
+   result, but it is much faster because it expands only
+   once. Similarly, define-expansion* defines a read-time macro*. (See
+   also define-with-macros in s7test.scm for a way to expand macros in
+   a function body at definition time). Since the reader knows almost
+   nothing about the code it is reading, you need to make sure the
+   expansion is defined at the top level and that its name is
+   unique. The reader does know about global variables, so:
+  #+END_QUOTE
+
+  Check
+  - define-with-macros
+    :) should be useful for imgui macros and cpu
+* (ns ..) forms, switch namespace from emacs
+  see [[file:../src/scheme/aod/ns.scm]] for dealing with namespaces
+
+  Example/tutorial:
+  
+  #+BEGIN_SRC scheme
+(ns foo.bar)
+;; sets the *ns* symbol in a new environment (let)
+;; subsequent calls are evaluated in this environment
+
+(ns-require foo.bar2)
+(ns-require foo.bar3 :as bar3)
+;; fully qualified namespace for calling
+(foo.bar2/hi)
+
+;; call with alias
+(bar3/hi)
+
+;; shows the current namespace
+,*ns*
+
+;; the following are equivalent
+;; --- BEGIN equivalent
+(with-ns foo.bar2
+	 (hi))
+
+;; *nss* mnemonic: plurar of ns. NameSpaceS
+(with-let (*nss* 'foo.bar2)
+	  (hi))
+;; this changes the *ns*
+(ns foo.bar2)
+(hi)
+;; ---- END equivalent
+
+;; WARNING
+;; now foo.bar2/hi and bar3/hi are NOT available
+;; to make them available we have to switch back:
+(ns foo.bar)
+
+  #+END_SRC
+
+** emacs: switching namespace
+   - [ ] send =(set! *ns* #f)= if no =(ns ..)= form found? \\
+     The repl on the cpp side checks for this
+   #+BEGIN_SRC emacs-lisp
+;; Some helper funcionts for workin with s7 namely, changing
+;; "namespace" with (ns ..) forms ala clojure tyle
+;; 
+;; Pardon the non-elisp-idiomatic dots and slashes but I really prefer
+;; this namespace/clojure sytnax
+
+(require 'cmuscheme)
+
+(defun aod.s7/get-ns ()
+  "Get the (ns some.namespace) part to send on the repl"
+  (save-excursion
+    (beginning-of-buffer)
+    (if (re-search-forward "^\\(\(ns .+\)\\)" nil t)
+	(match-string-no-properties 1)
+      nil)))
+
+(defun aod.s7/switch-to-ns ()
+  "Switches to the namespace of the currently open buffer."
+  (interactive)
+  (if-let ((ns (aod.s7/get-ns)))
+      (scheme-send-string ns)
+    ;; else
+    (if (interactive-p)
+	(message "No (ns ..) form found!"))))
+
+(defun aod.s7/send-definition ()
+  "Sends top level sexp"
+  (interactive)
+  (aod.s7/switch-to-ns)
+  (scheme-send-definition)
+  )
+
+(defun aod.s7/send-last-sexp ()
+  "Sends last sexp. Useful for one-liners, subforms
+inside (comment ... ) etc"
+  (interactive)
+  (aod.s7/switch-to-ns)
+  (scheme-send-last-sexp)
+  )
+
+(provide 'aod-s7)
+
+   #+END_SRC
+* Error handling
+  #+BEGIN_SRC scheme
+(catch #t
+       (lambda ()
+	 ;; do some things here that might fail
+	 )
+       (lambda (tag info)
+	 (format *stderr* "Error: ~A\n" tag)
+	 ;; info is a list usually
+	 ;; car: the formatting string eg "~A is not a list but ~A"
+	 ;; and then the arguments for the formatting
+	 (apply format *stderr* info)
+	 ;; bubbling up the error
+	 (apply throw tag info)
+	 ))
+  #+END_SRC
+* Write -> read (serialize / unserialize)
+  #+BEGIN_SRC scheme
+;; the following are equivalent
+
+(object->string my-obj :readable)  
+(format #f "~W" my-obj)
+  #+END_SRC
+* Setters
+  #+BEGIN_QUOTE
+   The setter function takes two arguments, the symbol and the new
+   value, and returns the value that is actually set. If the setter
+   function accepts a third argument, the current (symbol-relative)
+   environment is also passed (the weird argument order is an
+   historical artifact).
+  #+END_QUOTE
+* Parsing arguments efficiently
+  s7_list_ref is not efficienty (it iterates through the cdr):
+  
+  #+BEGIN_SRC cpp
+s7_pointer s7_list_ref(s7_scheme *sc, s7_pointer lst, s7_int num)
+{
+  s7_int i;
+  s7_pointer x;
+  for (x = lst, i = 0; (i < num) && (is_pair(x)); i++, x = cdr(x)) {}
+  if ((i == num) && (is_pair(x)))
+    return(car(x));
+  return(sc->nil);
+}  
+  #+END_SRC
+
+ Instead, prefer this: (I think it's verbose enough)
+
+  #+BEGIN_SRC cpp
+s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
+    s7_pointer text = s7_car(args);
+    if (!s7_is_string(text)) {
+        return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 1, text,
+                                        "Expecting a string (title)"));
+    }
+    
+    // args[1..]
+    args = s7_cdr(args);
+
+    float *p_value = (float*) s7_c_object_value_checked(s7_car(args),
+                     aod::s7::foreign::tag_float(sc));
+
+    static const char* default_format = "%.3f";
+    const char* format = default_format;
+
+    // args[2..]
+    args = s7_cdr(args);
+    float min = (float) s7_real(s7_car(args));
+    // [3...]
+    args = s7_cdr(args);
+    float max = (float) s7_real(s7_car(args));
+
+    // [4...]
+    args = s7_cdr(args);
+    if (s7_is_string(s7_car(args))) {
+        format = s7_string(s7_car(args));
+    }
+
+    return s7_make_boolean(sc, ImGui::SliderFloat(s7_string(text), p_value, min, max, format));
+}  
+  #+END_SRC

@@ -1,4 +1,9 @@
 #include "./repl.hpp"
+#include <regex>
+#include <iostream>
+using std::cout;
+using std::cerr;
+using std::endl;
 
 namespace aod {
 namespace s7 {
@@ -25,14 +30,31 @@ Repl::Repl(s7_scheme *sc) {
  *
  * If the result is true, you can then call the
  */
-bool Repl::handleInput(std::string str, bool clearPreviousInput) {
+bool Repl::handleInput(const char* str, bool clearPreviousInput) {
 
     if (clearPreviousInput) {
         input_buffer.clear();
     }
     // completing previous input that could not be read
     input_buffer += str;
-    std::string wrapped = "(begin " + input_buffer + ")";
+
+//     cerr << "input str " << str << "buffer " << input_buffer << endl;
+
+    std::string wrapped;
+    // clojure style namespace.
+    if (s7_boolean(sc, s7_eval_c_string(sc, "(and (defined? '*ns*) (let? *ns*))"))) {
+        if (std::regex_search(input_buffer, repl::NS_REGEXP)) {
+            // if the input_buffer is "(ns ...)" then skip wrapping
+            // that makes the eval-hook easy to recognize such eval'd forms
+            // one just has to check (eq? 'ns (car (hook 'form)))
+            wrapped = input_buffer;
+        } else {
+            wrapped = "(with-let *ns* (begin " + input_buffer + "))";
+        }
+    } else {
+        wrapped = "(begin " + input_buffer + ")";
+    }
+
     const char *c_str = wrapped.c_str();
     s7_pointer port = s7_open_input_string(sc, c_str);
 
@@ -47,34 +69,13 @@ bool Repl::handleInput(std::string str, bool clearPreviousInput) {
     const char *errmsg = s7_get_output_string(sc, err);
     s7_close_output_port(sc, err);
     if ((errmsg) && (*errmsg)) {
-        std::string err_str = errmsg;
-//			if (err_str.find(UNEXPECTED_CLOSE_PAREN) != std::string::npos) {
-//				input_stream.clear();
-//			}
         return false;
     } else {
+//         cerr << "wrapped form " << wrapped << endl;;
         last_form = form;
         input_buffer.clear();
     }
 
-    /*
-     s7_pointer out = s7_open_output_string(sc);
-     s7_pointer out_prev = s7_set_current_output_port(sc, out);
-     s7_pointer res = s7_eval(sc, form, s7_nil(sc));
-     if (!s7_is_valid(sc, res)) {
-     fprintf(stderr, "res invalid valid\n");
-     }
-     //		s7_eval_c_string(sc, c_str);
-
-     //		delete c_str;
-     const char *out_str = s7_get_output_string(sc, out);
-     //		char* out_str = s7_object_to_c_string(sc, out);
-     const char *res_str = s7_object_to_c_string(sc, res);
-     //		fprintf(stderr, "in handle input\n");
-     printf("out is %s\n", out_str);
-     printf("res is %s\n", res_str);
-     //		delete out_str;
-     */
     return true;
 }
 
@@ -85,25 +86,57 @@ std::string Repl::evalLastForm() {
 
     s7_pointer out = s7_open_output_string(sc);
     s7_pointer out_prev = s7_set_current_output_port(sc, out);
+
     s7_pointer res = s7_eval(sc, last_form, s7_nil(sc));
+    char *res_str = s7_object_to_c_string(sc, res); // has to be freed
 
-    // should I return this as well somehow?
-//		const char *out_str = s7_get_output_string(sc, out);
+    const char *out_str = s7_get_output_string(sc, out);
 
-//		char* out_str = s7_object_to_c_string(sc, out);
-    char *res_str = s7_object_to_c_string(sc, res);
-//		fprintf(stderr, "in handle input\n");
-//		printf("out is %s\n", out_str);
-//		printf("res is %s\n", res_str);
-//		delete out_str;
+    s7_pointer eval_hook = s7_eval_c_string(sc, "(and (defined? 'aod.c.repl) (aod.c.repl '*eval-hook*))");
+
+    if (eval_hook != s7_f(sc)) {
+        // s7_is_function not working with the hook (returns false)
+        // if (s7_is_function(eval_hook)) {
+        s7_call(sc, eval_hook,
+                s7_list(sc,
+                        3,
+                        last_form,
+                        res,
+                        s7_make_string(sc, out_str)
+                       )
+               );
+    } else {
+        // std::cerr << "No eval hook??\n";
+    }
 
     std::string str = res_str;
     s7_close_output_port(sc, out);
     s7_set_current_output_port(sc, out_prev);
+
     delete[] res_str;
 
     return str;
 }
+
+namespace repl {
+
+// aod.c.repl bindings
+// *eval-hook* etc
+const std::regex NS_REGEXP("^\\(ns [a-zA-Z.-]+\\)");
+
+void bind(s7_scheme* sc) {
+    s7_pointer env = s7_inlet(sc, s7_nil(sc));
+    s7_gc_protect(sc, env);
+
+    // not sure about eval with evnironment or not
+    s7_pointer eval_hook = s7_eval_c_string_with_environment(sc, "(make-hook 'form 'res 'out)", env);
+
+    s7_define(sc, env, s7_make_symbol(sc, "*eval-hook*"),
+              eval_hook);
+
+    s7_define_variable(sc, "aod.c.repl", env);
+}
+} // repl
 
 } // s7
 

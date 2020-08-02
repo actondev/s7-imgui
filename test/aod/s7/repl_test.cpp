@@ -1,5 +1,7 @@
 #include "gtest/gtest.h"
 #include "aod/s7/repl.hpp"
+#include <regex>
+
 using namespace aod::s7;
 
 TEST(Repl, Init) {
@@ -20,6 +22,14 @@ TEST(Repl, read_function){
 	ASSERT_EQ("inc", repl.evalLastForm());
 	ASSERT_TRUE(repl.handleInput("(inc 1)"));
 	ASSERT_EQ("2", repl.evalLastForm());
+}
+
+TEST(Repl, ns_regexp){
+    // std::regex ns_regex("^\\(ns [a-zA-Z.-]+\\)");
+    std::regex ns_regex = aod::s7::repl::NS_REGEXP;
+    ASSERT_FALSE(std::regex_search("ns aod.demo", ns_regex));
+    ASSERT_TRUE(std::regex_search("(ns aod.demo)", ns_regex));
+    ASSERT_FALSE(std::regex_search(";; (ns aod.demo)", ns_regex));
 }
 
 

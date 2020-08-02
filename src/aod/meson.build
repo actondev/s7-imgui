@@ -2,9 +2,12 @@
 # if s7 found, add these files
 # if imgui found, ... and so on
 aod_sources = files(
+  # TODO move things in subfolders
+  # eg s7/s7.cpp, s7/s7.hpp for the "core" functionality
   's7.cpp',
-  's7/imgui.cpp',
-  's7/imgui_addons.cpp',
+  's7/imgui/imgui.cpp',
+  's7/imgui/addons.cpp',
+  's7/imgui/enums.cpp',
   's7/repl.cpp',
   'imgui/addons.cpp',
   's7/sdl.cpp',
@@ -12,11 +15,22 @@ aod_sources = files(
   'sdl/audio.cpp',
   'nfd.cpp',
   's7/nfd.cpp',
+  's7/imgui_sdl.cpp',
+  'colors.cpp',
+  's7/colors.cpp',
 
   # foreign types
-  # 's7/c_primitives.cpp',
   's7/foreign_primitives.cpp',
   's7/foreign_primitives_arr.cpp',
+
+  # img (testing for similarity)
+  # TODO rename to img/img.cpp
+  'img/core.cpp',
+  's7/img.cpp',
+  
+  # midi
+  'midi/midi.cpp',
+  's7/midi.cpp',
 )
 
 gl_dep = dependency('gl', required : false)
@@ -40,6 +54,7 @@ aod_lib = library(
     gl_dep,
     sdl2_dep,
     nfd_dep,
+    stb_dep, # (only for image read/write for now)
   ]
   )
 

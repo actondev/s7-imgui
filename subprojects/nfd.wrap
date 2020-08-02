@@ -1,0 +1,4 @@
+[wrap-git]
+ url = https://github.com/actonDev/nativefiledialog.git
+ revision = feature/meson
+ depth = 1

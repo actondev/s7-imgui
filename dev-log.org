@@ -447,7 +447,7 @@ int APIENTRY WinMain(HINSTANCE hInstance,
   #+END_SRC
 
   But, instead of that, if we link against the =sdl2_main= library, this is taken care of
-* TODO opengl screenshot
+* DONE opengl screenshot
   https://stackoverflow.com/questions/5862097/sdl-opengl-screenshot-is-black#5867170
 * DONE <2020-07-01 Wed> windows: cannot build
   #+BEGIN_QUOTE
@@ -471,8 +471,8 @@ c++.exe: error: iphlpapi.lib: No such file or directory
 meson setup build-mingw
 ninja -C build-mingw
    #+END_SRC
-* TODO <2020-07-01 Wed> todo list: more bindings, mutex [3/7]
-** TODO bindings
+* DONE <2020-07-01 Wed> todo list: more bindings, mutex [4/4]
+** bindings
    wrote some ffi utils, creating c-objects and sharing between c<->scheme
 
    TODO
@@ -555,10 +555,10 @@ ImGui::SameLine();
      #+END_SRC
 
      I prefer the simpler, first version
-** TODO mutex
+** mutex
    I can crash the application when sending quickly from the repl the =(draw)= definition. expected :)
    - use a mutex around the main loop
-** TODO s7 ffi: free functions
+** DONE s7 ffi: free functions
    delete void* isn't very smart.. fix this :)
    but.. why wasn't the compiler complaining??
 
@@ -567,7 +567,7 @@ ImGui::SameLine();
    S7 doesn't have a precise garbage collector
 
    updated the test, indeed the =free= gets called
-** TODO gfx like calls
+** gfx like calls
    SCHEDULED: <2020-07-03 Fri>
 
    - circle
@@ -575,8 +575,8 @@ ImGui::SameLine();
    - text
    - triangle
    - ..etc
-* TODO org-mode literate programming: creating foreign types
-* TODO Drawing (gfx style)
+* DONE org-mode literate programming: creating foreign types
+* Drawing (gfx style)
   see
   - [[file:../subprojects/imgui-1.76/imgui_demo.cpp]]
   - [[file:../src/aod/imgui/addons.cpp::Knob]]
@@ -636,7 +636,15 @@ $(OBJDIR)/nfd_gtk.o: ../../src/nfd_gtk.c
   #+END_SRC
 * C++ private functions, hiding implentation from header etc
   https://stackoverflow.com/a/28734794
-* TODO <2020-07-12 Sun> s7 bug
+* DONE <2020-07-12 Sun> s7 bug
+  Done
+  #+BEGIN_QUOTE
+  Thanks for the bug report.  This is actually a bug in the
+documentation -- the array of names should be *sorted alphabetically*,
+but I forgot to mention that in s7.html.
+
+  #+END_QUOTE
+
   sent to the mailing list
   #+BEGIN_SRC cpp
 TEST(s7_environments, autoloads_bug) {
@@ -776,3 +784,169 @@ TEST(s7_environments, autoloads_bug) {
 					      (cdr binding))))
 				    (curlet)))))))))  
   #+END_SRC
+* DONE <2020-07-17 Fri> (ns ..) forms, switch namespace from emacs
+  created the [[file:src/scheme/aod/ns.scm]] for dealing with namespaces
+  some 160 lines including plenty of comments. hope it will serve well.
+
+  See more in [[file:docs/s7.org]]
+* aod.c.imgui-sdl bindings
+  to quickly prototype with imgui. the window creation and imgui drawing is done from scheme,
+  i'm not called by c.
+
+  example
+  #+BEGIN_SRC scheme
+(ns imgui-sratch)
+
+(ns-require aod.c.imgui-sdl :as igsdl)
+(ns-require aod.c.imgui :as ig)
+(ns-require aod.imgui.macros :as igm)
+
+(define *ctx* (igsdl/setup 400 400))
+
+(define (draw)
+  (igsdl/prepare *ctx*)
+
+  ;; your drawing logic here
+  ;; eg
+  (igm/maximized
+   ("imgui scratch")
+   (ig/text "hi devil")
+   (ig/text ""))
+
+  
+  (igsdl/flush *ctx*)
+  )
+
+;; drawing upon first running
+(draw)
+
+(comment
+ ;; run destroy to kill the sdl window
+ (igsdl/destroy *ctx*)
+ )
+
+  #+END_SRC
+* <2020-07-23 Thu> building on windows: fail
+  #+BEGIN_QUOTE
+  error C2039: 'filesystem': is not a member of 'std' [W:\dev\actondev\s7-imgui\build\src\aod\7bbcc5b@@aod@sta.vcxproj]
+  #+END_QUOTE
+** DONE filesystem path c_str()
+   #+BEGIN_QUOTE
+   's7_pointer s7_add_to_load_path(s7_scheme *,const char *)': cannot convert argument 2 from 'const std::filesystem::path::value_type *' to 'const char *'
+   #+END_QUOTE
+
+   aha. on linux =path.c_str()= returns =char*=, but on windows it's =w_char= .. ughh
+
+   Solution:
+   #+BEGIN_SRC cpp
+path.string().c_str()
+   #+END_SRC
+** VS and c++17
+   - https://github.com/mesonbuild/meson/issues/6314
+   #+BEGIN_SRC sh
+meson configure build | grep std # it's indeed c++17
+   #+END_SRC
+
+   solution (for aod lib)
+   #+BEGIN_SRC meson
+cpp_args = []
+system = host_machine.system()
+if system == 'windows'
+  cpp_args += '/std:c++17'
+endif
+
+aod_lib = library(
+  'aod',
+  # sources: aod_sources,
+  include_directories: include_directories('..'),
+  sources: aod_sources,
+  cpp_args: cpp_args,
+  # ...
+  )
+   
+   #+END_SRC
+
+   or..
+   #+BEGIN_SRC meson
+aod_lib = library(
+  'aod',
+  cpp_std: 'c++17',
+  # ..
+  )
+   #+END_SRC
+
+   uhmmm.
+   #+BEGIN_QUOTE
+subprojects\s7_imgui\src\aod\meson.build:44: WARNING: Passed invalid keyword argument "cpp_std".
+   #+END_QUOTE
+
+   #+BEGIN_SRC sh
+meson -v
+pip3 install meson --upgrade
+# hm updated from 0.54.3 to 0.55
+   #+END_SRC
+
+   hm.. now it works..?
+* drawing arc/bezier
+  #+BEGIN_SRC cpp
+    IMGUI_API void  AddBezierCurve(const ImVec2& p1, const ImVec2& p2, const ImVec2& p3, const ImVec2& p4, ImU32 col, float thickness, int num_segments = 0);
+  
+  #+END_SRC
+* memoize, performance
+  In the first working demo of s7vst, the full each frame drawing was using ~11% cpu
+
+  but with
+
+  #+BEGIN_SRC scheme
+;; in aod/sxs.scm
+(set! lines (memoize lines))
+  #+END_SRC
+
+  Cpu is around ~5%
+
+  hooray :D
+* TODO imgui.. ImDrawList cache?
+  Could I maybe cache certaing components?
+  How I imagine it:
+  - define-imgui or something
+  - uses its own drawlist on each call
+  - invalidates the drawlist if there is a mouse event or something..
+* TODO s7 & opengl shaders?
+  Saw a demo of using a shader with iPlug2 in oli larkin's talk (creator of iPlug)
+
+  Wonder how easy (or not) would be to do something similar with s7
+* TODO ns-doc all namespaces, create documentation files
+  probably with emacs & org mode.. :)
+* Dilambdas
+  #+BEGIN_SRC scheme
+(define (make-file-contents *char)
+  ;; dilambda is a quick way to define getters and setters
+  (dilambda
+   ;; getter
+   (lambda ()
+     (*char))
+   (lambda (v)
+     (if (< buffer-size (length v))
+	 (print "text bigger than buffer-size!")
+	 (begin
+	   (set! (*char) v))))))
+
+(define *file-contents* (make-file-contents *buffer))  
+  #+END_SRC
+* emacs-lisp
+  Removed it, but it's nice to keep
+     #+NAME: _build-and-run-scm
+   #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
+(let ((build-res (with-temp-buffer
+		   (call-process "ninja" nil t t "-C" "build"))))
+  (if (= 0 build-res)
+      (progn
+	;; (message "OK! running scheme")
+	(let ((default-directory (projectile-project-root)))
+	  (run-scheme (concat (projectile-project-root) "build/repl " file))
+	  ))
+    (progn
+      ;; (message "build failed")
+      (message (buffer-string))
+      )))
+   #+END_SRC

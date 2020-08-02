@@ -1,14 +1,13 @@
-(display "loading aod/imgui/macros.scm\n")
-(require aod.clj) ;; the (comment) macro is there
-(provide 'aod.imgui.macros)
-(aod/require aod.c.imgui :as ig)
+(ns aod.imgui.macros)
+(ns-require aod.c.imgui :as ig)
 
 (define-macro (safe . body)
   `(catch #t
 	   (lambda ()
 	     ,@body)
-	   (lambda args
-	     (apply format #t (cadr args))
+	   (lambda (tag info)
+	     (format *stderr* "Exception occured inside ImGui body: ~A~%" tag)
+	     (apply format *stderr* info)
 	     (newline))))
 
 (define-macro (begin args . body)

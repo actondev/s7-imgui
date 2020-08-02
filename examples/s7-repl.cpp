@@ -1,36 +1,56 @@
-/*
- * s7-repl.c
- *
- *  Created on: Jun 23, 2020
- *      Author: actondev
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "SDL.h"
-#include "aod/path.hpp"
 #include "s7.h"
 #include "aod/s7.hpp"
+#include "aod/s7/repl.hpp"
+#include <filesystem>
+#include <iostream>
+
+namespace fs = std::filesystem;
+using std::cout, std::cerr, std::endl;
 
 int main(int argc, char **argv) {
-	SDL_Init(SDL_INIT_EVERYTHING);
-	char *path = SDL_GetBasePath();
-	printf("base path is %s\n", path);
-	aod::path::set(path);
+    char buffer[512];
 
-	s7_scheme *sc = s7_init();
-	aod::s7::set_print_stderr(sc);
+    cout << "argv[0] " << argv[0] << " fs::current_path " << fs::current_path() << endl;
+    fs::path base_path = (fs::current_path() / argv[0]).remove_filename();
+    cout << "base path " << base_path << endl;
 
-	char sbuf[256];
-	sprintf(sbuf, "%s%s", path, "scheme/");
-	printf("new load path %s\n", sbuf);
+    fs::path scheme_path = base_path / ".." / ".." / "src" / "scheme";
+    // cout << "scheme path " << scheme_path << endl;
 
-	// s7_add_to_load_path(sc, sbuf);
-	s7_add_to_load_path(sc, "scheme");
-	aod::path::print_cwd();
-	s7_load(sc, "repl.scm");
-	s7_eval_c_string(sc, "((*repl* 'run))");
-  
-	free(path);
+    s7_scheme *sc = s7_init();
+    aod::s7::set_print_stderr(sc);
+    aod::s7::set_autoloads(sc);
+    aod::s7::bind_all(sc);
+
+    s7_add_to_load_path(sc, scheme_path.string().c_str());
+
+    if (argc >= 2) {
+        cout << "Passed custom scheme file " << argv[1] << endl;
+        fs::path passed_file = argv[1];
+        if (!passed_file.is_absolute()) {
+            passed_file = (fs::current_path() /  passed_file);
+        }
+        std::string load_sexp = "(ns-load-file \"" + passed_file.string() +"\")";
+
+        // provides the ns-load-file
+        aod::s7::load_file(sc, "aod/core.scm");
+        s7_eval_c_string(sc, load_sexp.c_str());
+//         s7_load(sc, passed_file.c_str());
+    }
+
+    aod::s7::Repl repl(sc);
+
+    cout << "S7 Example Repl " << endl << "> ";
+
+    while (true) {
+        fgets(buffer, 512, stdin);
+        if (repl.handleInput(buffer)) {
+            auto result = repl.evalLastForm();
+            cout << endl << result << endl << "> ";
+        }
+
+    }
 }
