@@ -47,7 +47,7 @@
   (rootlet)
   )
 
-(define-macro (ns-create the-ns)
+(define (ns-create the-ns)
   ;; should check about the *ns-load-mode*
   ;; (format *stderr* "Creating namespace ~A\n" the-ns)
   (if *ns-load-mode*
@@ -56,9 +56,10 @@
 	(set! (*nss* the-ns) *ns*)
 	(set! *ns-load-mode* #f))
       (set! (*nss* the-ns) (ns-make-empty-let)))
-  `(with-let ,(*nss* the-ns)
-	    (define *ns-name* ',the-ns)
-	    ))
+  ;; note: the-ns is not available in the with-let form
+  ;; thus we use eval and then unquote ;)
+  (eval `(with-let (*nss* the-ns)
+		  (define *ns-name* ',the-ns))))
 
 (define (ns-get-or-create the-ns)
   ;; can also do (ns (rootlet) :require ...)
@@ -67,8 +68,7 @@
 	(else
 	 (begin
 	   (unless (*nss* the-ns)
-	     ;; note: ns-create is a macro, gotta call it with apply
-	     (apply ns-create (list the-ns)))
+	     (ns-create the-ns))
 	   (*nss* the-ns)))))
 
 (define (ns-should-bind-globally? symbol)
