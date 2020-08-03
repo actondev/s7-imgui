@@ -12,6 +12,9 @@
     using =msys2= for =meson= & =ninja= but I guess normal windows builds exist
   - Ubuntu 20.04
 
+* Docs
+  Some preliminary documentation of the provided namespaces is at [[file:docs/ns-doc.org]]
+  (generated from [[file:test/scheme/gen-doc.scm]])
 * Building
   See [[file:dev.org][dev.org]]
   
