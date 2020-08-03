@@ -248,7 +248,7 @@ build/repl test/scheme/test-core.scm
   #+CALL: gen-doc()
   
   Generating the =.org= file from the =ns-doc.el= (the =out= parameter is passed by calling this block from org-babel)
-  #+NAME: gen-ns-org
+  #+NAME: gen-ns-doc-org
   #+BEGIN_SRC emacs-lisp :var out="" :wrap SRC org :results silent
 (with-temp-buffer
   ;; (org-mode)
@@ -286,7 +286,7 @@ build/repl test/scheme/test-core.scm
       (write-file (expand-file-name out) nil))))
   #+END_SRC
   
-  #+CALL: gen-ns-org(out="docs/ns-doc.org")
+  #+CALL: gen-ns-doc-org(out="docs/ns-doc.org")
 
   # that will expand/create the documentation in-place (good for quick testing)
   # remove the :results silent (or make it :results replace) to insert here in-place the documentation

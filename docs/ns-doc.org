@@ -1,10 +1,12 @@
 * aod.c.imgui-sdl
 #+BEGIN_SRC markdown
-
+Bindings to manually create an SDL_Window and draw to it with imgui. This is to use directly from a simple repl.
+ie when no (draw) function is to be called by anyone.
 #+END_SRC
   - setup
   #+BEGIN_SRC markdown
-(setup width height) Creates a new SDL_Window, setups opengl, inits imgui
+(setup width height) returns *window
+Creates a new SDL_Window, setups opengl, inits imgui
 #+END_SRC
 
   - prepare
@@ -19,7 +21,7 @@
 
   - destroy
   #+BEGIN_SRC markdown
-(destroy void*) Destroys the window & the opengl context
+(destroy *window) Destroys the window & the opengl context
 #+END_SRC
 * aod.c.midi
 #+BEGIN_SRC markdown
@@ -118,7 +120,7 @@ executes first element of body and then inserts any next element with the same-l
 #+END_SRC
 * aod.c.imgui
 #+BEGIN_SRC markdown
-
+ImGui bindings. The majority of the bindings are a one-to-one relationship with the underlying ImGui::foo calls
 #+END_SRC
   - begin
   #+BEGIN_SRC markdown
@@ -544,7 +546,7 @@ creates a heap allocated float (c-object)
 #+END_SRC
 * aod.c.nfd
 #+BEGIN_SRC markdown
-
+Some [nativefiledialog](https://github.com/mlabbe/nativefiledialog) bindings 
 #+END_SRC
   - open
   #+BEGIN_SRC markdown

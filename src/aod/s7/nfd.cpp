@@ -38,6 +38,10 @@ void bind(s7_scheme* sc) {
               s7_make_function(sc, "save", save, 0, 0, false,
                                help_save));
 
+    s7_define(sc, env, s7_make_symbol(sc, "*ns-doc*"),
+              s7_make_string(sc, "Some [nativefiledialog](https://github.com/mlabbe/nativefiledialog) bindings "));
+
+
     // or call it native-file-dialog?
     s7_define_constant(sc, "aod.c.nfd", env);
 }
