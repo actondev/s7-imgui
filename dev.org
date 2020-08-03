@@ -288,6 +288,37 @@ build/repl test/scheme/test-core.scm
   
   #+CALL: gen-ns-doc-org(out="docs/ns-doc.org")
 
+  Or Generating a markdown?
+  #+NAME: gen-ns-doc-md
+  #+BEGIN_SRC emacs-lisp :var out="" :wrap SRC org :results silent
+(with-temp-buffer
+  ;; (org-mode)
+  (let ((ns-doc (read (get-file-contents
+		       (expand-file-name "docs/ns-doc.el" )))))
+    (mapcar (lambda (ns)
+	      (beginning-of-line)
+	      (insert (format "# %s" (car ns)))
+	      (newline)
+	      ;; the ns documentation
+	      (insert (format "%s" (cadr ns)))
+	      ;; going through the functions
+	      (mapcar (lambda (fun)
+			(newline)
+			;; car fun: the function name
+			;; cadr fun : the docstring
+			(insert (format "## `%s`" (car fun)))
+			(newline)
+			(insert (format "%s" (cdr fun)))
+			(newline))
+		      (cddr ns)))
+	    ns-doc)
+    (if (string-empty-p out)
+	(buffer-string)
+      (write-file (expand-file-name out) nil))))
+  #+END_SRC
+
+    #+CALL: gen-ns-doc-md(out="docs/ns-doc.md")
+
   # that will expand/create the documentation in-place (good for quick testing)
   # remove the :results silent (or make it :results replace) to insert here in-place the documentation
   #+CALL: gen-ns-org()

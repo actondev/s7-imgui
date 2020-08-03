@@ -13,8 +13,9 @@
   - Ubuntu 20.04
 
 * Docs
-  Some preliminary documentation of the provided namespaces is at [[file:docs/ns-doc.org]]
-  (generated from [[file:test/scheme/gen-doc.scm]])
+  Some preliminary documentation of the provided namespaces is at [[file:docs/ns-doc.org]] [[file:docs/ns-doc.md]] (TODO choose between the 2 - I guess makrdown)
+  
+  Auto-generated from the output of [[file:test/scheme/gen-doc.scm]]
 * Building
   See [[file:dev.org][dev.org]]
   
