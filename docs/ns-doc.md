@@ -179,8 +179,7 @@ To use perform bitwise-or and pass the imgui begin as window flags
 ## NoInputs
 
 # `aod.c.foreign`
-Provides a way to create heap allocated primitives like int* float*, int* array, char* array etc
-For example, to create a c string use `(new-char[] size)`
+Provides a way to create heap allocated primitives like int* float*, int* array, char* array etc. For example, to create a c string call `(new-char[] size)`
 ## type-bool
 
 ## new-bool
