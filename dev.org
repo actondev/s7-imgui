@@ -235,6 +235,50 @@ build/repl test/scheme/test-core.scm
 ** Components
    #+CALL: _build-and-run-scm(file="src/scheme/aod/components/sxs-wheel.scm")
 
+* TODO COMMENT Generating documentation
+  Generating an org-mode file from the generated =ns-doc.el=
+  #+NAME: gen-ns-org
+  #+BEGIN_SRC emacs-lisp :var out="" :wrap SRC org
+(with-temp-buffer
+  ;; (org-mode)
+  (let ((ns-doc (read (get-file-contents
+		       (expand-file-name "docs/ns-doc.el" )))))
+    (mapcar (lambda (ns)
+	      (beginning-of-line)
+	      (org-insert-heading)
+	      ;; car is the namespace
+	      (insert (format "%s" (car ns)))
+	      ;; going through the functions
+
+	      (mapcar (lambda (fun)
+			(newline-and-indent)
+			;; car fun: the function name
+			;; cadr fun : the docstring
+			(insert (format "  - %s" (car fun)))
+			(newline-and-indent)
+			(insert (format "%s" (cdr fun)))
+			(newline)
+			)
+		      (cdr ns))
+	      
+	      ;;(insert (format "X is %s" x) )
+	      ;;(print x)
+	      )
+	    ns-doc)
+    (if (string-empty-p out)
+	(buffer-string)
+      (write-file (expand-file-name out) nil))))
+  #+END_SRC
+  
+  #+CALL: gen-ns-org(out="docs/ns-doc.org")
+
+  #+RESULTS:
+  #+BEGIN_SRC org
+  #+END_SRC
+
+  #+CALL: gen-ns-org()
+
+
 * COMMENT Local variables
   Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything
   The cursor, upon opening the file, stays at the beginning
