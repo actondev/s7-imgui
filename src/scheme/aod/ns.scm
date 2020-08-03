@@ -288,7 +288,10 @@
 	  (begin
 	    ;; documenting the whole ns
 	    (map (lambda (fn-pair)
-		   (if (-ns-is-of-subns? (car fn-pair))
+		   (if (not (ns-should-bind-locally? (car fn-pair)))
+		       ;; ignoring things that
+		       ;; start with - or *
+		       ;; contain / (subnamespaces functions)
 		       (values)
 		       (cons
 			(car fn-pair)

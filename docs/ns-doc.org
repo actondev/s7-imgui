@@ -1,14 +1,4 @@
 * aod.imgui.macros
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - -safe
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
   - window
   #+BEGIN_SRC markdown
 (window args . body)
@@ -56,11 +46,6 @@ applies args to imgui/begin, executes body and calls imgui/end
 executes first element of body and then inserts any next element with the same-line called before
 #+END_SRC
 * aod.imgui.helpers
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
   - draw-circle
   #+BEGIN_SRC markdown
 
