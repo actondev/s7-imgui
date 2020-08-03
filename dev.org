@@ -237,6 +237,15 @@ build/repl test/scheme/test-core.scm
 
 * TODO COMMENT Generating documentation
   Generating an org-mode file from the generated =ns-doc.el=
+  
+  First, we have to run the [[file:test/scheme/gen-doc.scm]] (this produces the [[file:docs/ns-doc.el]] )
+  #+CALL: repl(file="test/scheme/gen-doc.scm")
+
+  #+BEGIN_SRC sh
+./build/repl test/scheme/gen-doc.scm
+  #+END_SRC
+  
+
   #+NAME: gen-ns-org
   #+BEGIN_SRC emacs-lisp :var out="" :wrap SRC org
 (with-temp-buffer

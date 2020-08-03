@@ -1,366 +1,122 @@
-* aod.imgui.macros
-  - *ns-name*
+* aod.c.imgui.window-flags
+  - None
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - safe
+  - NoTitleBar
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - begin
+  - NoResize
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - maximized
+  - NoMove
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - child
+  - NoScrollbar
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - group
+  - NoScrollWithMouse
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - main-menu-bar
+  - NoCollapse
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - menu-bar
+  - AlwaysAutoResize
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - menu
+  - NoBackground
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - menu-item
+  - NoSavedSettings
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - horizontal
+  - NoMouseInputs
   #+BEGIN_SRC markdown
 
 #+END_SRC
-* aod.colors
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - -triplet-ramp1
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - rgb-phase
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - triplet-phase
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - rgb-wheel
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ryb->rgb
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.midi
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - c1-note-on
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - c1-note-off
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - c1-note-off-2
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.imgui.helpers
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - draw-circle
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - draw-arc
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - draw-lines
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - frgb->u32
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.sxs
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - arrow-length
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - factor-arrow-length
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - factor-clip-radius
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - -arrow-angles
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - sxs-radius-line
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - arrow-lines
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - -arrow-right
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - -arrow-left
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - arrows-right
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - arrows-left
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - lines
-  #+BEGIN_SRC markdown
-(lines circle (phase 0) (clip #t))
-Returns a list of the lines to be drawn to paint the sxs logo.
-
-The circle is of the (cx cy r) form.
-A line is of the (x1 y1 x2 y2) form.
-#+END_SRC
-* aod.components.sxs-wheel
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - mk-sxs-element
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - new
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - draw
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - set-highlight
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - R
-  #+BEGIN_SRC markdown
 
-#+END_SRC
-
-  - r
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - size
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - test-element
+  - MenuBar
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - *ctx*
+  - HorizontalScrollbar
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - paint
+  - NoFocusOnAppearing
   #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.c.foreign
-  - type-bool
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - new-bool
-  #+BEGIN_SRC markdown
-creates a heap allocated bool (c-object)
-#+END_SRC
-
-  - type-int
-  #+BEGIN_SRC markdown
-
-#+END_SRC
 
-  - new-int
-  #+BEGIN_SRC markdown
-creates a heap allocated int (c-object)
 #+END_SRC
 
-  - type-float
+  - NoBringToFrontOnFocus
   #+BEGIN_SRC markdown
 
-#+END_SRC
-
-  - new-float
-  #+BEGIN_SRC markdown
-creates a heap allocated float (c-object)
 #+END_SRC
 
-  - type-bool
+  - AlwaysVerticalScrollbar
   #+BEGIN_SRC markdown
-([] . )
-#+END_SRC
 
-  - new-bool
-  #+BEGIN_SRC markdown
-([] . creates a heap allocated bool[] (c-object))
 #+END_SRC
 
-  - type-int
+  - AlwaysHorizontalScrollbar
   #+BEGIN_SRC markdown
-([] . )
-#+END_SRC
 
-  - new-int
-  #+BEGIN_SRC markdown
-([] . creates a heap allocated int[] (c-object))
 #+END_SRC
 
-  - type-float
+  - AlwaysUseWindowPadding
   #+BEGIN_SRC markdown
-([] . )
-#+END_SRC
 
-  - new-float
-  #+BEGIN_SRC markdown
-([] . creates a heap allocated float[] (c-object))
 #+END_SRC
 
-  - type-char
+  - NoNavInputs
   #+BEGIN_SRC markdown
-([] . )
-#+END_SRC
 
-  - new-char
-  #+BEGIN_SRC markdown
-([] . creates a heap allocated char[] (c-object))
 #+END_SRC
-* aod.test.c.foreign
-  - *ns-name*
-  #+BEGIN_SRC markdown
 
-#+END_SRC
-* aod.c.colors
-  - ryb->rgb
+  - NoNavFocus
   #+BEGIN_SRC markdown
-Converts RYB to RGB
-#+END_SRC
-* aod.c.sdl
-  - delay
-  #+BEGIN_SRC markdown
-SDL_Delay
-#+END_SRC
-* test.partial
-  - *ns-name*
-  #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - add-double
+  - UnsavedDocument
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - add1-double
+  - NoNav
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - add-double*
+  - NoDecoration
   #+BEGIN_SRC markdown
 
 #+END_SRC
 
-  - add1-double*
+  - NoInputs
   #+BEGIN_SRC markdown
 
-#+END_SRC
-* aod.c.img
-  - equivalent?
-  #+BEGIN_SRC markdown
-(equivalent? img1-filename img2-filename) Returns true if the images are equivalent
 #+END_SRC
 * aod.c.imgui
   - begin
@@ -581,11 +337,6 @@ focus keyboard on the next widget. Use positive 'offset' to access sub component
   #+BEGIN_SRC markdown
 
 #+END_SRC
-* aod.c.gl
-  - save-screenshot
-  #+BEGIN_SRC markdown
-(save-screenshot filename) Saves a screenshot of the current gl context
-#+END_SRC
 * aod.c.midi
   - note-on?
   #+BEGIN_SRC markdown
@@ -601,236 +352,20 @@ focus keyboard on the next widget. Use positive 'offset' to access sub component
   #+BEGIN_SRC markdown
 (note-number status data1 data2) Returns either the note or -1
 #+END_SRC
-* aod.ns
-  - *ns-name*
+* aod.c.gl
+  - save-screenshot
   #+BEGIN_SRC markdown
-
+(save-screenshot filename) Saves a screenshot of the current gl context
+#+END_SRC
+* aod.c.nfd
+  - open
+  #+BEGIN_SRC markdown
+(open) Open file dialog. Returns either the selected filename or #f
 #+END_SRC
 
-  - *features*
+  - save
   #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - *nss*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - *ns-require-dynamic*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - *ns-load-mode*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-make-empty-let
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - *ns*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-create
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-get-or-create
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-should-bind-globally?
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-should-bind-locally?
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-load
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-require-alias
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-require
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-load-file
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - with-ns
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - with-temp-ns
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - -ns-is-of-subns?
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - ns-doc
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.test-all
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.geom
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - *eps*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - distance-sq
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - distance
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - point-in-circle?
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - sq
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - -expand-A-B-C-etc
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - -fx-intersect
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - filter-points-in-circle
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - point-in-segment?
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - filter-points-in-segment
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - clip-line-in-circle
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - filter-empty
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - clip-lines-in-circle
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - rad->deg
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - line-offset
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - lines-offset
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - mk-circle
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - mk-line
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - repeat-line
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - repeat-lines
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - radius-line
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.layout
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - circular
-  #+BEGIN_SRC markdown
-Circular layout.
-Calls (cb x y :phase [0 .. (N-1)/N] :n [0 .. N]
-
-If the gui flag is passed (and indeed working with computer graphics)
-the elements will be drawn clock-wise starting from 12 o'clock. The
-theta-offset and clock-wise flags won't have any effect. Let's call it
-a known-issue
+(save) Save file dialog. Returns either the selected target filename or #f
 #+END_SRC
 * aod.c.imgui-sdl
   - setup
@@ -851,4 +386,84 @@ a known-issue
   - destroy
   #+BEGIN_SRC markdown
 (destroy void*) Destroys the window & the opengl context
+#+END_SRC
+* aod.imgui.macros
+  - *ns-name*
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - safe
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - window
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - maximized
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - child
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - group
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - main-menu-bar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - menu-bar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - menu
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - menu-item
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - horizontal
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+* aod.imgui.helpers
+  - *ns-name*
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - draw-circle
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - draw-arc
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - draw-lines
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - frgb->u32
+  #+BEGIN_SRC markdown
+
 #+END_SRC
