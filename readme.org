@@ -3,6 +3,8 @@
 
   You can see a video demonstration (of =0.1.0=) [[https://youtu.be/MgHsl0u26MY][here]].
 
+  [[https://youtu.be/MgHsl0u26MY][file:img/youtube-preview.png]]
+
   Cross platform build: linux & windows with [[https://mesonbuild.com/][meson]] build system
   
   Tested under
@@ -53,7 +55,10 @@
    I'm running the =build/repl src/scheme/test-all.scm= command
 
    - tests normal scheme things (see [[file:src/scheme/aod/test.scm]] file for how it's impleneted)
-   - tests also a GUI window against snapshots: see [[file:src/scheme/aod/components/sxs-wheel.scm]] which tests against [[file:test/scheme/assets/sxs-wheel-snapshot.png]] for exmaple
+   - tests also a GUI window against snapshots: see [[file:src/scheme/aod/components/sxs-wheel.scm]] which tests against
+ [[file:test/scheme/assets/sxs-wheel-snapshot.png]] 
+
+   for exmaple
 
 * Roadmap
   - [X] proof of concept

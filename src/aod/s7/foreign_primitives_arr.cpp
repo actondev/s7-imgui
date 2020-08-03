@@ -8,6 +8,7 @@
 #include <stdio.h> // fprintf etc
 #include "foreign_primitives.hpp" // needed when I access (*arr 1 '&) to get a c-object
 #include "foreign_primitives_arr.hpp"
+#include <string.h> // for the setter of new-char[] which needs strcpy
 
 namespace aod {
      namespace s7 {
@@ -313,7 +314,8 @@ namespace aod {
 	            char* arr = (char*) s7_c_object_value(s7_car(args));
 	            const char* new_char = s7_string(s7_cadr(args));
 	            // copy string..
-	            sprintf(arr, "%s", new_char);
+	            // sprintf(arr, "%s", new_char);
+	            strcpy(arr, new_char);
 	            return s7_nil(sc);
 	       }
 	       
