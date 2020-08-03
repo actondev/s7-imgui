@@ -1,7 +1,7 @@
 (ns aod.imgui.macros)
 (ns-require aod.c.imgui :as ig)
 
-(define-macro (safe . body)
+(define-macro (-safe . body)
   `(catch #t
 	   (lambda ()
 	     ,@body)
@@ -9,29 +9,31 @@
 	     (format *stderr* "Exception occured inside ImGui body: ~A~%" tag)
 	     (apply format *stderr* info)
 	     (newline))))
-
-(define-macro (window args . body)
-  `(begin
-     (,ig/begin ,@args)
-     (,safe ,@body)
-     (,ig/end)))
+(define window
+  (let ((+documentation+ "(window args . body)
+applies args to imgui/begin, executes body and calls imgui/end"))
+    (macro (args . body)
+      `(begin
+	 (,ig/begin ,@args)
+	 (,-safe ,@body)
+	 (,ig/end)))))
 
 (define-macro (maximized args . body)
   `(begin
      (,ig/begin-maximized ,@args)
-     (,safe ,@body)
+     (,-safe ,@body)
      (,ig/end)))
 
 (define-macro (child args . body)
   `(begin
      (,ig/begin-child ,@args)
-     (,safe ,@body)
+     (,-safe ,@body)
      (,ig/end-child)))
 
 (define-macro (group args . body)
   `(begin
      (,ig/begin-group ,@args)
-     (,safe ,@body)
+     (,-safe ,@body)
      (,ig/end-group)))
 
 ;; the top bar, full window, menu
@@ -43,14 +45,14 @@
   `(begin
      (,ig/begin-main-menu-bar)
      ;; ,@body
-     (,safe ,@body)
+     (,-safe ,@body)
      (,ig/end-main-menu-bar)
      ))
 
 (define-macro (menu-bar args . body)
    `(begin
      (,ig/begin-menu-bar)
-      (,safe ,@body)
+      (,-safe ,@body)
      (,ig/end-menu-bar)
      ))
 
@@ -58,7 +60,7 @@
 (define-macro (menu args . body)
   `(when (,ig/begin-menu ,@args)
      ;; ,@body
-     (,safe ,@body)
+     (,-safe ,@body)
      (,ig/end-menu)))
 
 (define-macro (menu-item args . body)
@@ -108,17 +110,19 @@
  ;; ! menus
  )
 ;; layout
-(define-macro (horizontal . body)
-  (let ((with-same-line-prepended (map
-				   (lambda (el)
-				     `(begin
-					(,ig/same-line)
-					,el))
-				    (cdr body))))
-    `(begin
-       ,(car body)
-       ,@with-same-line-prepended))
-  )
+(define horizontal
+  (let ((+documentation+ "(horizontal . body)
+executes first element of body and then inserts any next element with the same-line called before"))
+    (macro body
+      (let ((with-same-line-prepended (map
+				       (lambda (el)
+					 `(begin
+					    (,ig/same-line)
+					    ,el))
+				       (cdr body))))
+	`(begin
+	   ,(car body)
+	   ,@with-same-line-prepended)))))
 (comment
  (macroexpand (horizontal
 	       (imgui/text "text 1")

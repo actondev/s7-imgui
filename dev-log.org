@@ -915,8 +915,6 @@ pip3 install meson --upgrade
   Saw a demo of using a shader with iPlug2 in oli larkin's talk (creator of iPlug)
 
   Wonder how easy (or not) would be to do something similar with s7
-* TODO ns-doc all namespaces, create documentation files
-  probably with emacs & org mode.. :)
 * Dilambdas
   #+BEGIN_SRC scheme
 (define (make-file-contents *char)
@@ -969,3 +967,7 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
   #+BEGIN_QUOTE
   When active, hold on a privately held copy of the text (and apply back to 'buf'). So changing 'buf' while the InputText is active has no effect.
   #+END_QUOTE
+* TODO ns-doc all namespaces, create documentation files
+  probably with emacs & org mode.. :)
+
+  <2020-08-03 Mon> let's try to do that
