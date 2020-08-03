@@ -119,6 +119,10 @@ void bind_all(s7_scheme *sc) {
     // eg ((aod.c.foreign 'new-bool[]) 4) for a bool[4] array
     aod::s7::foreign::bind_primitives_arr(sc, primitives_env);
 
+    s7_define(sc, primitives_env, s7_make_symbol(sc, "*ns-doc*"),
+              s7_make_string(sc, "Provides a way to create heap allocated primitives like int* float*, int* array, char* array etc. "
+                             "For example, to create a c string call `(new-char[] size)`"));
+
     // imgui bindings
     aod::s7::imgui::bind(sc);
     aod::s7::imgui::bind_knob(sc);

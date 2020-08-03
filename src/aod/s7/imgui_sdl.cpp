@@ -131,7 +131,8 @@ void bind(s7_scheme* sc) {
 
     s7_define(sc, env, s7_make_symbol(sc, "setup"),
               s7_make_function(sc, "setup", setup, 2, 0, false,
-                               "(setup width height) Creates a new SDL_Window, setups opengl, inits imgui"));
+                               "(setup width height) returns *window\n"
+                               "Creates a new SDL_Window, setups opengl, inits imgui"));
 
     s7_define(sc, env, s7_make_symbol(sc, "prepare"),
               s7_make_function(sc, "prepare", prepare, 1, 0, false,
@@ -140,10 +141,15 @@ void bind(s7_scheme* sc) {
     s7_define(sc, env, s7_make_symbol(sc, "flush"),
               s7_make_function(sc, "flush", flush, 1, 0, false,
                                "(flush void*) To be called after having called any ImGui draw functionality. Paints the window"));
-    
+
     s7_define(sc, env, s7_make_symbol(sc, "destroy"),
               s7_make_function(sc, "destroy", destroy, 1, 0, false,
-                               "(destroy void*) Destroys the window & the opengl context"));
+                               "(destroy *window) Destroys the window & the opengl context"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "*ns-doc*"),
+              s7_make_string(sc, "Bindings to manually create an SDL_Window and draw to it with imgui. This is to use directly from a simple repl.\n"
+              "ie when no (draw) function is to be called by anyone."));
+
 
     s7_define_variable(sc, "aod.c.imgui-sdl", env);
 }

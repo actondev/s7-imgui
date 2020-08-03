@@ -1,20 +1,19 @@
 ;; clojure-like namespaces
-;; usage:
-;; (ns foo.bar)
-;; (ns-require some.lib :as lib)
-;; (ns-require some.lib.other :as other)
-;;
-;; 
-;; Wanted to make it more clojure-like style:
-;; (ns foo.bar
-;;   (require some.lib :as lib)
-;;   (require some.lib.other :as other))
-;;
-;; but proved more difficult (and didn't know what I was doing at the
-;; time) so switched back to the simpler form.  And I think it's
-;; better to stick with this. Easier to maintain/adjust I think.
-;;
-;;
+#|
+usage:
+
+(ns foo.bar)
+(ns-require some.lib :as lib)
+(ns-require some.lib.other :as other)
+
+Or, more clojure like syntax
+
+(ns foo.bar
+  :doc "My foo.bar library"
+  :require ((some.lib :as lib)
+	    (other.lib :as other)))
+|#
+
 (provide 'aod.ns)
 (require aod.clj) ;; for (comment .. )
 
@@ -80,6 +79,18 @@
 	 (first-char (symbol-string 0)))
     (and (not (equal? #\- first-char))
 	 (not (equal? #\* first-char))
+	 ;; check if there is a slash already
+	 ;; if so, it's a (ns-require) of another ns-require'd
+	 (eq? #f (char-position #\/ symbol-string))
+	 )))
+
+(define (ns-should-doc? symbol)
+  (let* ((symbol-string (symbol->string symbol))
+	 (first-char (symbol-string 0)))
+    (and (not (equal? #\- first-char))
+	 ;; (not (equal? #* first-char))
+	 (not (and (> (length symbol-string) 3)
+		   (equal? "*ns-" (substring symbol-string 0 4))))
 	 ;; check if there is a slash already
 	 ;; if so, it's a (ns-require) of another ns-require'd
 	 (eq? #f (char-position #\/ symbol-string))
@@ -200,9 +211,10 @@
 
 ;; maybe I should make this a normal function
 ;; keep things simpler..
-(define-macro* (ns the-ns (require ()))
+(define-macro* (ns the-ns (require ()) (doc ""))
   `(begin
      (set! *ns* (ns-get-or-create ',the-ns))
+     (eval `(define *ns-doc* ,,doc) *ns*)
      (map (lambda (require-form)
 	    (apply ns-require require-form))
 	  ',require)
@@ -288,7 +300,7 @@
 	  (begin
 	    ;; documenting the whole ns
 	    (map (lambda (fn-pair)
-		   (if (not (ns-should-bind-locally? (car fn-pair)))
+		   (if (not (ns-should-doc? (car fn-pair)))
 		       ;; ignoring things that
 		       ;; start with - or *
 		       ;; contain / (subnamespaces functions)

@@ -162,6 +162,11 @@ void bind_window_flags(s7_scheme* sc) {
     s7_define(sc, env, s7_make_symbol(sc, "NoInputs"),
               s7_make_integer(sc, ImGuiWindowFlags_NoInputs));
     
+    s7_define(sc, env, s7_make_symbol(sc, "*ns-doc*"),
+              s7_make_string(sc, "One-to-one relation between ImGuiWindowFlags_* int values.\n"
+                  "To use perform bitwise-or and pass the imgui begin as window flags"
+            ));
+    
     s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "aod.c.imgui.window-flags"), env);
 }
 
