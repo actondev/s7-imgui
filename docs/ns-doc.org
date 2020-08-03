@@ -1,4 +1,52 @@
+* aod.c.imgui-sdl
+#+BEGIN_SRC markdown
+
+#+END_SRC
+  - setup
+  #+BEGIN_SRC markdown
+(setup width height) Creates a new SDL_Window, setups opengl, inits imgui
+#+END_SRC
+
+  - prepare
+  #+BEGIN_SRC markdown
+(prepare void*) To be called before calling any ImGui draw functionality
+#+END_SRC
+
+  - flush
+  #+BEGIN_SRC markdown
+(flush void*) To be called after having called any ImGui draw functionality. Paints the window
+#+END_SRC
+
+  - destroy
+  #+BEGIN_SRC markdown
+(destroy void*) Destroys the window & the opengl context
+#+END_SRC
+* aod.c.midi
+#+BEGIN_SRC markdown
+
+#+END_SRC
+  - note-on?
+  #+BEGIN_SRC markdown
+(note-on? status data1 data2)
+#+END_SRC
+
+  - note-off?
+  #+BEGIN_SRC markdown
+(note-off? status data1 data2)
+#+END_SRC
+
+  - note-number
+  #+BEGIN_SRC markdown
+(note-number status data1 data2) Returns either the note or -1
+#+END_SRC
 * aod.imgui.macros
+#+BEGIN_SRC markdown
+Some macros to make life easier while working with ImGui.
+The usual syntax is (args . body)
+- args are applied to corresponding raw imgui function
+- body is executed either in a when block (eg when a menu items is active)
+  or wrapped between the begin/end calls
+#+END_SRC
   - window
   #+BEGIN_SRC markdown
 (window args . body)
@@ -46,6 +94,9 @@ applies args to imgui/begin, executes body and calls imgui/end
 executes first element of body and then inserts any next element with the same-line called before
 #+END_SRC
 * aod.imgui.helpers
+#+BEGIN_SRC markdown
+
+#+END_SRC
   - draw-circle
   #+BEGIN_SRC markdown
 
@@ -65,127 +116,10 @@ executes first element of body and then inserts any next element with the same-l
   #+BEGIN_SRC markdown
 
 #+END_SRC
-* aod.c.imgui.window-flags
-  - None
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoTitleBar
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoResize
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoMove
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoScrollbar
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoScrollWithMouse
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoCollapse
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - AlwaysAutoResize
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoBackground
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoSavedSettings
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoMouseInputs
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - MenuBar
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - HorizontalScrollbar
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoFocusOnAppearing
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoBringToFrontOnFocus
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - AlwaysVerticalScrollbar
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - AlwaysHorizontalScrollbar
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - AlwaysUseWindowPadding
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoNavInputs
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoNavFocus
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - UnsavedDocument
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoNav
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoDecoration
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - NoInputs
-  #+BEGIN_SRC markdown
-
-#+END_SRC
 * aod.c.imgui
+#+BEGIN_SRC markdown
+
+#+END_SRC
   - begin
   #+BEGIN_SRC markdown
 (begin name &optional *bool window-flags)
@@ -402,12 +336,216 @@ IsItemFocused
 SetKeyboardFocusHere (&optional offset)
 focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget
 #+END_SRC
+* aod.c.imgui.window-flags
+#+BEGIN_SRC markdown
+One-to-one relation between ImGuiWindowFlags_* int values.
+To use perform bitwise-or and pass the imgui begin as window flags
+#+END_SRC
+  - None
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoTitleBar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoResize
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoMove
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoScrollbar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoScrollWithMouse
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoCollapse
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - AlwaysAutoResize
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoBackground
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoSavedSettings
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoMouseInputs
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - MenuBar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - HorizontalScrollbar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoFocusOnAppearing
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoBringToFrontOnFocus
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - AlwaysVerticalScrollbar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - AlwaysHorizontalScrollbar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - AlwaysUseWindowPadding
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoNavInputs
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoNavFocus
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - UnsavedDocument
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoNav
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoDecoration
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - NoInputs
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+* aod.c.foreign
+#+BEGIN_SRC markdown
+Provides a way to create heap allocated primitives like int* float*, int* array, char* array etc
+Note: the auto-doc is off, for example to create a c string use `(new-char[] size)`. The auto-generation has problem with the `[]` symbol
+#+END_SRC
+  - type-bool
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - new-bool
+  #+BEGIN_SRC markdown
+creates a heap allocated bool (c-object)
+#+END_SRC
+
+  - type-int
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - new-int
+  #+BEGIN_SRC markdown
+creates a heap allocated int (c-object)
+#+END_SRC
+
+  - type-float
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - new-float
+  #+BEGIN_SRC markdown
+creates a heap allocated float (c-object)
+#+END_SRC
+
+  - type-bool
+  #+BEGIN_SRC markdown
+([] . )
+#+END_SRC
+
+  - new-bool
+  #+BEGIN_SRC markdown
+([] . creates a heap allocated bool[] (c-object))
+#+END_SRC
+
+  - type-int
+  #+BEGIN_SRC markdown
+([] . )
+#+END_SRC
+
+  - new-int
+  #+BEGIN_SRC markdown
+([] . creates a heap allocated int[] (c-object))
+#+END_SRC
+
+  - type-float
+  #+BEGIN_SRC markdown
+([] . )
+#+END_SRC
+
+  - new-float
+  #+BEGIN_SRC markdown
+([] . creates a heap allocated float[] (c-object))
+#+END_SRC
+
+  - type-char
+  #+BEGIN_SRC markdown
+([] . )
+#+END_SRC
+
+  - new-char
+  #+BEGIN_SRC markdown
+([] . creates a heap allocated char[] (c-object))
+#+END_SRC
 * aod.c.gl
+#+BEGIN_SRC markdown
+
+#+END_SRC
   - save-screenshot
   #+BEGIN_SRC markdown
 (save-screenshot filename) Saves a screenshot of the current gl context
 #+END_SRC
 * aod.c.nfd
+#+BEGIN_SRC markdown
+
+#+END_SRC
   - open
   #+BEGIN_SRC markdown
 (open) Open file dialog. Returns either the selected filename or #f
@@ -416,39 +554,4 @@ focus keyboard on the next widget. Use positive 'offset' to access sub component
   - save
   #+BEGIN_SRC markdown
 (save) Save file dialog. Returns either the selected target filename or #f
-#+END_SRC
-* aod.c.imgui-sdl
-  - setup
-  #+BEGIN_SRC markdown
-(setup width height) Creates a new SDL_Window, setups opengl, inits imgui
-#+END_SRC
-
-  - prepare
-  #+BEGIN_SRC markdown
-(prepare void*) To be called before calling any ImGui draw functionality
-#+END_SRC
-
-  - flush
-  #+BEGIN_SRC markdown
-(flush void*) To be called after having called any ImGui draw functionality. Paints the window
-#+END_SRC
-
-  - destroy
-  #+BEGIN_SRC markdown
-(destroy void*) Destroys the window & the opengl context
-#+END_SRC
-* aod.c.midi
-  - note-on?
-  #+BEGIN_SRC markdown
-(note-on? status data1 data2)
-#+END_SRC
-
-  - note-off?
-  #+BEGIN_SRC markdown
-(note-off? status data1 data2)
-#+END_SRC
-
-  - note-number
-  #+BEGIN_SRC markdown
-(note-number status data1 data2) Returns either the note or -1
 #+END_SRC

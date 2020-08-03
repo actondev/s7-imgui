@@ -1,5 +1,11 @@
-(ns aod.imgui.macros)
-(ns-require aod.c.imgui :as ig)
+(ns aod.imgui.macros
+    :doc "Some macros to make life easier while working with ImGui.
+The usual syntax is (args . body)
+- args are applied to corresponding raw imgui function
+- body is executed either in a when block (eg when a menu items is active)
+  or wrapped between the begin/end calls"
+    :require
+    ((aod.c.imgui :as ig)))
 
 (define-macro (-safe . body)
   `(catch #t

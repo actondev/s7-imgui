@@ -240,9 +240,12 @@ build/repl test/scheme/test-core.scm
   
   First, we have to run the [[file:test/scheme/gen-doc.scm]] (this produces the [[file:docs/ns-doc.el]] )
 
-  #+BEGIN_SRC sh
+  #+NAME: gen-doc
+  #+BEGIN_SRC sh :results silent
 ./build/repl test/scheme/gen-doc.scm
   #+END_SRC
+
+  #+CALL: gen-doc()
   
   Generating the =.org= file from the =ns-doc.el= (the =out= parameter is passed by calling this block from org-babel)
   #+NAME: gen-ns-org
@@ -256,6 +259,13 @@ build/repl test/scheme/test-core.scm
 	      (org-insert-heading)
 	      ;; car is the namespace
 	      (insert (format "%s" (car ns)))
+	      (newline-and-indent)
+	      ;; the ns documentation
+	      (insert "#+BEGIN_SRC markdown")
+	      (newline)
+	      (insert (format "%s" (cadr ns)))
+	      (newline)
+	      (insert "#+END_SRC")
 	      ;; going through the functions
 	      (mapcar (lambda (fun)
 			(newline-and-indent)
@@ -269,7 +279,7 @@ build/repl test/scheme/test-core.scm
 			(newline)
 			(insert "#+END_SRC")
 			(newline))
-		      (cdr ns)))
+		      (cddr ns)))
 	    ns-doc)
     (if (string-empty-p out)
 	(buffer-string)
