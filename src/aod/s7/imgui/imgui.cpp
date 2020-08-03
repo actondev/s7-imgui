@@ -69,6 +69,9 @@ void bind(s7_scheme* sc, s7_pointer env) {
 }
 
 namespace windows {
+const char* help_begin = "(begin name &optional *bool window-flags)\n"
+                         "- name: the name of the window, a scheme string\n"
+                         "- *bool: a pointer to bool, from aod.c.foreign. Closing the window modifies the pointer value";
 s7_pointer begin(s7_scheme *sc, s7_pointer args) {
     s7_pointer title = s7_car(args);
     if (!s7_is_string(title))
@@ -76,14 +79,23 @@ s7_pointer begin(s7_scheme *sc, s7_pointer args) {
                                         "First argument is title, should be a string"));
 
     const char *str = s7_string(title);
-    s7_pointer obj = s7_cadr(args);
+    args = s7_cdr(args);
+    s7_pointer obj = s7_car(args);
     bool *p_open = (bool*) s7_c_object_value_checked(obj,
                    aod::s7::foreign::tag_bool(sc));
+
+    args = s7_cdr(args);
+    ImGuiWindowFlags flags = 0;
+    s7_pointer sc_flags = s7_car(args);
+    if (s7_is_number(sc_flags)) {
+        flags |= s7_integer(sc_flags);
+    }
+
     if (p_open == NULL) {
         // we don't throw an error. begin has multiple arity
         ImGui::Begin(str);
     } else {
-        ImGui::Begin(str, p_open);
+        ImGui::Begin(str, p_open, flags);
     }
 
     return (s7_nil(sc));
@@ -141,35 +153,16 @@ s7_pointer end(s7_scheme *sc, s7_pointer args) {
 }
 
 void bind(s7_scheme *sc, s7_pointer env) {
-
-    s7_define_function(sc, "imgui/begin-maximized", begin_maximized,   // ..
-                       1, // req args
-                       1,
-                       false, // rest args
-                       help_begin_maximized);
-
-    s7_define_function(sc, "imgui/begin", begin,   // ..
-                       1, // req args
-                       1, // optional args (the open boolean pointer)
-                       false, // rest args
-                       "Begin a window");
-    s7_define_function(sc, "imgui/end", end,   // ..
-                       0, // req args
-                       0, // optional args
-                       false, // rest args
-                       "End a window");
-
-    // WIP going to environments
     s7_define(sc, env, s7_make_symbol(sc, "begin"),
-              s7_make_function(sc, "begin", begin, 1, 1, false,
-                               "Begin a window"));
+              s7_make_function(sc, "begin", begin, 1, 2, false,
+                               help_begin));
 
     s7_define(sc, env, s7_make_symbol(sc, "begin-maximized"),
               s7_make_function(sc, "begin-maximized", begin_maximized, 1, 1, false,
-                               "Begin the maximized window"));
+                               help_begin_maximized));
     s7_define(sc, env, s7_make_symbol(sc, "end"),
               s7_make_function(sc, "end", end, 0, 0, false,
-                               "Ends a window"));
+                               "(end)"));
 
 }
 }
@@ -188,25 +181,27 @@ s7_pointer spacing(s7_scheme *sc, s7_pointer) {
     return s7_nil(sc);
 }
 
+const char* help_checkbox = "(checkbox label *value) *value is *bool pointer";
 s7_pointer checkbox(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text)) {
-        return (s7_wrong_type_arg_error(sc, "imgui/checkbox", 1, text,
-                                        "First argument is title, should be a string"));
+        return (s7_wrong_type_arg_error(sc, "checkbox", 1, text,
+                                        "string"));
     }
 
     s7_pointer obj = s7_cadr(args);
     bool *p_check = (bool*) s7_c_object_value_checked(obj,
                     aod::s7::foreign::tag_bool(sc));
     if (p_check == NULL) {
-        return (s7_wrong_type_arg_error(sc, "imgui/checkbox", 2, obj,
-                                        "expecting bool*"));
+        return (s7_wrong_type_arg_error(sc, "checkbox", 2, obj,
+                                        "aod.c.foreign *bool pointer"));
     }
 
     ImGui::Checkbox(s7_string(text), p_check);
     return s7_nil(sc);
 }
 
+const char* help_text = "(text text) displays a text. the argument is just a scheme string";
 s7_pointer text(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text))
@@ -217,24 +212,24 @@ s7_pointer text(s7_scheme *sc, s7_pointer args) {
     return (s7_nil(sc));
 }
 
-/**
- * Not properly done
- */
+
+const char* help_label = "(label ...) NOT DONE";
 s7_pointer label(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text))
-        return (s7_wrong_type_arg_error(sc, "aod.s7/text", 1, text,
-                                        "text should get a string argument"));
+        return (s7_wrong_type_arg_error(sc, "label", 1, text,
+                                        "string argument"));
 
     ImGui::LabelText("", "%s", s7_string(text));
     return (s7_nil(sc));
 }
 
+const char* help_button = "(button label) label is just a scheme string";
 s7_pointer button(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text))
-        return (s7_wrong_type_arg_error(sc, "aod.s7/button", 1, text,
-                                        "button should get a string argument"));
+        return (s7_wrong_type_arg_error(sc, "button", 1, text,
+                                        "string argument"));
 
     bool clicked = ImGui::Button(s7_string(text));
     return (s7_make_boolean(sc, clicked));
@@ -244,8 +239,8 @@ static const char* help_small_button = "(small-button text)";
 s7_pointer small_button(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text))
-        return (s7_wrong_type_arg_error(sc, "aod.s7/button", 1, text,
-                                        "button should get a string argument"));
+        return (s7_wrong_type_arg_error(sc, "small-button", 1, text,
+                                        "string argument"));
 
     bool clicked = ImGui::SmallButton(s7_string(text));
     return (s7_make_boolean(sc, clicked));
@@ -257,30 +252,18 @@ void bind(s7_scheme *sc, s7_pointer env) {
               s7_make_function(sc, "spacing", spacing, 0, 0, false,
                                "(spacing)"));
 
-    s7_define_function(sc, "imgui/text", text,   // ..
-                       1, // req args
-                       0, // optional args
-                       false, // rest args
-                       "Draw a text label");
-
     s7_define(sc, env, s7_make_symbol(sc, "text"),
               s7_make_function(sc, "text", text, 1, 0, false,
-                               "Text"));
+                               help_text));
     s7_define(sc, env, s7_make_symbol(sc, "label"),
               s7_make_function(sc, "label", label, 1, 0, false,
-                               "(label text) TODO not really properly done"));
+                               help_label));
 
     // AlignTextToFramePadding
     s7_define(sc, env, s7_make_symbol(sc, "align-text-to-frame-padding"),
               s7_make_function(sc, "align-text-to-frame-padding", AlignTextToFramePadding, 0, 0, false,
                                "(align-text-to-frame-padding)"));
 
-    s7_define_function(sc, "imgui/button", button,   // ..
-                       1, // req args
-                       // TODO apparently there are optional args, about the size?
-                       0, // optional args
-                       false, // rest args
-                       "Draw a button. Returns a boolean, true if clicked");
     s7_define(sc, env, s7_make_symbol(sc, "button"),
               s7_make_function(sc, "button", button, 1, 0, false,
                                "Button"));
@@ -289,32 +272,26 @@ void bind(s7_scheme *sc, s7_pointer env) {
               s7_make_function(sc, "small-button", small_button, 1, 0, false,
                                help_small_button));
 
-    s7_define_function(sc, "imgui/checkbox", checkbox,   // ..
-                       2, // req args
-                       0, // optional args
-                       false, // rest args
-                       "Checkbox");
-
     s7_define(sc, env, s7_make_symbol(sc, "checkbox"),
               s7_make_function(sc, "checkbox", checkbox, 2, 0, false,
-                               "Checkbox"));
+                               help_checkbox));
 
 }
 } // ! anonymous namespace: the functions
 
 namespace menus {
 
-s7_pointer begin_menu_bar(s7_scheme *sc, s7_pointer args) {
+s7_pointer begin_menu_bar(s7_scheme *sc, s7_pointer) {
     return s7_make_boolean(sc, ImGui::BeginMenuBar());
 }
 
-s7_pointer end_menu_bar(s7_scheme *sc, s7_pointer args) {
+s7_pointer end_menu_bar(s7_scheme *sc, s7_pointer) {
     ImGui::EndMenuBar();
 
     return s7_nil(sc);
 }
 
-s7_pointer begin_main_menu_bar(s7_scheme *sc, s7_pointer args) {
+s7_pointer begin_main_menu_bar(s7_scheme *sc, s7_pointer) {
     return s7_make_boolean(sc, ImGui::BeginMainMenuBar());
 }
 
@@ -324,11 +301,12 @@ s7_pointer end_main_menu_bar(s7_scheme *sc, s7_pointer) {
     return s7_nil(sc);
 }
 
+const char* help_begin_menu = "(begin-menu label) label could be \"File\" for example";
 s7_pointer begin_menu(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text))
-        return (s7_wrong_type_arg_error(sc, "aod.s7/button", 1, text,
-                                        "button should get a string argument"));
+        return (s7_wrong_type_arg_error(sc, "begin-menu", 1, text,
+                                        "string"));
 
     return s7_make_boolean(sc, ImGui::BeginMenu(s7_string(text)));
 }
@@ -346,142 +324,91 @@ s7_pointer separator(s7_scheme *sc, s7_pointer) {
     return s7_nil(sc);
 }
 
+const char* help_menu_item = "(menu-item label) TODO add more arguments (&optional shortcut selected)";
 s7_pointer menu_item(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text))
-        return (s7_wrong_type_arg_error(sc, "aod.s7/button", 1, text,
-                                        "button should get a string argument"));
+        return (s7_wrong_type_arg_error(sc, "menu-item", 1, text,
+                                        "string"));
 
     return s7_make_boolean(sc, ImGui::MenuItem((s7_string(text))));
 }
 
 void bind(s7_scheme *sc, s7_pointer env) {
-    s7_define_function(sc, "imgui/begin-menu-bar", begin_menu_bar,   // ..
-                       0, // req args
-                       0, // optional args
-                       false, // rest args
-                       "ImGui::BeginMenuBar");
-
     s7_define(sc, env, s7_make_symbol(sc, "begin-menu-bar"),
               s7_make_function(sc, "begin-menu-bar", begin_menu_bar, 0, 0, false,
-                               "BeginMenuBar"));
-
-    s7_define_function(sc, "imgui/end-menu-bar", end_menu_bar,   // ..
-                       0, // req args
-                       0, // optional args
-                       false, // rest args
-                       "ImGui::EndMenuBar");
-
+                               "(begin-menu-bar)"));
 
     s7_define(sc, env, s7_make_symbol(sc, "end-menu-bar"),
               s7_make_function(sc, "end-menu-bar", end_menu_bar, 0, 0, false,
-                               "EndMenuBar"));
-
-    s7_define_function(sc, "imgui/begin-main-menu-bar", begin_main_menu_bar,   // ..
-                       0, // req args
-                       0, // optional args
-                       false, // rest args
-                       "ImGui::BeginMainMenuBar");
+                               "(end-menu-bar)"));
 
     s7_define(sc, env, s7_make_symbol(sc, "begin-main-menu-bar"),
               s7_make_function(sc, "begin-main-menu-bar", begin_main_menu_bar, 0, 0, false,
-                               "BeginMainMenuBar"));
-
-    s7_define_function(sc, "imgui/end-main-menu-bar", end_main_menu_bar,   // ..
-                       0, // req args
-                       0, // optional args
-                       false, // rest args
-                       "ImGui::EndMainMenuBar");
+                               "(begin-main-menu-bar)"));
 
     s7_define(sc, env, s7_make_symbol(sc, "end-main-menu-bar"),
               s7_make_function(sc, "end-main-menu-bar", end_main_menu_bar, 0, 0, false,
-                               "EndMainMenuBar"));
-
-    s7_define_function(sc, "imgui/begin-menu", begin_menu,   // ..
-                       1, // req args
-                       0, // optional args
-                       false, // rest args
-                       "Menu group (eg File)");
+                               "(end-main-menu-bar)"));
 
     s7_define(sc, env, s7_make_symbol(sc, "begin-menu"),
               s7_make_function(sc, "begin-menu", begin_menu, 1, 0, false,
-                               "BeginMenu"));
-
-    s7_define_function(sc, "imgui/end-menu", end_menu,   // ..
-                       0, // req args
-                       0, // optional args
-                       false, // rest args
-                       "Ends the menu group (eg File)");
+                               help_begin_menu));
 
     s7_define(sc, env, s7_make_symbol(sc, "end-menu"),
               s7_make_function(sc, "end-menu", end_menu, 0, 0, false,
-                               "EndMenu"));
-
-    s7_define_function(sc, "imgui/separator", separator,   // ..
-                       0, // req args
-                       0, // optional args
-                       false, // rest args
-                       "Separator (eg between menu items)");
+                               "(end-menu)"));
 
     s7_define(sc, env, s7_make_symbol(sc, "separator"),
               s7_make_function(sc, "separator", separator, 0, 0, false,
-                               "Separator"));
-
-    s7_define_function(sc, "imgui/menu-item", menu_item,   // ..
-                       1, // req args
-                       0, // optional args
-                       false, // rest args
-                       "Menu item. TODO add more args (kbd shortcut, enabled, selected))");
+                               "(separator)"));
 
     s7_define(sc, env, s7_make_symbol(sc, "menu-item"),
               s7_make_function(sc, "menu-item", menu_item, 1, 0, false,
-                               "Menu item. TODO add more args (kbd shortcut, enabled, selected"));
+                               help_menu_item));
 }
 
 } // ! menus
 
 namespace layout {
-s7_pointer same_line(s7_scheme *sc, s7_pointer args) {
+const char* help_same_line = "(same-line) puts the next element in the same line as the previously drawn element";
+s7_pointer same_line(s7_scheme *sc, s7_pointer) {
     ImGui::SameLine();
 
     return s7_nil(sc);
 }
 
-//s7_pointer collumns(s7_scheme *sc, s7_pointer args) {
-//    ImGui::Columns(1);
-//
-//    return s7_nil(sc);
-//}
-
+const char* help_begin_child = "(begin-child id) (string?)";
 s7_pointer begin_child(s7_scheme *sc, s7_pointer args) {
     s7_pointer title = s7_car(args);
     if (!s7_is_string(title))
-        return (s7_wrong_type_arg_error(sc, "imgui/begin-child", 1, title,
-                                        "First argument is title, should be a string"));
-// only automatic width for now
+        return (s7_wrong_type_arg_error(sc, "begin-child", 1, title,
+                                        "string"));
+    // only automatic width for now
     ImGui::BeginChild(s7_string(title), ImVec2(0, 0));
 
     return s7_nil(sc);
 }
 
-s7_pointer end_child(s7_scheme *sc, s7_pointer args) {
+s7_pointer end_child(s7_scheme *sc, s7_pointer) {
     ImGui::EndChild();
 
     return s7_nil(sc);
 }
 
-s7_pointer begin_group(s7_scheme *sc, s7_pointer args) {
+s7_pointer begin_group(s7_scheme *sc, s7_pointer) {
     ImGui::BeginGroup();
 
     return s7_nil(sc);
 }
 
-s7_pointer end_group(s7_scheme *sc, s7_pointer args) {
+s7_pointer end_group(s7_scheme *sc, s7_pointer) {
     ImGui::EndGroup();
 
     return s7_nil(sc);
 }
 
+const char* help_dummy = "(dummy width height)";
 s7_pointer dummy(s7_scheme *sc, s7_pointer args) {
     float w = s7_number_to_real(sc, s7_car(args));
     float h = s7_number_to_real(sc, s7_cadr(args));
@@ -494,61 +421,36 @@ s7_pointer dummy(s7_scheme *sc, s7_pointer args) {
 }
 
 void bind(s7_scheme *sc, s7_pointer env) {
-    s7_define_function(sc, "imgui/same-line", same_line,   // ..
-                       0, // req args
-                       0, // optional args (the open boolean pointer)
-                       false, // rest args
-                       "Puts the next element in the same line as the previous one");
-
     s7_define(sc, env, s7_make_symbol(sc, "same-line"),
               s7_make_function(sc, "same-line", same_line, 0, 0, false,
-                               "Puts the next element in the same line as the previous one"));
-
-
-    s7_define_function(sc, "imgui/begin-child", begin_child,   // ..
-                       1, // req args
-                       0, // optional args (the open boolean pointer)
-                       false, // rest args
-                       "BeginChild");
+                               help_same_line));
 
     s7_define(sc, env, s7_make_symbol(sc, "begin-child"),
               s7_make_function(sc, "begin-child", begin_child, 1, 0, false,
-                               "BeginChild"));
-
-    s7_define_function(sc, "imgui/end-child", end_child,   // ..
-                       0, // req args
-                       0, // optional args (the open boolean pointer)
-                       false, // rest args
-                       "EndChild");
+                               help_begin_child));
 
     s7_define(sc, env, s7_make_symbol(sc, "end-child"),
               s7_make_function(sc, "end-child", end_child, 0, 0, false,
-                               "EndChild"));
+                               "(end-child)"));
 
-    s7_define_function(sc, "imgui/begin-group", begin_group, 0, 0, false,
-                       "BeginGroup");
     s7_define(sc, env, s7_make_symbol(sc, "begin-group"),
               s7_make_function(sc, "begin-group", begin_group, 0, 0, false,
-                               "BeginGroup"));
+                               "(begin-group)"));
 
-    s7_define_function(sc, "imgui/end-group", end_group, 0, 0, false,
-                       "EndGroup");
     s7_define(sc, env, s7_make_symbol(sc, "end-group"),
               s7_make_function(sc, "end-group", end_group, 0, 0, false,
-                               "EndGroup"));
-
-    s7_define_function(sc, "imgui/dummy", dummy, 2, 0, false,
-                       "Dummy - a container (for eg drawing - think of it as a canvas)");
+                               "(end-group)"));
 
     s7_define(sc, env, s7_make_symbol(sc, "dummy"),
               s7_make_function(sc, "dummy", dummy, 2, 0, false,
-                               "Dummy - a container (a placeholder for custom drawin, sets the w,h to offset the next element)"));
+                               help_dummy));
 }
 }
 
 namespace draw {
 
-s7_pointer circle(s7_scheme *sc, s7_pointer args) {
+const char* help__draw_circle = "(draw-circle cx cy r col &optional segments thickness)";
+s7_pointer draw_circle(s7_scheme *sc, s7_pointer args) {
     ImVec2 p = ImGui::GetCursorScreenPos();
 
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
@@ -573,8 +475,8 @@ s7_pointer circle(s7_scheme *sc, s7_pointer args) {
                          thickness);
     return s7_nil(sc);
 }
-
-s7_pointer circle_filled(s7_scheme *sc, s7_pointer args) {
+const char* help_draw_circle_filled = "(cx cy r col &optional segments)";
+s7_pointer draw_circle_filled(s7_scheme *sc, s7_pointer args) {
     ImVec2 p = ImGui::GetCursorScreenPos();
 
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
@@ -593,7 +495,8 @@ s7_pointer circle_filled(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
-s7_pointer text(s7_scheme *sc, s7_pointer args) {
+const char* help_draw_text = "(x y text color)";
+s7_pointer draw_text(s7_scheme *sc, s7_pointer args) {
     ImVec2 p = ImGui::GetCursorScreenPos();
 
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
@@ -619,8 +522,8 @@ s7_pointer text(s7_scheme *sc, s7_pointer args) {
 
     return s7_nil(sc);
 }
-
-s7_pointer line(s7_scheme *sc, s7_pointer args) {
+const char* help_draw_line = "(x1 y1 x2 y2 col &optional thickness)";
+s7_pointer draw_line(s7_scheme *sc, s7_pointer args) {
     ImVec2 p = ImGui::GetCursorScreenPos();
 
     ImDrawList *draw_list = ImGui::GetWindowDrawList();
@@ -643,7 +546,8 @@ s7_pointer line(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
-s7_pointer arc(s7_scheme *sc, s7_pointer args) {
+const char* help_draw_arc = "(cx cy r a-min a-max col &optional segments thickness)";
+s7_pointer draw_arc(s7_scheme *sc, s7_pointer args) {
     //     IMGUI_API void  PathArcTo(const ImVec2& center, float radius, float a_min, float a_max, int num_segments = 10);
     ImVec2 p = ImGui::GetCursorScreenPos();
 
@@ -676,57 +580,41 @@ s7_pointer arc(s7_scheme *sc, s7_pointer args) {
 }
 
 void bind(s7_scheme *sc, s7_pointer env) {
-    s7_define_function(sc, "imgui.draw/circle", circle,   // ..
-                       4, // req args: cx cy r col
-                       2, // optional args: segments, thickness
-                       false, // rest args
-                       "(cx cy r col &optional segments thickness)");
 
     s7_define(sc, env, s7_make_symbol(sc, "draw-circle"),
-              s7_make_function(sc, "draw-circle", circle,
+              s7_make_function(sc, "draw-circle", draw_circle,
                                4, // req args: cx cy r col
                                2, // optional args: segments, thickness
                                false, // rest args
-                               "(cx cy r col &optional segments thickness)"));
+                               help__draw_circle));
+
     s7_define(sc, env, s7_make_symbol(sc, "draw-arc"),
-              s7_make_function(sc, "draw-arc", arc,
+              s7_make_function(sc, "draw-arc", draw_arc,
                                6, // req args: cx cy r a_min a_max col
                                2, // optional args: segments, thickness
                                false, // rest args
-                               "(cx cy r a-min a-max col &optional segments thickness)"));
+                               help_draw_arc));
 
     s7_define(sc, env, s7_make_symbol(sc, "draw-circle-filled"),
-              s7_make_function(sc, "draw-circle", circle_filled,
+              s7_make_function(sc, "draw-circle", draw_circle_filled,
                                4, // req args: cx cy r col
                                1, // optional args: segments, thickness
                                false, // rest args
-                               "(cx cy r col &optional segments)"));
-
-    s7_define_function(sc, "imgui.draw/line", line,   // ..
-                       5, // req args: x1 x2 y1 y2 col
-                       1, // optional args: thickness
-                       false, // rest args
-                       "(x1 y1 x2 y2 col &optional thickness)");
+                               help_draw_circle_filled));
 
     s7_define(sc, env, s7_make_symbol(sc, "draw-line"),
-              s7_make_function(sc, "draw-line", line,
+              s7_make_function(sc, "draw-line", draw_line,
                                5, // req args: x1 x2 y1 y2 col
                                1, // optional args: thickness
                                false, // rest args
-                               "(x1 y1 x2 y2 col &optional thickness)"));
-
-    s7_define_function(sc, "imgui.draw/text", text,   // ..
-                       4, // req args: x y text color
-                       0, // optional args: thickness
-                       false, // rest args
-                       "(x y text color)");
+                               help_draw_line));
 
     s7_define(sc, env, s7_make_symbol(sc, "draw-text"),
-              s7_make_function(sc, "draw-text", text,
+              s7_make_function(sc, "draw-text", draw_text,
                                4, // req args: x y text color
                                0,
                                false, // rest args
-                               "(x y text color)"));
+                               help_draw_text));
 }
 }
 
@@ -746,6 +634,8 @@ s7_pointer set_color(s7_scheme* sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
+const char* help_color32 = "(color32 r g b &optional alpha) input ranging from 0 to 255\n"
+                           "Returns a u32 representation of the color 0xRRGGBBAA";
 s7_pointer color32(s7_scheme *sc, s7_pointer args) {
     ImU32 r = s7_number_to_real(sc, s7_car(args));
     ImU32 g = s7_number_to_real(sc, s7_cadr(args));
@@ -766,8 +656,7 @@ void bind(s7_scheme *sc, s7_pointer env) {
                                3, // req args
                                1, // optional args: alpha
                                false, // rest args
-                               "(color32 r g b &optional a) input ranging from 0 to 255"
-                               "Returns a u32 representation of the color 0xRRGGBBAA"));
+                               help_color32));
 
     s7_define(sc, env, s7_make_symbol(sc, "set-color"),
               s7_make_function(sc, "set-color", set_color,
@@ -777,11 +666,12 @@ void bind(s7_scheme *sc, s7_pointer env) {
 }
 
 namespace sliders {
+const char* help_slider_float = "(slider-float label *value min max &optional (format \"%.3f\"))";
 s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text)) {
-        return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 1, text,
-                                        "Expecting a string (title)"));
+        return (s7_wrong_type_arg_error(sc, "slider-float", 1, text,
+                                        "string"));
     }
 
     // args[1..]
@@ -809,11 +699,12 @@ s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::SliderFloat(s7_string(text), p_value, min, max, format));
 }
 
+const char* help_slider_int = "(label *value min max) value: *int pointer from aod.c.foreign/new-int";
 s7_pointer slider_int(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text)) {
         return (s7_wrong_type_arg_error(sc, "slider-int", 1, text,
-                                        "expecting string (title)"));
+                                        "string"));
     }
 
     int* p_value = (int*) s7_c_object_value_checked(s7_cadr(args),
@@ -825,19 +716,20 @@ s7_pointer slider_int(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::SliderInt(s7_string(text), p_value, min, max));
 }
 
+const char* help_color_edit_3 = "(color-edit-3 label *values) *values: aod.c.foreign float[] array";
 s7_pointer color_edit_3(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text)) {
-        return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 1, text,
-                                        "Expecting a string (title)"));
+        return (s7_wrong_type_arg_error(sc, "color-edit-3", 1, text,
+                                        "string"));
     }
 
     s7_pointer obj = s7_cadr(args);
     float *arr = (float*) s7_c_object_value_checked(obj,
                  aod::s7::foreign::tag_float_arr(sc));
     if (arr == NULL) {
-        return (s7_wrong_type_arg_error(sc, "imgui/color-edit-3", 2, obj,
-                                        "float* array"));
+        return (s7_wrong_type_arg_error(sc, "color-edit-3", 2, obj,
+                                        "aod.c.foreign float* array"));
     }
 
     ImGui::ColorEdit3(s7_string(text), arr);
@@ -845,25 +737,13 @@ s7_pointer color_edit_3(s7_scheme *sc, s7_pointer args) {
 }
 
 void bind(s7_scheme* sc, s7_pointer env) {
-    s7_define_function(sc, "imgui/color-edit-3", color_edit_3,   // ..
-                       2, // req args
-                       0, // optional args
-                       false, // rest args
-                       "ColorEdit3");
     s7_define(sc, env, s7_make_symbol(sc, "color-edit-3"),
               s7_make_function(sc, "color-edit-3", color_edit_3,
-                               2, // req args
-                               0, // optional args: thickness
+                               2,
+                               0,
                                false, // rest args
-                               "ColorEdit3"));
+                               help_color_edit_3));
 
-    static const char* help_slider_float = "(slider-float label *value min max &optional (format \"%.3f\"))";
-
-    s7_define_function(sc, "imgui/slider-float", slider_float,   // ..
-                       4, // req args
-                       1, // optional args
-                       false, // rest args
-                       help_slider_float);
     s7_define(sc, env, s7_make_symbol(sc, "slider-float"),
               s7_make_function(sc, "slider-float", slider_float,
                                4, // req args
@@ -876,8 +756,7 @@ void bind(s7_scheme* sc, s7_pointer env) {
                                4, // req args
                                0, // optional args: thickness
                                false, // rest args
-                               "(label value min max)\n"
-                               "value is a *int pointer (from aod.c.foreign/new-int)"));
+                               help_slider_int));
 
 }
 }
@@ -893,8 +772,8 @@ s7_pointer input_text(s7_scheme* sc, s7_pointer args) {
 
 
     if (!s7_is_string(sc_label)) {
-        return (s7_wrong_type_arg_error(sc, "text", 1, sc_label,
-                                        "expecting string"));
+        return (s7_wrong_type_arg_error(sc, "input-text", 1, sc_label,
+                                        "string"));
     }
 
     args = s7_cdr(args);
@@ -902,15 +781,15 @@ s7_pointer input_text(s7_scheme* sc, s7_pointer args) {
     char* str = (char*) s7_c_object_value_checked(s7_car(args),
                 aod::s7::foreign::tag_char_arr(sc));
     if (str == NULL) {
-        return (s7_wrong_type_arg_error(sc, "text", 2, s7_car(args),
-                                        "expecting char* from aod.c.foreign/new-char[]"));
+        return (s7_wrong_type_arg_error(sc, "input-text", 2, s7_car(args),
+                                        "char* from aod.c.foreign/new-char[]"));
     }
 
     args = s7_cdr(args);
     s7_pointer sc_size = s7_car(args);
     if (!s7_is_number(sc_size)) {
-        return (s7_wrong_type_arg_error(sc, "text", 3, sc_size,
-                                        "expecting number for buffer size"));
+        return (s7_wrong_type_arg_error(sc, "input-text", 3, sc_size,
+                                        "number for buffer size"));
     }
 
     // shit.. I have to know the buffer size
@@ -918,13 +797,13 @@ s7_pointer input_text(s7_scheme* sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::InputText(s7_string(sc_label), str, s7_integer(sc_size), ImGuiInputTextFlags_EnterReturnsTrue));
 }
 
-const char* help_input_text_multiline = "(input-text-multiline label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]";
+const char* help_input_text_multiline = "(input-text-multiline label *buffer buffer-size) *buffer is c-pointer to char* from aod.c.foreign/new-char[]";
 s7_pointer input_text_multiline(s7_scheme* sc, s7_pointer args) {
     s7_pointer sc_label = s7_car(args);
 
 
     if (!s7_is_string(sc_label)) {
-        return (s7_wrong_type_arg_error(sc, "text", 1, sc_label,
+        return (s7_wrong_type_arg_error(sc, "input-text-multiline", 1, sc_label,
                                         "expecting string"));
     }
 
@@ -933,14 +812,14 @@ s7_pointer input_text_multiline(s7_scheme* sc, s7_pointer args) {
     char* str = (char*) s7_c_object_value_checked(s7_car(args),
                 aod::s7::foreign::tag_char_arr(sc));
     if (str == NULL) {
-        return (s7_wrong_type_arg_error(sc, "text", 2, s7_car(args),
+        return (s7_wrong_type_arg_error(sc, "input-text-multiline", 2, s7_car(args),
                                         "expecting char* from aod.c.foreign/new-char[]"));
     }
 
     args = s7_cdr(args);
     s7_pointer sc_size = s7_car(args);
     if (!s7_is_number(sc_size)) {
-        return (s7_wrong_type_arg_error(sc, "text", 3, sc_size,
+        return (s7_wrong_type_arg_error(sc, "input-text-multiline", 3, sc_size,
                                         "expecting number for buffer size"));
     }
 
@@ -960,16 +839,9 @@ static const char* help_combo = "(combo name *index labels)\n"
                                 "- labels is a 0 separated string. eg \"labelA\\0labelB\\0\\0\"";
 
 s7_pointer combo(s7_scheme* sc, s7_pointer args) {
-    /*
-     static char str0[128] = "Hello, world!";
-     ImGui::InputText("input text", str0, IM_ARRAYSIZE(str0));
-     */
-
-//     ImGui::Combo("Combo", &item, "aaaa\0bbbb\0cccc\0dddd\0eeee\0\0");
-
     if (!s7_is_string(s7_car(args))) {
-        return (s7_wrong_type_arg_error(sc, "text", 1, s7_car(args),
-                                        "expecting string"));
+        return (s7_wrong_type_arg_error(sc, "combo", 1, s7_car(args),
+                                        "string"));
     }
     const char* name = s7_string(s7_car(args));
 
@@ -979,8 +851,8 @@ s7_pointer combo(s7_scheme* sc, s7_pointer args) {
                  aod::s7::foreign::tag_int(sc));
 
     if (index == NULL) {
-        return (s7_wrong_type_arg_error(sc, "index", 2, s7_car(args),
-                                        "expecting int* from aod.c.foreign/new-int"));
+        return (s7_wrong_type_arg_error(sc, "combo", 2, s7_car(args),
+                                        "int* from aod.c.foreign/new-int"));
     }
 
     args = s7_cdr(args);
@@ -1046,11 +918,12 @@ void bind(s7_scheme *sc) {
 
     // the provide is needed to define the *features* symbol in this environment
     // this is checked to avoid duplicate requires of this environment
-    s7_eval_c_string_with_environment(sc, "(provide 'aod.c.imgui)", env);
+    // s7_eval_c_string_with_environment(sc, "(provide 'aod.c.imgui)", env);
     s7_define_variable(sc, "aod.c.imgui", env);
 }
 
 } // imgui
 } // s7
 } // aod
+
 

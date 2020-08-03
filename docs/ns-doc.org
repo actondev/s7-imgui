@@ -1,3 +1,85 @@
+* aod.imgui.macros
+  - *ns-name*
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - -safe
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - window
+  #+BEGIN_SRC markdown
+(window args . body)
+applies args to imgui/begin, executes body and calls imgui/end
+#+END_SRC
+
+  - maximized
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - child
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - group
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - main-menu-bar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - menu-bar
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - menu
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - menu-item
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - horizontal
+  #+BEGIN_SRC markdown
+(horizontal . body)
+executes first element of body and then inserts any next element with the same-line called before
+#+END_SRC
+* aod.imgui.helpers
+  - *ns-name*
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - draw-circle
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - draw-arc
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - draw-lines
+  #+BEGIN_SRC markdown
+
+#+END_SRC
+
+  - frgb->u32
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.c.imgui.window-flags
   - None
   #+BEGIN_SRC markdown
@@ -121,17 +203,20 @@
 * aod.c.imgui
   - begin
   #+BEGIN_SRC markdown
-Begin a window
+(begin name &optional *bool window-flags)
+- name: the name of the window, a scheme string
+- *bool: a pointer to bool, from aod.c.foreign. Closing the window modifies the pointer value
 #+END_SRC
 
   - begin-maximized
   #+BEGIN_SRC markdown
-Begin the maximized window
+(begin-maximized title &optional window-flags) NOT PART OF IMGUI: A convenient way to do a maximized window
+window-flags is just one int with bit flags set. There are already plenty set like NoTitleBar, NoResize etc.
 #+END_SRC
 
   - end
   #+BEGIN_SRC markdown
-Ends a window
+(end)
 #+END_SRC
 
   - spacing
@@ -141,12 +226,12 @@ Ends a window
 
   - text
   #+BEGIN_SRC markdown
-Text
+(text text) displays a text. the argument is just a scheme string
 #+END_SRC
 
   - label
   #+BEGIN_SRC markdown
-(label text) TODO not really properly done
+(label ...) NOT DONE
 #+END_SRC
 
   - align-text-to-frame-padding
@@ -166,82 +251,82 @@ Button
 
   - checkbox
   #+BEGIN_SRC markdown
-Checkbox
+(checkbox label *value) *value is *bool pointer
 #+END_SRC
 
   - begin-menu-bar
   #+BEGIN_SRC markdown
-BeginMenuBar
+(begin-menu-bar)
 #+END_SRC
 
   - end-menu-bar
   #+BEGIN_SRC markdown
-EndMenuBar
+(end-menu-bar)
 #+END_SRC
 
   - begin-main-menu-bar
   #+BEGIN_SRC markdown
-BeginMainMenuBar
+(begin-main-menu-bar)
 #+END_SRC
 
   - end-main-menu-bar
   #+BEGIN_SRC markdown
-EndMainMenuBar
+(end-main-menu-bar)
 #+END_SRC
 
   - begin-menu
   #+BEGIN_SRC markdown
-BeginMenu
+(begin-menu label) label could be "File" for example
 #+END_SRC
 
   - end-menu
   #+BEGIN_SRC markdown
-EndMenu
+(end-menu)
 #+END_SRC
 
   - separator
   #+BEGIN_SRC markdown
-Separator
+(separator)
 #+END_SRC
 
   - menu-item
   #+BEGIN_SRC markdown
-Menu item. TODO add more args (kbd shortcut, enabled, selected
+(menu-item label) TODO add more arguments (&optional shortcut selected)
 #+END_SRC
 
   - same-line
   #+BEGIN_SRC markdown
-Puts the next element in the same line as the previous one
+(same-line) puts the next element in the same line as the previously drawn element
 #+END_SRC
 
   - begin-child
   #+BEGIN_SRC markdown
-BeginChild
+(begin-child id) (string?)
 #+END_SRC
 
   - end-child
   #+BEGIN_SRC markdown
-EndChild
+(end-child)
 #+END_SRC
 
   - begin-group
   #+BEGIN_SRC markdown
-BeginGroup
+(begin-group)
 #+END_SRC
 
   - end-group
   #+BEGIN_SRC markdown
-EndGroup
+(end-group)
 #+END_SRC
 
   - dummy
   #+BEGIN_SRC markdown
-Dummy - a container (a placeholder for custom drawin, sets the w,h to offset the next element)
+(dummy width height)
 #+END_SRC
 
   - draw-circle
   #+BEGIN_SRC markdown
-(cx cy r col &optional segments thickness)
+(draw-circle cx cy r col &optional segments thickness)
 #+END_SRC
 
   - draw-arc
@@ -266,7 +351,8 @@ Dummy - a container (a placeholder for custom drawin, sets the w,h to offset the
 
   - color32
   #+BEGIN_SRC markdown
-(color32 r g b &optional a) input ranging from 0 to 255Returns a u32 representation of the color 0xRRGGBBAA
+(color32 r g b &optional alpha) input ranging from 0 to 255
+Returns a u32 representation of the color 0xRRGGBBAA
 #+END_SRC
 
   - set-color
@@ -276,7 +362,7 @@ Dummy - a container (a placeholder for custom drawin, sets the w,h to offset the
 
   - color-edit-3
   #+BEGIN_SRC markdown
-ColorEdit3
+(color-edit-3 label *values) *values: aod.c.foreign float[] array
 #+END_SRC
 
   - slider-float
@@ -286,8 +372,7 @@ ColorEdit3
 
   - slider-int
   #+BEGIN_SRC markdown
-(label value min max)
-value is a *int pointer (from aod.c.foreign/new-int)
+(label *value min max) value: *int pointer from aod.c.foreign/new-int
 #+END_SRC
 
   - input-text
@@ -297,7 +382,7 @@ value is a *int pointer (from aod.c.foreign/new-int)
 
   - input-text-multiline
   #+BEGIN_SRC markdown
-(input-text-multiline label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]
+(input-text-multiline label *buffer buffer-size) *buffer is c-pointer to char* from aod.c.foreign/new-char[]
 #+END_SRC
 
   - combo
@@ -331,26 +416,6 @@ IsItemFocused
   #+BEGIN_SRC markdown
 SetKeyboardFocusHere (&optional offset)
 focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget
-#+END_SRC
-
-  - *features*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.c.midi
-  - note-on?
-  #+BEGIN_SRC markdown
-(note-on? status data1 data2)
-#+END_SRC
-
-  - note-off?
-  #+BEGIN_SRC markdown
-(note-off? status data1 data2)
-#+END_SRC
-
-  - note-number
-  #+BEGIN_SRC markdown
-(note-number status data1 data2) Returns either the note or -1
 #+END_SRC
 * aod.c.gl
   - save-screenshot
@@ -387,83 +452,18 @@ focus keyboard on the next widget. Use positive 'offset' to access sub component
   #+BEGIN_SRC markdown
 (destroy void*) Destroys the window & the opengl context
 #+END_SRC
-* aod.imgui.macros
-  - *ns-name*
+* aod.c.midi
+  - note-on?
   #+BEGIN_SRC markdown
-
+(note-on? status data1 data2)
 #+END_SRC
 
-  - safe
+  - note-off?
   #+BEGIN_SRC markdown
-
+(note-off? status data1 data2)
 #+END_SRC
 
-  - window
+  - note-number
   #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - maximized
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - child
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - group
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - main-menu-bar
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - menu-bar
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - menu
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - menu-item
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - horizontal
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-* aod.imgui.helpers
-  - *ns-name*
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - draw-circle
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - draw-arc
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - draw-lines
-  #+BEGIN_SRC markdown
-
-#+END_SRC
-
-  - frgb->u32
-  #+BEGIN_SRC markdown
-
+(note-number status data1 data2) Returns either the note or -1
 #+END_SRC
