@@ -256,8 +256,13 @@ build/repl test/scheme/test-core.scm
 			;; cadr fun : the docstring
 			(insert (format "  - %s" (car fun)))
 			(newline-and-indent)
+			(insert "#+BEGIN_SRC markdown")
+			(newline)
 			(insert (format "%s" (cdr fun)))
 			(newline)
+			(insert "#+END_SRC")
+			(newline)
+			
 			)
 		      (cdr ns))
 	      
@@ -274,6 +279,7 @@ build/repl test/scheme/test-core.scm
 
   #+RESULTS:
   #+BEGIN_SRC org
+  t
   #+END_SRC
 
   #+CALL: gen-ns-org()

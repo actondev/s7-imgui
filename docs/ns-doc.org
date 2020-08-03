@@ -1,526 +1,854 @@
 * aod.imgui.macros
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - safe
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - begin
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - maximized
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - child
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - group
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - main-menu-bar
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - menu-bar
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - menu
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - menu-item
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - horizontal
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.colors
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - -triplet-ramp1
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - rgb-phase
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - triplet-phase
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - rgb-wheel
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ryb->rgb
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.midi
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - c1-note-on
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - c1-note-off
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - c1-note-off-2
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.imgui.helpers
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - draw-circle
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - draw-arc
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - draw-lines
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - frgb->u32
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.sxs
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - arrow-length
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - factor-arrow-length
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - factor-clip-radius
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - -arrow-angles
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - sxs-radius-line
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - arrow-lines
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - -arrow-right
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - -arrow-left
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - arrows-right
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - arrows-left
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - lines
-  (lines circle (phase 0) (clip #t))
+  #+BEGIN_SRC markdown
+(lines circle (phase 0) (clip #t))
 Returns a list of the lines to be drawn to paint the sxs logo.
 
 The circle is of the (cx cy r) form.
 A line is of the (x1 y1 x2 y2) form.
-
+#+END_SRC
 * aod.components.sxs-wheel
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - mk-sxs-element
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - new
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - draw
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - set-highlight
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - R
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - r
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - size
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - test-element
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - *ctx*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - paint
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.c.foreign
   - type-bool
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - new-bool
-  creates a heap allocated bool (c-object)
+  #+BEGIN_SRC markdown
+creates a heap allocated bool (c-object)
+#+END_SRC
 
   - type-int
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - new-int
-  creates a heap allocated int (c-object)
+  #+BEGIN_SRC markdown
+creates a heap allocated int (c-object)
+#+END_SRC
 
   - type-float
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - new-float
-  creates a heap allocated float (c-object)
+  #+BEGIN_SRC markdown
+creates a heap allocated float (c-object)
+#+END_SRC
 
   - type-bool
-  ([] . )
+  #+BEGIN_SRC markdown
+([] . )
+#+END_SRC
 
   - new-bool
-  ([] . creates a heap allocated bool[] (c-object))
+  #+BEGIN_SRC markdown
+([] . creates a heap allocated bool[] (c-object))
+#+END_SRC
 
   - type-int
-  ([] . )
+  #+BEGIN_SRC markdown
+([] . )
+#+END_SRC
 
   - new-int
-  ([] . creates a heap allocated int[] (c-object))
+  #+BEGIN_SRC markdown
+([] . creates a heap allocated int[] (c-object))
+#+END_SRC
 
   - type-float
-  ([] . )
+  #+BEGIN_SRC markdown
+([] . )
+#+END_SRC
 
   - new-float
-  ([] . creates a heap allocated float[] (c-object))
+  #+BEGIN_SRC markdown
+([] . creates a heap allocated float[] (c-object))
+#+END_SRC
 
   - type-char
-  ([] . )
+  #+BEGIN_SRC markdown
+([] . )
+#+END_SRC
 
   - new-char
-  ([] . creates a heap allocated char[] (c-object))
-
+  #+BEGIN_SRC markdown
+([] . creates a heap allocated char[] (c-object))
+#+END_SRC
 * aod.test.c.foreign
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.c.colors
   - ryb->rgb
-  Converts RYB to RGB
-
+  #+BEGIN_SRC markdown
+Converts RYB to RGB
+#+END_SRC
 * aod.c.sdl
   - delay
-  SDL_Delay
-
+  #+BEGIN_SRC markdown
+SDL_Delay
+#+END_SRC
 * test.partial
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - add-double
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - add1-double
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - add-double*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - add1-double*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.c.img
   - equivalent?
-  (equivalent? img1-filename img2-filename) Returns true if the images are equivalent
-
+  #+BEGIN_SRC markdown
+(equivalent? img1-filename img2-filename) Returns true if the images are equivalent
+#+END_SRC
 * aod.c.imgui
   - begin
-  Begin a window
+  #+BEGIN_SRC markdown
+Begin a window
+#+END_SRC
 
   - begin-maximized
-  Begin the maximized window
+  #+BEGIN_SRC markdown
+Begin the maximized window
+#+END_SRC
 
   - end
-  Ends a window
+  #+BEGIN_SRC markdown
+Ends a window
+#+END_SRC
 
   - spacing
-  (spacing)
+  #+BEGIN_SRC markdown
+(spacing)
+#+END_SRC
 
   - text
-  Text
+  #+BEGIN_SRC markdown
+Text
+#+END_SRC
 
   - label
-  (label text) TODO not really properly done
+  #+BEGIN_SRC markdown
+(label text) TODO not really properly done
+#+END_SRC
 
   - align-text-to-frame-padding
-  (align-text-to-frame-padding)
+  #+BEGIN_SRC markdown
+(align-text-to-frame-padding)
+#+END_SRC
 
   - button
-  Button
+  #+BEGIN_SRC markdown
+Button
+#+END_SRC
 
   - small-button
-  (small-button text)
+  #+BEGIN_SRC markdown
+(small-button text)
+#+END_SRC
 
   - checkbox
-  Checkbox
+  #+BEGIN_SRC markdown
+Checkbox
+#+END_SRC
 
   - begin-menu-bar
-  BeginMenuBar
+  #+BEGIN_SRC markdown
+BeginMenuBar
+#+END_SRC
 
   - end-menu-bar
-  EndMenuBar
+  #+BEGIN_SRC markdown
+EndMenuBar
+#+END_SRC
 
   - begin-main-menu-bar
-  BeginMainMenuBar
+  #+BEGIN_SRC markdown
+BeginMainMenuBar
+#+END_SRC
 
   - end-main-menu-bar
-  EndMainMenuBar
+  #+BEGIN_SRC markdown
+EndMainMenuBar
+#+END_SRC
 
   - begin-menu
-  BeginMenu
+  #+BEGIN_SRC markdown
+BeginMenu
+#+END_SRC
 
   - end-menu
-  EndMenu
+  #+BEGIN_SRC markdown
+EndMenu
+#+END_SRC
 
   - separator
-  Separator
+  #+BEGIN_SRC markdown
+Separator
+#+END_SRC
 
   - menu-item
-  Menu item. TODO add more args (kbd shortcut, enabled, selected
+  #+BEGIN_SRC markdown
+Menu item. TODO add more args (kbd shortcut, enabled, selected
+#+END_SRC
 
   - same-line
-  Puts the next element in the same line as the previous one
+  #+BEGIN_SRC markdown
+Puts the next element in the same line as the previous one
+#+END_SRC
 
   - begin-child
-  BeginChild
+  #+BEGIN_SRC markdown
+BeginChild
+#+END_SRC
 
   - end-child
-  EndChild
+  #+BEGIN_SRC markdown
+EndChild
+#+END_SRC
 
   - begin-group
-  BeginGroup
+  #+BEGIN_SRC markdown
+BeginGroup
+#+END_SRC
 
   - end-group
-  EndGroup
+  #+BEGIN_SRC markdown
+EndGroup
+#+END_SRC
 
   - dummy
-  Dummy - a container (a placeholder for custom drawin, sets the w,h to offset the next element)
+  #+BEGIN_SRC markdown
+Dummy - a container (a placeholder for custom drawin, sets the w,h to offset the next element)
+#+END_SRC
 
   - draw-circle
-  (cx cy r col &optional segments thickness)
+  #+BEGIN_SRC markdown
+(cx cy r col &optional segments thickness)
+#+END_SRC
 
   - draw-arc
-  (cx cy r a-min a-max col &optional segments thickness)
+  #+BEGIN_SRC markdown
+(cx cy r a-min a-max col &optional segments thickness)
+#+END_SRC
 
   - draw-circle-filled
-  (cx cy r col &optional segments)
+  #+BEGIN_SRC markdown
+(cx cy r col &optional segments)
+#+END_SRC
 
   - draw-line
-  (x1 y1 x2 y2 col &optional thickness)
+  #+BEGIN_SRC markdown
+(x1 y1 x2 y2 col &optional thickness)
+#+END_SRC
 
   - draw-text
-  (x y text color)
+  #+BEGIN_SRC markdown
+(x y text color)
+#+END_SRC
 
   - color32
-  (color32 r g b &optional a) input ranging from 0 to 255Returns a u32 representation of the color 0xRRGGBBAA
+  #+BEGIN_SRC markdown
+(color32 r g b &optional a) input ranging from 0 to 255Returns a u32 representation of the color 0xRRGGBBAA
+#+END_SRC
 
   - set-color
-  (set-color color-index color-u32)
+  #+BEGIN_SRC markdown
+(set-color color-index color-u32)
+#+END_SRC
 
   - color-edit-3
-  ColorEdit3
+  #+BEGIN_SRC markdown
+ColorEdit3
+#+END_SRC
 
   - slider-float
-  (slider-float label *value min max &optional (format "%.3f"))
+  #+BEGIN_SRC markdown
+(slider-float label *value min max &optional (format "%.3f"))
+#+END_SRC
 
   - slider-int
-  (label value min max)
+  #+BEGIN_SRC markdown
+(label value min max)
 value is a *int pointer (from aod.c.foreign/new-int)
+#+END_SRC
 
   - input-text
-  (input-text label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]
+  #+BEGIN_SRC markdown
+(input-text label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]
+#+END_SRC
 
   - input-text-multiline
-  (input-text-multiline label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]
+  #+BEGIN_SRC markdown
+(input-text-multiline label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]
+#+END_SRC
 
   - combo
-  (combo name *index labels)
+  #+BEGIN_SRC markdown
+(combo name *index labels)
 - *index as returned from aod.c.foreign/new-int
 - labels is a 0 separated string. eg "labelA\0labelB\0\0"
+#+END_SRC
 
   - is-item-deactivated-after-edit
-  IsItemDeactivatedAfterEdit
+  #+BEGIN_SRC markdown
+IsItemDeactivatedAfterEdit
+#+END_SRC
 
   - is-item-deactivated
-  IsItemDeactivated
+  #+BEGIN_SRC markdown
+IsItemDeactivated
+#+END_SRC
 
   - set-item-default-focus
-  SetItemDefaultFocus
+  #+BEGIN_SRC markdown
+SetItemDefaultFocus
+#+END_SRC
 
   - is-item-focused
-  IsItemFocused
+  #+BEGIN_SRC markdown
+IsItemFocused
+#+END_SRC
 
   - set-keyboard-focus-here
-  SetKeyboardFocusHere (&optional offset)
+  #+BEGIN_SRC markdown
+SetKeyboardFocusHere (&optional offset)
 focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget
+#+END_SRC
 
   - *features*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.c.gl
   - save-screenshot
-  (save-screenshot filename) Saves a screenshot of the current gl context
-
+  #+BEGIN_SRC markdown
+(save-screenshot filename) Saves a screenshot of the current gl context
+#+END_SRC
 * aod.c.midi
   - note-on?
-  (note-on? status data1 data2)
+  #+BEGIN_SRC markdown
+(note-on? status data1 data2)
+#+END_SRC
 
   - note-off?
-  (note-off? status data1 data2)
+  #+BEGIN_SRC markdown
+(note-off? status data1 data2)
+#+END_SRC
 
   - note-number
-  (note-number status data1 data2) Returns either the note or -1
-
+  #+BEGIN_SRC markdown
+(note-number status data1 data2) Returns either the note or -1
+#+END_SRC
 * aod.ns
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - *features*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - *nss*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - *ns-require-dynamic*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - *ns-load-mode*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-make-empty-let
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - *ns*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-create
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-get-or-create
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-should-bind-globally?
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-should-bind-locally?
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-load
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-require-alias
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-require
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-load-file
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - with-ns
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - with-temp-ns
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - -ns-is-of-subns?
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - ns-doc
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.test-all
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.geom
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - *eps*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - distance-sq
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - distance
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - point-in-circle?
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - sq
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - -expand-A-B-C-etc
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - -fx-intersect
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - filter-points-in-circle
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - point-in-segment?
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - filter-points-in-segment
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - clip-line-in-circle
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - filter-empty
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - clip-lines-in-circle
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - rad->deg
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - line-offset
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - lines-offset
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - mk-circle
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - mk-line
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - repeat-line
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - repeat-lines
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - radius-line
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 * aod.layout
   - *ns-name*
-  
+  #+BEGIN_SRC markdown
+
+#+END_SRC
 
   - circular
-  Circular layout.
+  #+BEGIN_SRC markdown
+Circular layout.
 Calls (cb x y :phase [0 .. (N-1)/N] :n [0 .. N]
 
 If the gui flag is passed (and indeed working with computer graphics)
 the elements will be drawn clock-wise starting from 12 o'clock. The
 theta-offset and clock-wise flags won't have any effect. Let's call it
 a known-issue
-
+#+END_SRC
 * aod.c.imgui-sdl
   - setup
-  (setup width height) Creates a new SDL_Window, setups opengl, inits imgui
+  #+BEGIN_SRC markdown
+(setup width height) Creates a new SDL_Window, setups opengl, inits imgui
+#+END_SRC
 
   - prepare
-  (prepare void*) To be called before calling any ImGui draw functionality
+  #+BEGIN_SRC markdown
+(prepare void*) To be called before calling any ImGui draw functionality
+#+END_SRC
 
   - flush
-  (flush void*) To be called after having called any ImGui draw functionality. Paints the window
+  #+BEGIN_SRC markdown
+(flush void*) To be called after having called any ImGui draw functionality. Paints the window
+#+END_SRC
 
   - destroy
-  (destroy void*) Destroys the window & the opengl context
+  #+BEGIN_SRC markdown
+(destroy void*) Destroys the window & the opengl context
+#+END_SRC
