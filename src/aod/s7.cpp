@@ -121,7 +121,7 @@ void bind_all(s7_scheme *sc) {
 
     s7_define(sc, primitives_env, s7_make_symbol(sc, "*ns-doc*"),
               s7_make_string(sc, "Provides a way to create heap allocated primitives like int* float*, int* array, char* array etc\n"
-              "Note: the auto-doc is off, for example to create a c string use `(new-char[] size)`. The auto-generation has problem with the `[]` symbol"));
+              "For example, to create a c string use `(new-char[] size)`"));
 
     // imgui bindings
     aod::s7::imgui::bind(sc);

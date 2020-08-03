@@ -316,7 +316,7 @@ build/repl test/scheme/test-core.scm
 						 (cdr fun)
 					       (cddr fun)
 					       )))
-			  (insert (format "## `%s`" fun-name))
+			  (insert (format "## %s" fun-name))
 			  (newline)
 			  (insert (format "%s" fun-docstring))
 			  (newline)))
