@@ -1,5 +1,5 @@
 * S7 & ImGui
-  Using [[https://ccrma.stanford.edu/software/snd/snd/s7.html][s7 scheme]] alongside [[https://github.com/ocornut/imgui][ImGui]] to (interactively) build (cross platform) GUI apps.
+  Using [[https://ccrma.stanford.edu/software/snd/snd/s7.html][s7 scheme]] alongside [[https://github.com/ocornut/imgui][Dear ImGui]] to (interactively) build (cross platform) GUI apps.
 
   You can see a video demonstration (of =0.1.0=) [[https://youtu.be/MgHsl0u26MY][here]].
 

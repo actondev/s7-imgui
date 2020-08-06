@@ -835,8 +835,8 @@ s7_pointer input_text_multiline(s7_scheme* sc, s7_pointer args) {
 }
 
 static const char* help_combo = "(combo name *index labels)\n"
-                                "- *index as returned from aod.c.foreign/new-int\n"
-                                "- labels is a 0 separated string. eg \"labelA\\0labelB\\0\\0\"";
+                                "- *index an int* pointer returned from aod.c.foreign/new-int\n"
+                                "- labels is a list of strings";
 
 s7_pointer combo(s7_scheme* sc, s7_pointer args) {
     if (!s7_is_string(s7_car(args))) {
