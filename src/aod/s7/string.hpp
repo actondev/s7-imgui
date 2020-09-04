@@ -3,7 +3,7 @@
 
 namespace aod {
 namespace s7 {
-namespace regex {
+namespace string {
 
 void bind(s7_scheme* sc);
 }

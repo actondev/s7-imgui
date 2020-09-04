@@ -18,7 +18,7 @@ aod_sources = files(
   's7/imgui_sdl.cpp',
   'colors.cpp',
   's7/colors.cpp',
-  's7/regex.cpp',
+  's7/string.cpp',
 
   # foreign types
   's7/foreign_primitives.cpp',

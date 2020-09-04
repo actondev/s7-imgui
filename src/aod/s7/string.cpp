@@ -5,7 +5,7 @@
 
 namespace aod {
 namespace s7 {
-namespace regex {
+namespace string {
 
 std::regex regex_exp;
 std::smatch regex_match;
@@ -54,6 +54,21 @@ s7_pointer get_match(s7_scheme* sc, s7_pointer args) {
 //     return s7_f(sc);
 }
 
+s7_pointer uppercase(s7_scheme* sc, s7_pointer args) {
+    const char* str_char = s7_string(s7_car(args));
+    std::string str = str_char;
+//     toupper()
+    std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+    return s7_make_string(sc, str.c_str());
+}
+
+s7_pointer lowercase(s7_scheme* sc, s7_pointer args) {
+    const char* str_char = s7_string(s7_car(args));
+    std::string str = str_char;
+    std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return s7_make_string(sc, str.c_str());
+}
+
 void bind(s7_scheme* sc) {
 
     s7_pointer env = s7_inlet(sc, s7_nil(sc));
@@ -75,7 +90,15 @@ void bind(s7_scheme* sc) {
               s7_make_function(sc, "replace", replace, 3, 0, 0, "(replace str regex replacement)")
              );
 
-    s7_define_constant(sc, "aod.c.regex", env);
+    s7_define(sc, env, s7_make_symbol(sc, "uppercase"),
+              s7_make_function(sc, "uppercase", uppercase, 1, 0, 0, "(uppercase str)")
+             );
+
+    s7_define(sc, env, s7_make_symbol(sc, "lowercase"),
+              s7_make_function(sc, "lowercase", lowercase, 1, 0, 0, "(lowercase str)")
+             );
+
+    s7_define_constant(sc, "aod.c.string", env);
 
 }
 }
