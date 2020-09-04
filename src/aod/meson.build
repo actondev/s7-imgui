@@ -31,6 +31,9 @@ aod_sources = files(
   # midi
   'midi/midi.cpp',
   's7/midi.cpp',
+
+  # net
+  'net/net.cpp',
 )
 
 gl_dep = dependency('gl', required : false)
@@ -53,6 +56,7 @@ aod_lib = library(
     imgui_dep,
     gl_dep,
     sdl2_dep,
+    sdl_net_dep,
     nfd_dep,
     stb_dep, # (only for image read/write for now)
   ]
@@ -60,11 +64,11 @@ aod_lib = library(
 
 aod_dep = declare_dependency(
   link_with: aod_lib,
-  # include from parent dir: to include "aod/s7.cpp" for example
+  # include from parent dir: to include "aod/s7.hpp" for example
   include_directories: include_directories('..'),
   dependencies: [
     # hm.. this is for the include_directories
-    # solving errors like "SDL.h" not found etc
+    # solving errors like "SDL.h" not found etcF
     s7_dep,
     imgui_dep,
     gl_dep,
