@@ -12,6 +12,7 @@
 #include "aod/s7/colors.hpp"
 #include "aod/s7/img.hpp"
 #include "aod/s7/midi.hpp"
+#include "aod/s7/regex.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -142,6 +143,7 @@ void bind_all(s7_scheme *sc) {
     aod::s7::sdl::bind(sc);
     aod::s7::img::bind(sc);
     aod::s7::midi::bind(sc);
+    aod::s7::regex::bind(sc);
 }
 
 } // s7
