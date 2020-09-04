@@ -108,7 +108,7 @@ if not meson.is_subproject()
   subdir('examples')
   # TODO not build test if building for release
   subdir('test')
-else
+else # we are in subproject => exposing the s7_imgui_dep
   s7_imgui_dep = declare_dependency(
     dependencies: [
     sdl2_dep,

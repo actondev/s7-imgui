@@ -43,14 +43,17 @@ bool Repl::handleInput(const char* str, bool clearPreviousInput) {
     std::string wrapped;
     // clojure style namespace.
     if (s7_boolean(sc, s7_eval_c_string(sc, "(and (defined? '*ns*) (let? *ns*))"))) {
-        if (std::regex_search(input_buffer, repl::NS_REGEXP)) {
+        // the following commented block was causing problems
+        // picture sending (ns foo) (do-that) and they all arrive together over network
+        // .. then only the (ns foo) will run cause of how the reader works
+//         if (std::regex_search(input_buffer, repl::NS_REGEXP)) {
             // if the input_buffer is "(ns ...)" then skip wrapping
             // that makes the eval-hook easy to recognize such eval'd forms
             // one just has to check (eq? 'ns (car (hook 'form)))
-            wrapped = input_buffer;
-        } else {
+//             wrapped = input_buffer;
+//         } else {
             wrapped = "(with-let *ns* (begin " + input_buffer + "))";
-        }
+//         }
     } else {
         wrapped = "(begin " + input_buffer + ")";
     }
