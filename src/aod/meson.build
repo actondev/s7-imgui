@@ -54,8 +54,8 @@ aod_lib = library(
   # sources: aod_sources,
   include_directories: include_directories('..'),
   sources: aod_sources,
-  link_args: ['-ldl'],
-  pic: true,
+  # link_args: ['-ldl'],
+  # pic: true,
   dependencies : [
     # dependency('s7', required: true),
     s7_dep,

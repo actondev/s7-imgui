@@ -58,7 +58,7 @@ sfml_opt.add_cmake_defines({'SFML_BUILD_AUDIO': false,
 			    # 'SFML_STATIC_LIBRARIES': true,
 			    'BUILD_SHARED_LIBS': false,})
 sfml_opt.append_compile_args('cpp', '-fPIC')
-sfml_opt.append_link_args('-ldl', '-lz', '-lrt')
+# sfml_opt.append_link_args('-ldl', '-lz', '-lrt')
 
 sfml_proj = cmake.subproject('SFML', options: sfml_opt)
 # Fetch the dependency object
