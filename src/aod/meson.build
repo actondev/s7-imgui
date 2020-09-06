@@ -9,7 +9,10 @@ aod_sources = files(
   's7/imgui/addons.cpp',
   's7/imgui/enums.cpp',
   's7/repl.cpp',
+  # imgui
   'imgui/addons.cpp',
+  'imgui/sfml.cpp',
+  #s7
   's7/sdl.cpp',
   'sdl.cpp',
   'sdl/audio.cpp',
@@ -60,6 +63,7 @@ aod_lib = library(
     sdl_net_dep,
     nfd_dep,
     stb_dep, # (only for image read/write for now)
+    sfml_system_dep,
   ]
   )
 

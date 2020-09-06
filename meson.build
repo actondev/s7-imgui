@@ -50,8 +50,6 @@ nfd_dep = nfd_proj.get_variable('nfd_dep')
 meson.override_dependency('s7', s7_dep)
 meson.override_dependency('imgui', imgui_dep)
 
-subdir('src')
-
 cmake = import('cmake')
 sfml_opt = cmake.subproject_options()
 # Call CMake with `-DSOME_OTHER_VAR=ON`
@@ -63,6 +61,8 @@ sfml_proj = cmake.subproject('SFML', options: sfml_opt)
 sfml_system_dep = sfml_proj.dependency('sfml-system')
 sfml_graphics_dep = sfml_proj.dependency('sfml-graphics')
 sfml_window_dep = sfml_proj.dependency('sfml-window')
+
+subdir('src')
 
 if not meson.is_subproject()
   # hm probably remove the app
@@ -107,12 +107,13 @@ if not meson.is_subproject()
       'src/gui_repl_sfml.cpp',
     ),
     dependencies : [
-      sdl2_dep, # the core library
-      sdl2main_dep, # abstracts out the main thing: windows needs WinMain
-      sdl_net_dep,
       imgui_dep,
       s7_dep,
       aod_dep,
+      # sfml
+      sfml_system_dep,
+    sfml_graphics_dep,
+    sfml_window_dep,
     ],
     link_args: link_args,
     cpp_args: extra_args,
