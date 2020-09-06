@@ -54,6 +54,8 @@ aod_lib = library(
   # sources: aod_sources,
   include_directories: include_directories('..'),
   sources: aod_sources,
+  link_args: ['-ldl'],
+  pic: true,
   dependencies : [
     # dependency('s7', required: true),
     s7_dep,
@@ -62,15 +64,20 @@ aod_lib = library(
     sdl2_dep,
     sdl_net_dep,
     nfd_dep,
-    stb_dep, # (only for image read/write for now)
-    sfml_system_dep,
+    # ugh.. sfml has the stb in it.. so.. multiple definitions
+    # the problem is cause I want to statically link SFML
+    # stb_dep, # (only for image read/write for now)
+    sfml_dep,
+    # sfml_system_dep,
   ]
   )
 
+aod_includes = include_directories('..')
+# aod_includes += sfml_includes
 aod_dep = declare_dependency(
   link_with: aod_lib,
   # include from parent dir: to include "aod/s7.hpp" for example
-  include_directories: include_directories('..'),
+  include_directories: [aod_includes, sfml_includes],
   dependencies: [
     # hm.. this is for the include_directories
     # solving errors like "SDL.h" not found etcF
@@ -79,5 +86,6 @@ aod_dep = declare_dependency(
     gl_dep,
     sdl2_dep,
     nfd_dep,
+    # sfml_dep,
     ]
   )

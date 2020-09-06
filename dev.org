@@ -27,43 +27,12 @@ ln -s `readlink -f ../s7` subprojects/s7
 ls -alh subprojects/s7
 ln -s `readlink -f ../SDL_net` subprojects/sdl_net
 ls -alh subprojects/sdl_net # subprojects/sdl_net -> xxxx/SDL_net
+ln -s `readlink -f ../SFML` subprojects/SFML
 
 # file dialog: needed for some examples
 ln -s `readlink -f ../nativefiledialog` subprojects/nfd
    #+END_SRC
 ** Building
-   Build
-   #+NAME: >build
-   #+BEGIN_SRC sh
-ninja -C build
-   #+END_SRC
-
-   Clean
-   #+NAME: >clean
-   #+BEGIN_SRC sh
-ninja -C build -t clean
-   #+END_SRC
-
-   Rebuilding (only our things, not the subprojects)
-   Useful to check for warnings etc
-   #+NAME: >rebuild
-   #+BEGIN_SRC sh
-rm -rf build/src
-rm -rf build/test
-ninja -C build
-   #+END_SRC
-
-*** Helpful commands
-    #+BEGIN_SRC sh
-# for the scheme sources
-ln -s `readlink -f src/scheme` build/scheme
-# eclipse debug build
-ln -s `readlink -f src/scheme` build/meson.debug.linux.x86_64/scheme
-
-meson setup --reconfigure build
-meson setup --wipe build
-rm -rf build
-    #+END_SRC
 ** Building for release
    Setting up
    #+BEGIN_SRC sh

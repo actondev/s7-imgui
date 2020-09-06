@@ -1,7 +1,11 @@
-#define STB_IMAGE_WRITE_IMPLEMENTATION
+// uuughhh sfml has stb 
+
+// #define STB_IMAGE_WRITE_IMPLEMENTATION
 // we have it in this directory for now
 // will see later on if I need this in more places
 #include "stb_image_write.h"
+#include <cstring>
+#include <cstdlib>
 #ifdef _WIN32
 #include <Windows.h> // gl.h errors if not (void should be preceded.. etc)
 #endif

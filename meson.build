@@ -54,13 +54,24 @@ cmake = import('cmake')
 sfml_opt = cmake.subproject_options()
 # Call CMake with `-DSOME_OTHER_VAR=ON`
 # skipping audio for now
-sfml_opt.add_cmake_defines({'SFML_BUILD_AUDIO': false})
+sfml_opt.add_cmake_defines({'SFML_BUILD_AUDIO': false,
+			    # 'SFML_STATIC_LIBRARIES': true,
+			    'BUILD_SHARED_LIBS': false,})
+sfml_opt.append_compile_args('cpp', '-fPIC')
+sfml_opt.append_link_args('-ldl', '-lz', '-lrt')
 
 sfml_proj = cmake.subproject('SFML', options: sfml_opt)
 # Fetch the dependency object
 sfml_system_dep = sfml_proj.dependency('sfml-system')
 sfml_graphics_dep = sfml_proj.dependency('sfml-graphics')
 sfml_window_dep = sfml_proj.dependency('sfml-window')
+
+# sfml_includes = sfml_proj.include_directories('sfml-system')+
+		 # sfml_proj.include_directories('sfml-graphics')+
+# sfml_proj.include_directories('sfml-window')
+sfml_includes = sfml_proj.include_directories('sfml-graphics')
+
+sfml_dep = [sfml_system_dep, sfml_graphics_dep, sfml_window_dep]
 
 subdir('src')
 
@@ -111,9 +122,10 @@ if not meson.is_subproject()
       s7_dep,
       aod_dep,
       # sfml
-      sfml_system_dep,
-    sfml_graphics_dep,
-    sfml_window_dep,
+      # sfml_system_dep,
+      # sfml_graphics_dep,
+      # sfml_window_dep,
+      # sfml_dep,
     ],
     link_args: link_args,
     cpp_args: extra_args,
@@ -148,6 +160,10 @@ else # we are in subproject => exposing the s7_imgui_dep
     imgui_dep,
     s7_dep,
     aod_dep,
+    # sfml_dep,
+    # sfml_system_dep,
+    # sfml_graphics_dep,
+    # sfml_window_dep,
   ]
   )
 endif

@@ -36,7 +36,9 @@ example_sfml = executable(
   sources: files (
  'ex_sfml.cpp',
   ),
+  link_args: ['-ldl'],
   dependencies: [
+    dependency('threads'),
     sfml_system_dep,
     sfml_graphics_dep,
     sfml_window_dep,

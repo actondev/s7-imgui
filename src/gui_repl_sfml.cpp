@@ -6,8 +6,7 @@
 // **Prefer using the code in the example_sdl_opengl3/ folder**
 // See imgui_impl_sdl.cpp for details.
 
-#include "imgui.h"
-#include "imgui_impl_opengl2.h"
+
 #include <stdio.h>
 #include "s7.h"
 #include "aod/s7.hpp"
@@ -20,6 +19,9 @@
 #include <mutex>
 #include <thread>
 
+// imgui
+#include "imgui.h"
+#include "imgui_impl_opengl2.h"
 // sfml
 #include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
