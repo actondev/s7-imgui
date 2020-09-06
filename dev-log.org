@@ -971,3 +971,8 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
   probably with emacs & org mode.. :)
 
   <2020-08-03 Mon> let's try to do that
+* <2020-09-06 Sun> checking SFML
+  #+BEGIN_SRC sh
+cd subprojects/
+git clone https://github.com/SFML/SFML.git
+  #+END_SRC

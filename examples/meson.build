@@ -28,6 +28,21 @@ example_imgui = executable(
     ],
   install: true,
   gui_app: true,
+)
+
+
+example_sfml = executable(
+  'ex_sfml',
+  sources: files (
+ 'ex_sfml.cpp',
+  ),
+  dependencies: [
+    sfml_system_dep,
+    sfml_graphics_dep,
+    sfml_window_dep,
+    ],
+  install: true,
+  gui_app: true,
   )
 
 example_sdl_net = executable(

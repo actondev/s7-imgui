@@ -52,6 +52,18 @@ meson.override_dependency('imgui', imgui_dep)
 
 subdir('src')
 
+cmake = import('cmake')
+sfml_opt = cmake.subproject_options()
+# Call CMake with `-DSOME_OTHER_VAR=ON`
+# skipping audio for now
+sfml_opt.add_cmake_defines({'SFML_BUILD_AUDIO': false})
+
+sfml_proj = cmake.subproject('SFML', options: sfml_opt)
+# Fetch the dependency object
+sfml_system_dep = sfml_proj.dependency('sfml-system')
+sfml_graphics_dep = sfml_proj.dependency('sfml-graphics')
+sfml_window_dep = sfml_proj.dependency('sfml-window')
+
 if not meson.is_subproject()
   # hm probably remove the app
   app = executable(
@@ -74,6 +86,25 @@ if not meson.is_subproject()
     'gui_repl',
     sources: files(
       'src/gui_repl.cpp',
+    ),
+    dependencies : [
+      sdl2_dep, # the core library
+      sdl2main_dep, # abstracts out the main thing: windows needs WinMain
+      sdl_net_dep,
+      imgui_dep,
+      s7_dep,
+      aod_dep,
+    ],
+    link_args: link_args,
+    cpp_args: extra_args,
+    gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
+    install: true,
+  )
+
+  gui_repl_sfml = executable(
+    'gui_repl_sfml',
+    sources: files(
+      'src/gui_repl_sfml.cpp',
     ),
     dependencies : [
       sdl2_dep, # the core library
