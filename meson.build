@@ -65,13 +65,18 @@ sfml_proj = cmake.subproject('SFML', options: sfml_opt)
 sfml_system_dep = sfml_proj.dependency('sfml-system')
 sfml_graphics_dep = sfml_proj.dependency('sfml-graphics')
 sfml_window_dep = sfml_proj.dependency('sfml-window')
+sfml_network_dep = sfml_proj.dependency('sfml-network')
 
 # sfml_includes = sfml_proj.include_directories('sfml-system')+
 		 # sfml_proj.include_directories('sfml-graphics')+
 # sfml_proj.include_directories('sfml-window')
 sfml_includes = sfml_proj.include_directories('sfml-graphics')
 
-sfml_dep = [sfml_system_dep, sfml_graphics_dep, sfml_window_dep]
+sfml_dep = [sfml_system_dep,
+	    sfml_graphics_dep,
+	    sfml_window_dep,
+	    sfml_network_dep,
+	   ]
 
 subdir('src')
 
@@ -121,11 +126,6 @@ if not meson.is_subproject()
       imgui_dep,
       s7_dep,
       aod_dep,
-      # sfml
-      # sfml_system_dep,
-      # sfml_graphics_dep,
-      # sfml_window_dep,
-      # sfml_dep,
     ],
     link_args: link_args,
     cpp_args: extra_args,
@@ -155,15 +155,9 @@ if not meson.is_subproject()
 else # we are in subproject => exposing the s7_imgui_dep
   s7_imgui_dep = declare_dependency(
     dependencies: [
-    sdl2_dep,
-    sdl_net_dep,
     imgui_dep,
     s7_dep,
     aod_dep,
-    # sfml_dep,
-    # sfml_system_dep,
-    # sfml_graphics_dep,
-    # sfml_window_dep,
   ]
   )
 endif

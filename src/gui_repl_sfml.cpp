@@ -14,7 +14,6 @@
 #include "aod/path.hpp"
 #include <sstream>
 #include <iostream>
-#include <iostream>
 #include <filesystem>
 #include <mutex>
 #include <thread>
@@ -61,7 +60,6 @@ int guiLoop() {
 
     ImGui::SFML::Init(window);
     ImGui_ImplOpenGL2_Init();
-    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(30, 30, 30, 255));
 
     printf("guiLoop: quit gui event loop, cleaning up \n");

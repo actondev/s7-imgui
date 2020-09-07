@@ -976,3 +976,10 @@ bool ImGui::InputTextEx(const char* label, const char* hint, char* buf, int buf_
 cd subprojects/
 git clone https://github.com/SFML/SFML.git
   #+END_SRC
+
+  - gui_repl_sfml weighs 16.2mb
+  - gui_repl now weighs 13.1mb
+    in previous commit it was 12.1mb
+    ..so, gained ~1mb with sdl->sfml transition ???
+    ... or 3mb (see gui_repl_sfml vs gui_repl)
+    gui_repl still uses sdl2

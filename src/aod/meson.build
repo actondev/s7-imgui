@@ -12,13 +12,14 @@ aod_sources = files(
   # imgui
   'imgui/addons.cpp',
   'imgui/sfml.cpp',
-  #s7
-  's7/sdl.cpp',
-  'sdl.cpp',
-  'sdl/audio.cpp',
+  # sdl
+#   's7/sdl.cpp',
+#   'sdl.cpp',
+#   'sdl/audio.cpp',
+# 's7/imgui_sdl.cpp',
+
   'nfd.cpp',
   's7/nfd.cpp',
-  's7/imgui_sdl.cpp',
   'colors.cpp',
   's7/colors.cpp',
   's7/string.cpp',
@@ -62,14 +63,11 @@ aod_lib = library(
     s7_dep,
     imgui_dep,
     gl_dep,
-    sdl2_dep,
-    sdl_net_dep,
     nfd_dep,
     # ugh.. sfml has the stb in it.. so.. multiple definitions
     # the problem is cause I want to statically link SFML
     # stb_dep, # (only for image read/write for now)
     sfml_dep,
-    # sfml_system_dep,
   ]
   )
 
@@ -85,8 +83,7 @@ aod_dep = declare_dependency(
     s7_dep,
     imgui_dep,
     gl_dep,
-    sdl2_dep,
     nfd_dep,
-    # sfml_dep,
+    sfml_dep,
     ]
   )

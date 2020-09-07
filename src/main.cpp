@@ -183,7 +183,7 @@ int main(int argc, char *argv[]) {
 //    SDL_SetWindowSize()
 
     // sdl bindings (sdl/set-window-size!)
-    aod::s7::sdl::bind_TODO_REMOVE(sc, window);
+//     aod::s7::sdl::bind_TODO_REMOVE(sc, window);
 
     // .....
 

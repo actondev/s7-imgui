@@ -60,21 +60,21 @@ example_sdl_net = executable(
   install: true,
 )
 
-example_audio_player = executable(
-  'ex_audio_player',
-  sources: files (
-    'ex_audio_player.cpp',
-  ),
-  dependencies: [
-    sdl2_dep,
-    sdl2main_dep,
-    sdl_net_dep,
-    imgui_dep,
-    aod_dep,
-    s7_dep,
-    ],
-  install: true,
-  )
+# example_audio_player = executable(
+#   'ex_audio_player',
+#   sources: files (
+#     'ex_audio_player.cpp',
+#   ),
+#   dependencies: [
+#     sdl2_dep,
+#     sdl2main_dep,
+#     sdl_net_dep,
+#     imgui_dep,
+#     aod_dep,
+#     s7_dep,
+#     ],
+#   install: true,
+#   )
 
 
 example_repl = executable(

@@ -24,6 +24,52 @@ public:
     }
     static int listenLoop(void* data) {
         TcpServer* that = (TcpServer*)data;
+
+        sf::TcpSocket socket;
+        char buffer[BUFFER_SIZE];
+        std::size_t received;
+
+        while (that->running) {
+            // TODO while that running..?
+            if (that->pimpl->listener.accept(socket) != sf::Socket::Done) {
+                // error...
+                fprintf(stderr, "listener.listen not done\n");
+                return -1;
+            }
+
+            // writing the init/welcome message
+            if (socket.send(that->init_msg.c_str(), that->init_msg.size()) != sf::Socket::Done) {
+                fprintf(stderr, "socket.send error. disconnecting client?\n");
+                break;
+            }
+
+            for (;;) {
+                // loop: receiving from the same client
+                if (socket.receive(buffer, BUFFER_SIZE, received) != sf::Socket::Done) {
+                    fprintf(stderr, "socket.receive error. client disconnected?\n");
+                    break;
+                }
+
+                buffer[received] = 0; // terminating what we read
+                std::string response = that->cb(buffer); // calling the callback
+
+                if (socket.send(response.c_str(), response.size()) != sf::Socket::Done) {
+                    fprintf(stderr, "socket.send error. disconnecting client?\n");
+                    break;
+                }
+
+                // sleeping before we receive anything else from our client
+                // maybe not needed..? but it's useful for locks etc
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            socket.disconnect();
+
+            // sleeping before we accept any new clients
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
+        }
+        printf("TcpServer event loop quit\n");
+        that->running = false;
+        return 0;
     }
 };
 
@@ -55,10 +101,20 @@ int TcpServer::listen(int port, aod::net::Callback cb) {
 
 int TcpServer::listen(int port, aod::net::Callback cb, std::string init_msg) {
     fprintf(stderr, "TcpServer::listen (sfml impl)\n");
+    if (running) {
+        fprintf(stderr, "TCP server already running, skipping\n");
+        return -1;
+    }
     this->cb = cb;
     this->init_msg = init_msg;
+    std::string addr = "localhost";
+    if (pimpl->listener.listen(port, sf::IpAddress(addr)) != sf::Socket::Done) {
+        fprintf(stderr, "listener.listen not done\n");
+        return -1;
+    }
+    running = true;
     new std::thread(Impl::listenLoop, (void*)this);
-
+    return 0;
 }
 
 } // net

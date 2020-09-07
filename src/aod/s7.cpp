@@ -5,9 +5,9 @@
 #include "aod/s7/foreign_primitives_arr.hpp"
 #include "aod/s7/imgui/addons.hpp"
 #include "aod/s7/gl.hpp"
-#include "aod/s7/sdl.hpp"
+// #include "aod/s7/sdl.hpp"
 #include "aod/s7/nfd.hpp"
-#include "aod/s7/imgui_sdl.hpp"
+// #include "aod/s7/imgui_sdl.hpp"
 #include "aod/s7/repl.hpp"
 #include "aod/s7/colors.hpp"
 #include "aod/s7/img.hpp"
@@ -134,13 +134,13 @@ void bind_all(s7_scheme *sc) {
     // nfd: native file dialog (*nfd* 'open)
     aod::s7::nfd::bind(sc);
 
-    aod::s7::imgui_sdl::bind(sc);
+//     aod::s7::imgui_sdl::bind(sc);
     // aod.c.repl :
     // *eval-hook*
     aod::s7::repl::bind(sc);
 
     aod::s7::colors::bind(sc);
-    aod::s7::sdl::bind(sc);
+//     aod::s7::sdl::bind(sc);
     aod::s7::img::bind(sc);
     aod::s7::midi::bind(sc);
     aod::s7::string::bind(sc);
