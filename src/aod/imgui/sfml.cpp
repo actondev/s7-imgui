@@ -1,4 +1,3 @@
-//#include "aod/imgui/imgui-SFML.h"
 #include "imgui-SFML.h"
 
 #include <imgui.h>
@@ -198,7 +197,7 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 }
 
 void ProcessEvent(const sf::Event& event) {
-    if (s_windowHasFocus) {
+    if (s_windowHasFocus || true) { // force: iplug VST3 fix
         ImGuiIO& io = ImGui::GetIO();
 
         switch (event.type) {
@@ -303,7 +302,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
     
     io.DeltaTime = dt.asSeconds();
 
-    if (s_windowHasFocus) {
+    if (s_windowHasFocus || true) { // force: iplug VST3 fix
         if (io.WantSetMousePos) {
             sf::Vector2i mousePos(static_cast<int>(io.MousePos.x),
                                   static_cast<int>(io.MousePos.y));
@@ -329,20 +328,6 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
         io.KeysDown[sf::Keyboard::LShift] || io.KeysDown[sf::Keyboard::RShift];
     io.KeySuper = io.KeysDown[sf::Keyboard::LSystem] ||
                   io.KeysDown[sf::Keyboard::RSystem];
-
-#ifdef ANDROID
-#ifdef USE_JNI
-    if (io.WantTextInput && !s_wantTextInput) {
-        openKeyboardIME();
-        s_wantTextInput = true;
-    }
-
-    if (!io.WantTextInput && s_wantTextInput) {
-        closeKeyboardIME();
-        s_wantTextInput = false;
-    }
-#endif
-#endif
 
     assert(io.Fonts->Fonts.Size > 0);  // You forgot to create and set up font
                                        // atlas (see createFontTexture)
