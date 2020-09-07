@@ -76,8 +76,8 @@ void loadMouseCursor(ImGuiMouseCursor imguiCursorType,
                      sf::Cursor::Type sfmlCursorType);
 void updateMouseCursor(sf::Window& window);
 
-sf::Cursor* s_mouseCursors[ImGuiMouseCursor_COUNT];
-bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
+thread_local sf::Cursor* s_mouseCursors[ImGuiMouseCursor_COUNT];
+thread_local bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
 
 }  // namespace
 
@@ -150,6 +150,10 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     // clipboard
     io.SetClipboardTextFn = setClipboardText;
     io.GetClipboardTextFn = getClipboadText;
+    
+    // is this needed?
+    // commented out for the shake of simplifying the Shutdown
+    // (either this or I state thread_local in the used globals)
 
     // load mouse cursors
     for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {

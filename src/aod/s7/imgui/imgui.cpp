@@ -80,25 +80,31 @@ s7_pointer begin(s7_scheme *sc, s7_pointer args) {
 
     const char *str = s7_string(title);
     args = s7_cdr(args);
+    if (args == s7_nil(sc)) {
+        // just passed a title, nothing more
+        ImGui::Begin(str);
+        return (s7_nil(sc));
+    }
     s7_pointer obj = s7_car(args);
     bool *p_open = (bool*) s7_c_object_value_checked(obj,
                    aod::s7::foreign::tag_bool(sc));
 
     args = s7_cdr(args);
+    if(args == s7_nil(sc)){
+        // passed 1 optional argument: the open flag
+        ImGui::Begin(str, p_open);
+        return s7_nil(sc);
+    }
+    
     ImGuiWindowFlags flags = 0;
     s7_pointer sc_flags = s7_car(args);
     if (s7_is_number(sc_flags)) {
+        // passed 2 optional arguments
         flags |= s7_integer(sc_flags);
     }
-
-    if (p_open == NULL) {
-        // we don't throw an error. begin has multiple arity
-        ImGui::Begin(str);
-    } else {
-        ImGui::Begin(str, p_open, flags);
-    }
-
-    return (s7_nil(sc));
+    ImGui::Begin(str, p_open, flags);
+    
+    return s7_nil(sc);
 }
 
 const char* help_begin_maximized = "(begin-maximized title &optional window-flags) NOT PART OF IMGUI: A convenient way to do a maximized window\n"
