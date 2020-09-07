@@ -37,7 +37,7 @@ aod_sources = files(
   's7/midi.cpp',
 
   # net
-  'net/net.cpp',
+  'net/net_impl_sdl.cpp',
 )
 
 gl_dep = dependency('gl', required : false)
