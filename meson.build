@@ -73,7 +73,9 @@ sfml_network_dep = sfml_proj.dependency('sfml-network')
 sfml_includes = sfml_proj.include_directories('sfml-graphics')
 
 sfml_dep = [sfml_system_dep,
-	    sfml_graphics_dep,
+	    # we don't need the graphics
+	    # and we save ~4mb :)
+	    # sfml_graphics_dep,
 	    sfml_window_dep,
 	    sfml_network_dep,
 	   ]

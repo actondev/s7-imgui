@@ -66,7 +66,7 @@ aod_lib = library(
     nfd_dep,
     # ugh.. sfml has the stb in it.. so.. multiple definitions
     # the problem is cause I want to statically link SFML
-    # stb_dep, # (only for image read/write for now)
+    stb_dep, # (only for image read/write for now)
     sfml_dep,
   ]
   )

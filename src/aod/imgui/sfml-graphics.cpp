@@ -2,6 +2,11 @@
 
 #include <imgui.h>
 #include <SFML/Config.hpp>
+#include <SFML/Graphics/Color.hpp>
+#include <SFML/Graphics/RenderTarget.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window/Clipboard.hpp>
 #include <SFML/Window/Cursor.hpp>
@@ -26,6 +31,9 @@ static bool s_mousePressed[3] = {false, false, false};
 static bool s_touchDown[3] = {false, false, false};
 static bool s_mouseMoved = false;
 static sf::Vector2i s_touchPos;
+static sf::Texture* s_fontTexture =
+    NULL;  // owning pointer to internal font atlas which is used if user
+           // doesn't set custom sf::Texture.
 
 static const unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
 static unsigned int s_joystickId = NULL_JOYSTICK_ID;
@@ -47,6 +55,9 @@ StickInfo s_dPadInfo;
 StickInfo s_lStickInfo;
 
 // various helper functions
+ImColor toImColor(sf::Color c);
+ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
+ImVec2 getDownRightAbsolute(const sf::FloatRect& rect);
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle);
 GLuint convertImTextureIDToGLTextureHandle(ImTextureID textureID);
@@ -55,6 +66,10 @@ void RenderDrawLists(
     ImDrawData* draw_data);  // rendering callback function prototype
 
 // Implementation of ImageButton overload
+bool imageButtonImpl(const sf::Texture& texture,
+                     const sf::FloatRect& textureRect, const sf::Vector2f& size,
+                     const int framePadding, const sf::Color& bgColor,
+                     const sf::Color& tintColor);
 
 // Default mapping is XInput gamepad mapping
 void initDefaultJoystickMapping();
@@ -84,11 +99,11 @@ bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
 namespace ImGui {
 namespace SFML {
 
-void Init(sf::Window& window, bool loadDefaultFont) {
+void Init(sf::RenderWindow& window, bool loadDefaultFont) {
     Init(window, window, loadDefaultFont);
 }
 
-void Init(sf::Window& window, sf::Window& target, bool loadDefaultFont) {
+void Init(sf::Window& window, sf::RenderTarget& target, bool loadDefaultFont) {
     Init(window, static_cast<sf::Vector2f>(target.getSize()), loadDefaultFont);
 }
 
@@ -166,6 +181,11 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     loadMouseCursor(ImGuiMouseCursor_ResizeNWSE,
                     sf::Cursor::SizeTopLeftBottomRight);
     loadMouseCursor(ImGuiMouseCursor_Hand, sf::Cursor::Hand);
+
+    if (s_fontTexture) {  // delete previously created texture
+        delete s_fontTexture;
+    }
+    s_fontTexture = new sf::Texture;
 
     if (loadDefaultFont) {
         // this will load default font automatically
@@ -251,11 +271,11 @@ void ProcessEvent(const sf::Event& event) {
     }
 }
 
-void Update(sf::Window& window, sf::Time dt) {
+void Update(sf::RenderWindow& window, sf::Time dt) {
     Update(window, window, dt);
 }
 
-void Update(sf::Window& window, sf::Window& target, sf::Time dt) {
+void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
     // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
     updateMouseCursor(window);
 
@@ -333,8 +353,8 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
     ImGui::NewFrame();
 }
 
-void Render(sf::Window& target) {
-//     target.resetGLStates();
+void Render(sf::RenderTarget& target) {
+    target.resetGLStates();
     ImGui::Render();
     RenderDrawLists(ImGui::GetDrawData());
 }
@@ -346,6 +366,11 @@ void Render() {
 
 void Shutdown() {
     ImGui::GetIO().Fonts->TexID = (ImTextureID)NULL;
+
+    if (s_fontTexture) {  // if internal texture was created, we delete it
+        delete s_fontTexture;
+        s_fontTexture = NULL;
+    }
 
     for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
         if (s_mouseCursorLoaded[i]) {
@@ -365,7 +390,16 @@ void UpdateFontTexture() {
     int width, height;
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+
+    sf::Texture& texture = *s_fontTexture;
+    texture.create(width, height);
+    texture.update(pixels);
+
+    io.Fonts->TexID =
+        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 }
+
+sf::Texture& GetFontTexture() { return *s_fontTexture; }
 
 void SetActiveJoystickId(unsigned int joystickId) {
     assert(joystickId < sf::Joystick::Count);
@@ -412,10 +446,142 @@ void SetLStickYAxis(sf::Joystick::Axis lStickYAxis, bool inverted) {
 
 /////////////// Image Overloads
 
+void Image(const sf::Texture& texture, const sf::Color& tintColor,
+           const sf::Color& borderColor) {
+    Image(texture, static_cast<sf::Vector2f>(texture.getSize()), tintColor,
+          borderColor);
+}
+
+void Image(const sf::Texture& texture, const sf::Vector2f& size,
+           const sf::Color& tintColor, const sf::Color& borderColor) {
+    ImTextureID textureID =
+        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    
+    ImGui::Image(textureID, ImVec2(size.x,size.y), ImVec2(0, 0), ImVec2(1, 1), toImColor(tintColor),
+        toImColor(borderColor));
+}
+
+void Image(const sf::Texture& texture, const sf::FloatRect& textureRect,
+           const sf::Color& tintColor, const sf::Color& borderColor) {
+    Image(
+        texture,
+        sf::Vector2f(std::abs(textureRect.width), std::abs(textureRect.height)),
+        textureRect, tintColor, borderColor);
+}
+
+void Image(const sf::Texture& texture, const sf::Vector2f& size,
+           const sf::FloatRect& textureRect, const sf::Color& tintColor,
+           const sf::Color& borderColor) {
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    ImVec2 uv0(textureRect.left / textureSize.x,
+               textureRect.top / textureSize.y);
+    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
+               (textureRect.top + textureRect.height) / textureSize.y);
+
+    ImTextureID textureID =
+        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    ImGui::Image(textureID, ImVec2(size.x, size.y), uv0, uv1, toImColor(tintColor),
+        toImColor(borderColor));
+}
+
+void Image(const sf::Sprite& sprite, const sf::Color& tintColor,
+           const sf::Color& borderColor) {
+    sf::FloatRect bounds = sprite.getGlobalBounds();
+    Image(sprite, sf::Vector2f(bounds.width, bounds.height), tintColor,
+          borderColor);
+}
+
+void Image(const sf::Sprite& sprite, const sf::Vector2f& size,
+           const sf::Color& tintColor, const sf::Color& borderColor) {
+    const sf::Texture* texturePtr = sprite.getTexture();
+    // sprite without texture cannot be drawn
+    if (!texturePtr) {
+        return;
+    }
+
+    Image(*texturePtr, size,
+          static_cast<sf::FloatRect>(sprite.getTextureRect()), tintColor,
+          borderColor);
+}
+
+/////////////// Image Button Overloads
+
+bool ImageButton(const sf::Texture& texture, const int framePadding,
+                 const sf::Color& bgColor, const sf::Color& tintColor) {
+    return ImageButton(texture, static_cast<sf::Vector2f>(texture.getSize()),
+                       framePadding, bgColor, tintColor);
+}
+
+bool ImageButton(const sf::Texture& texture, const sf::Vector2f& size,
+                 const int framePadding, const sf::Color& bgColor,
+                 const sf::Color& tintColor) {
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
+    return ::imageButtonImpl(
+        texture, sf::FloatRect(0.f, 0.f, textureSize.x, textureSize.y), size,
+        framePadding, bgColor, tintColor);
+}
+
+bool ImageButton(const sf::Sprite& sprite, const int framePadding,
+                 const sf::Color& bgColor, const sf::Color& tintColor) {
+    sf::FloatRect spriteSize = sprite.getGlobalBounds();
+    return ImageButton(sprite,
+                       sf::Vector2f(spriteSize.width, spriteSize.height),
+                       framePadding, bgColor, tintColor);
+}
+
+bool ImageButton(const sf::Sprite& sprite, const sf::Vector2f& size,
+                 const int framePadding, const sf::Color& bgColor,
+                 const sf::Color& tintColor) {
+    const sf::Texture* texturePtr = sprite.getTexture();
+    if (!texturePtr) {
+        return false;
+    }
+    return ::imageButtonImpl(
+        *texturePtr, static_cast<sf::FloatRect>(sprite.getTextureRect()), size,
+        framePadding, bgColor, tintColor);
+}
+
+/////////////// Draw_list Overloads
+
+void DrawLine(const sf::Vector2f& a, const sf::Vector2f& b,
+              const sf::Color& color, float thickness) {
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    draw_list->AddLine(ImVec2(a.x + pos.x, a.y + pos.y), ImVec2(b.x + pos.x, b.y + pos.y), ColorConvertFloat4ToU32(toImColor(color)),
+                       thickness);
+}
+
+void DrawRect(const sf::FloatRect& rect, const sf::Color& color, float rounding,
+              int rounding_corners, float thickness) {
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    draw_list->AddRect(getTopLeftAbsolute(rect), getDownRightAbsolute(rect),
+                       ColorConvertFloat4ToU32(toImColor(color)), rounding,
+                       rounding_corners, thickness);
+}
+
+void DrawRectFilled(const sf::FloatRect& rect, const sf::Color& color,
+                    float rounding, int rounding_corners) {
+    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    draw_list->AddRectFilled(
+        getTopLeftAbsolute(rect), getDownRightAbsolute(rect),
+        ColorConvertFloat4ToU32(toImColor(color)), rounding, rounding_corners);
+}
 
 }  // end of namespace ImGui
 
 namespace {
+ImColor toImColor(sf::Color c ) {
+    return ImColor(static_cast<int>(c.r), static_cast<int>(c.g), static_cast<int>(c.b), static_cast<int>(c.a));
+}
+ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect) {
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    return ImVec2(rect.left + pos.x, rect.top + pos.y);
+}
+ImVec2 getDownRightAbsolute(const sf::FloatRect& rect) {
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    return ImVec2(rect.left + rect.width + pos.x,
+                  rect.top + rect.height + pos.y);
+}
 
 ImTextureID convertGLTextureHandleToImTextureID(GLuint glTextureHandle) {
     ImTextureID textureID = (ImTextureID)NULL;
@@ -436,8 +602,8 @@ void RenderDrawLists(ImDrawData* draw_data) {
     }
 
     ImGuiIO& io = ImGui::GetIO();
-//     assert(io.Fonts->TexID !=
-//            (ImTextureID)NULL);  // You forgot to create and set font texture
+    assert(io.Fonts->TexID !=
+           (ImTextureID)NULL);  // You forgot to create and set font texture
 
     // scale stuff (needed for proper handling of window resize)
     int fb_width =
@@ -528,6 +694,22 @@ void RenderDrawLists(ImDrawData* draw_data) {
 #endif
 }
 
+bool imageButtonImpl(const sf::Texture& texture,
+                     const sf::FloatRect& textureRect, const sf::Vector2f& size,
+                     const int framePadding, const sf::Color& bgColor,
+                     const sf::Color& tintColor) {
+    sf::Vector2f textureSize = static_cast<sf::Vector2f>(texture.getSize());
+
+    ImVec2 uv0(textureRect.left / textureSize.x,
+               textureRect.top / textureSize.y);
+    ImVec2 uv1((textureRect.left + textureRect.width) / textureSize.x,
+               (textureRect.top + textureRect.height) / textureSize.y);
+
+    ImTextureID textureID =
+        convertGLTextureHandleToImTextureID(texture.getNativeHandle());
+    return ImGui::ImageButton(textureID, ImVec2(size.x,size.y), uv0, uv1, framePadding, toImColor(bgColor),
+        toImColor(tintColor));
+}
 
 unsigned int getConnectedJoystickId() {
     for (unsigned int i = 0; i < (unsigned int)sf::Joystick::Count; ++i) {

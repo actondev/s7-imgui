@@ -983,3 +983,29 @@ git clone https://github.com/SFML/SFML.git
     ..so, gained ~1mb with sdl->sfml transition ???
     ... or 3mb (see gui_repl_sfml vs gui_repl)
     gui_repl still uses sdl2
+
+    Size (mb)
+  |                         | gui_repl | gui_repl_sfml |
+  | SDL                     |     12.1 | x             |
+  | SFML                    |     13.1 | 16.2          |
+  | SFML sans sfml-graphics |     12.0 | 12.6          |
+
+  By removing sfml-graphics dependency, the filesize dropped plenty.
+  Everything seemed to work ok, except for font drawing.
+  #+BEGIN_SRC cpp
+sf::Texture& texture = *s_fontTexture;
+texture.create(width, height);
+texture.update(pixels);
+
+io.Fonts->TexID =
+     convertGLTextureHandleToImTextureID(texture.getNativeHandle());  
+  #+END_SRC
+
+  sf::Texture is parts of the graphics api
+
+  that was solved by calling
+  #+BEGIN_SRC cpp
+ImGui_ImplOpenGL2_NewFrame(); // builds the font (font atlas?)=  
+  #+END_SRC
+
+  before drawing

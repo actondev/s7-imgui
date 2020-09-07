@@ -22,7 +22,7 @@
 #include "imgui.h"
 #include "imgui_impl_opengl2.h"
 // sfml
-#include <SFML/Graphics.hpp>
+#include <SFML/Window.hpp>
 #include <SFML/OpenGL.hpp>
 #include "aod/imgui/imgui-SFML.h"
 
@@ -48,7 +48,7 @@ bool g_force_redraw = false;
 
 
 int guiLoop() {
-    sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!");
+    sf::Window window(sf::VideoMode(200, 200), "SFML works!");
 
 
     IMGUI_CHECKVERSION();
@@ -76,9 +76,11 @@ int guiLoop() {
         }
 
         ImGui::SFML::Update(window, deltaClock.restart());
+        ImGui_ImplOpenGL2_NewFrame(); // builds the font (font atlas?)
+        
         s7_eval_c_string(sc, "(draw)");
 
-        window.clear();
+//         window.clear();
         ImGui::SFML::Render(window);
         window.display();
     }
