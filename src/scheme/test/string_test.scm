@@ -35,3 +35,13 @@
 (test "convert upper lower"
       (is (equivalent? "demo text" (s/lowercase "Demo Text")))
       (is (equivalent? "DEMO TEXT" (s/uppercase "Demo Text"))))
+
+(test "negative look ahead"
+       (let ((regex "^SWS: (?!.*[0-9']).*track.*$"))
+	 ;; we don't want anything  containing quote ' or numbers
+	 (is (eq? #f (s/search "SWS: Open console with 'V' to set track(s) volume" regex)))
+	 (is (eq? #f (s/search "SWS: Restore saved track selection number 01 ok" regex)))
+	 ;; rest are ok
+	 (is (eq? #t (s/search "SWS: Restore saved track selection" regex)))
+	 ;;
+	 ))
