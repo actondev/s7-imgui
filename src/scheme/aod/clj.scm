@@ -166,7 +166,13 @@ i is 2
  )
 
 ;; let with list destructuring
-(define-macro (letd bindings . body)
+;;
+;; bacro cause we want the environment of
+;; where this is called.
+;;
+;;A bacro is a macro that expands its body and evaluates the result in
+;;the calling environment.
+(define-bacro (letd bindings . body)
   `(let
      ,(apply
        append
@@ -180,7 +186,7 @@ i is 2
 		(let ((vals (eval (cadr param+exp))))
 		  (interleave-pairs param{s} vals))
 		;; normal symbol
-		(list (list (car param+exp) (eval (cadr param+exp)))))))
+		(list (list (car param+exp) (cadr param+exp))))))
 	bindings))
      ,@body))
 
@@ -190,4 +196,40 @@ i is 2
 	((c d) (list (+ 1 2) 4)))
        (list a b c d ))
  ;; (1 2 3 4)
+ (letd ((a 1)
+	(b 2)
+	((c d) (list (+ 1 2) 4))
+	(e (+ 1 d)))
+       (list a b c d e))
+ ;; will fail (e doesn't know about d)
  )
+
+;; let* with list destructuring
+(define-bacro (letd* bindings . body)
+  `(let*
+     ,(apply
+       append
+       ()
+       (map
+	(lambda (param+exp)
+	  (print "param+exp" param+exp)
+	  ;; the {s} is for param or params
+	  (let ((param{s} (car param+exp)))
+	    (if (pair? param{s})
+		;; pair => destructuring
+		(let ((vals (eval (cadr param+exp))))
+		  (interleave-pairs param{s} vals))
+		;; normal symbol
+		(list (list (car param+exp) (cadr param+exp))))))
+	bindings))
+     ,@body))
+
+(comment
+ (letd* ((a 1)
+	(b 2)
+	((c d) (list (+ 1 2) 4))
+	(e (+ 1 d)))
+	(list a b c d e))
+ ;; (1 2 3 4 5)
+ )
+
