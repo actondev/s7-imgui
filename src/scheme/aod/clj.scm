@@ -127,3 +127,67 @@ i is 2
   (lambda rest-args
     (apply fn (append args rest-args))
     ))
+
+;; same as in clj
+(define (interleave c1 c2)
+  (let loop ((res ())
+	     (c1 c1)
+	     (c2 c2))
+    (if (or (null? c1)
+	    (null? c2))
+	res
+	(loop (append res (list (car c1) (car c2)))
+	      (cdr c1)
+	      (cdr c2)))))
+
+(comment
+ (interleave '(a b c) '(1 2 3))
+ ;; (a 1 b 2 c 3)
+ (interleave '(a b c) '(1 2))
+ ;; (a 1 b 2)
+ (interleave '(a b) '(1 2 3))
+ ;; (a 1 b 2)
+ )
+
+;; useful for the letd : let with list destructuring
+(define (interleave-pairs c1 c2)
+  (let loop ((res ())
+	     (c1 c1)
+	     (c2 c2))
+    (if (or (null? c1)
+	    (null? c2))
+	res
+	(loop (append res (list (list (car c1) (car c2))))
+	      (cdr c1)
+	      (cdr c2)))))
+(comment
+ (interleave-pairs '(a b c) '(1 2 3))
+ ;; ((a 1) (b 2) (c 3))
+ )
+
+;; let with list destructuring
+(define-macro (letd bindings . body)
+  `(let
+     ,(apply
+       append
+       ()
+       (map
+	(lambda (param+exp)
+	  ;; the {s} is for param or params
+	  (let ((param{s} (car param+exp)))
+	    (if (pair? param{s})
+		;; pair => destructuring
+		(let ((vals (eval (cadr param+exp))))
+		  (interleave-pairs param{s} vals))
+		;; normal symbol
+		(list (list (car param+exp) (eval (cadr param+exp)))))))
+	bindings))
+     ,@body))
+
+(comment
+ (letd ((a 1)
+	(b 2)
+	((c d) (list (+ 1 2) 4)))
+       (list a b c d ))
+ ;; (1 2 3 4)
+ )
