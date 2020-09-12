@@ -81,6 +81,7 @@ aod_includes = include_directories('..')
 
 aod_dep = declare_dependency(
   link_with: aod_lib,
+  link_args: aod_link_args,
   # include from parent dir: to include "aod/s7.hpp" for example
   include_directories: [aod_includes, sfml_includes],
   dependencies: [
