@@ -51,12 +51,17 @@ if gl_dep.found()
     )
 endif
 
+aod_link_args = []
+if system == 'windows'
+  aod_link_args = ['Ws2_32.lib'] # for SFML network
+endif
 aod_lib = library(
   'aod',
   # sources: aod_sources,
   include_directories: include_directories('..'),
   sources: aod_sources,
   # link_args: ['-ldl'],
+  link_args: aod_link_args,
   # pic: true,
   dependencies : [
     # dependency('s7', required: true),
@@ -73,6 +78,7 @@ aod_lib = library(
 
 aod_includes = include_directories('..')
 # aod_includes += sfml_includes
+
 aod_dep = declare_dependency(
   link_with: aod_lib,
   # include from parent dir: to include "aod/s7.hpp" for example
