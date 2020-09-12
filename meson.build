@@ -26,22 +26,28 @@ link_args = []
 s7_proj = subproject('s7')
 s7_dep = s7_proj.get_variable('s7_dep')
 
-sdl2_proj = subproject('sdl2')
-sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
-sdl2main_dep = sdl2_proj.get_variable('sdl2main_dep')
+sdl2_proj = subproject('sdl2', required: false)
+if sdl2_proj.found()
+  sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
+  sdl2main_dep = sdl2_proj.get_variable('sdl2main_dep')
+  # imgui looks for sdl
+  # https://mesonbuild.com/Reference-manual.html#dependency
+  meson.override_dependency('sdl', sdl2_dep)
+endif
 
-# imgui looks for sdl
-# https://mesonbuild.com/Reference-manual.html#dependency
-meson.override_dependency('sdl', sdl2_dep)
+imgui_opts = ['opengl2=enabled']
+if sdl2_proj.found()
+  imgui_opts += 'sdl=enabled'
+endif
 
 imgui = subproject('imgui',
-		   default_options: ['sdl=enabled',
-				     'opengl2=enabled',
-				    ])
+		   default_options: imgui_opts)
 imgui_dep = imgui.get_variable('imgui_dep')
 
-sdl_net_proj = subproject('sdl_net')
-sdl_net_dep = sdl_net_proj.get_variable('sdl_net_dep')
+if sdl2_proj.found()
+  sdl_net_proj = subproject('sdl_net')
+  sdl_net_dep = sdl_net_proj.get_variable('sdl_net_dep')
+endif
 
 nfd_proj = subproject('nfd')
 nfd_dep = nfd_proj.get_variable('nfd_dep')
@@ -60,6 +66,7 @@ sfml_opt.add_cmake_defines({'SFML_BUILD_AUDIO': false,
 sfml_opt.append_compile_args('cpp', '-fPIC')
 # sfml_opt.append_link_args('-ldl', '-lz', '-lrt')
 
+# TODO ad SFML.wrap
 sfml_proj = cmake.subproject('SFML', options: sfml_opt)
 # Fetch the dependency object
 sfml_system_dep = sfml_proj.dependency('sfml-system')
@@ -68,7 +75,7 @@ sfml_window_dep = sfml_proj.dependency('sfml-window')
 sfml_network_dep = sfml_proj.dependency('sfml-network')
 
 # sfml_includes = sfml_proj.include_directories('sfml-system')+
-		 # sfml_proj.include_directories('sfml-graphics')+
+# sfml_proj.include_directories('sfml-graphics')+
 # sfml_proj.include_directories('sfml-window')
 sfml_includes = sfml_proj.include_directories('sfml-graphics')
 
@@ -84,40 +91,42 @@ subdir('src')
 
 if not meson.is_subproject()
   # hm probably remove the app
-  app = executable(
-    's7-imgui',
-    dependencies : [
-      sdl2_dep, # the core library
-      sdl2main_dep, # abstracts out the main thing: windows needs WinMain
-      sdl_net_dep,
-      imgui_dep,
-      s7_dep,
-      app_dep,
-    ],
-    link_args: link_args,
-    cpp_args: extra_args,
-    gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
-    install: true,
-  )
+  if sdl2_proj.found()
+    app = executable(
+      's7-imgui',
+      dependencies : [
+	sdl2_dep, # the core library
+	sdl2main_dep, # abstracts out the main thing: windows needs WinMain
+	sdl_net_dep,
+	imgui_dep,
+	s7_dep,
+	app_dep,
+      ],
+      link_args: link_args,
+      cpp_args: extra_args,
+      gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
+      install: true,
+    )
 
-  gui_repl = executable(
-    'gui_repl',
-    sources: files(
-      'src/gui_repl.cpp',
-    ),
-    dependencies : [
-      sdl2_dep, # the core library
-      sdl2main_dep, # abstracts out the main thing: windows needs WinMain
-      sdl_net_dep,
-      imgui_dep,
-      s7_dep,
-      aod_dep,
-    ],
-    link_args: link_args,
-    cpp_args: extra_args,
-    gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
-    install: true,
-  )
+    gui_repl = executable(
+      'gui_repl',
+      sources: files(
+	'src/gui_repl.cpp',
+      ),
+      dependencies : [
+	sdl2_dep, # the core library
+	sdl2main_dep, # abstracts out the main thing: windows needs WinMain
+	sdl_net_dep,
+	imgui_dep,
+	s7_dep,
+	aod_dep,
+      ],
+      link_args: link_args,
+      cpp_args: extra_args,
+      gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
+      install: true,
+    )
+  endif
 
   gui_repl_sfml = executable(
     'gui_repl_sfml',

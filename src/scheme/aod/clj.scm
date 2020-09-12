@@ -166,28 +166,26 @@ i is 2
  )
 
 ;; let with list destructuring
-;;
-;; bacro cause we want the environment of
-;; where this is called.
-;;
-;;A bacro is a macro that expands its body and evaluates the result in
-;;the calling environment.
+;; Note: the _ is normally bound.. that ok?
+;; 
+;; bacro cause we want the environment of where this is called. From
+;; the doc: A bacro is a macro that expands its body and evaluates the
+;; result in the calling environment.
 (define-bacro (letd bindings . body)
   `(let
-     ,(apply
-       append
-       ()
-       (map
-	(lambda (param+exp)
-	  ;; the {s} is for param or params
-	  (let ((param{s} (car param+exp)))
-	    (if (pair? param{s})
-		;; pair => destructuring
-		(let ((vals (eval (cadr param+exp))))
-		  (interleave-pairs param{s} vals))
-		;; normal symbol
-		(list (list (car param+exp) (cadr param+exp))))))
-	bindings))
+       ,(apply
+	 append
+	 (map
+	  (lambda (param+exp)
+	    ;; the {s} is for param or params
+	    (let ((param{s} (car param+exp)))
+	      (if (pair? param{s})
+		  ;; pair => destructuring
+		  (let ((vals (eval (cadr param+exp))))
+		    (interleave-pairs param{s} vals))
+		  ;; normal symbol
+		  (list (list (car param+exp) (cadr param+exp))))))
+	  bindings))
      ,@body))
 
 (comment
@@ -207,21 +205,20 @@ i is 2
 ;; let* with list destructuring
 (define-bacro (letd* bindings . body)
   `(let*
-     ,(apply
-       append
-       ()
-       (map
-	(lambda (param+exp)
-	  (print "param+exp" param+exp)
-	  ;; the {s} is for param or params
-	  (let ((param{s} (car param+exp)))
-	    (if (pair? param{s})
-		;; pair => destructuring
-		(let ((vals (eval (cadr param+exp))))
-		  (interleave-pairs param{s} vals))
-		;; normal symbol
-		(list (list (car param+exp) (cadr param+exp))))))
-	bindings))
+       ,(apply
+	 append
+	 (map
+	  (lambda (param+exp)
+	    (print "param+exp" param+exp)
+	    ;; the {s} is for param or params
+	    (let ((param{s} (car param+exp)))
+	      (if (pair? param{s})
+		  ;; pair => destructuring
+		  (let ((vals (eval (cadr param+exp))))
+		    (interleave-pairs param{s} vals))
+		  ;; normal symbol
+		  (list (list (car param+exp) (cadr param+exp))))))
+	  bindings))
      ,@body))
 
 (comment

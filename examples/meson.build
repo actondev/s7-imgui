@@ -2,6 +2,7 @@ includes = [include_directories('.')]
 
 includes += include_directories('../src')
 
+if sdl2_proj.found()
 example_sdl_opengl = executable(
   'example-sdl-opengl',
   sources: files (
@@ -13,9 +14,11 @@ example_sdl_opengl = executable(
   ],
   install: true,
   gui_app: true,
-  )
+)
+endif
 
 
+if sdl2_proj.found()
 example_imgui = executable(
   'example_imgui',
   sources: files (
@@ -29,6 +32,7 @@ example_imgui = executable(
   install: true,
   gui_app: true,
 )
+endif
 
 
 example_sfml = executable(
@@ -47,6 +51,7 @@ example_sfml = executable(
   gui_app: true,
   )
 
+if sdl2_proj.found()
 example_sdl_net = executable(
   'example-sdl-net',
   sources: files (
@@ -59,22 +64,7 @@ example_sdl_net = executable(
     ],
   install: true,
 )
-
-# example_audio_player = executable(
-#   'ex_audio_player',
-#   sources: files (
-#     'ex_audio_player.cpp',
-#   ),
-#   dependencies: [
-#     sdl2_dep,
-#     sdl2main_dep,
-#     sdl_net_dep,
-#     imgui_dep,
-#     aod_dep,
-#     s7_dep,
-#     ],
-#   install: true,
-#   )
+endif
 
 
 example_repl = executable(
@@ -83,7 +73,6 @@ example_repl = executable(
  's7-repl.cpp',
   ),
   dependencies: [
-    sdl2_dep,
     aod_dep,
     ],
   install: true,

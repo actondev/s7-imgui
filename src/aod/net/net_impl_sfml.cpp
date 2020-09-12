@@ -30,10 +30,9 @@ public:
         std::size_t received;
 
         while (that->running) {
-            // TODO while that running..?
             if (that->pimpl->listener.accept(socket) != sf::Socket::Done) {
                 // error...
-                fprintf(stderr, "listener.listen not done\n");
+                fprintf(stderr, "listener.accept not done\n");
                 return -1;
             }
 
@@ -93,7 +92,10 @@ is already defined, and this successfully prevents the compiler from
 trying to automatically generate the destructor on demand in the
 caller’s code where impl is not defined.
  */
-TcpServer::~TcpServer() {}
+TcpServer::~TcpServer() {
+    fprintf(stderr, "~TcpServer\n");
+    pimpl->listener.close();
+}
 
 int TcpServer::listen(int port, aod::net::Callback cb) {
     return listen(port, cb, "");
@@ -108,10 +110,22 @@ int TcpServer::listen(int port, aod::net::Callback cb, std::string init_msg) {
     this->cb = cb;
     this->init_msg = init_msg;
     std::string addr = "localhost";
-    if (pimpl->listener.listen(port, sf::IpAddress(addr)) != sf::Socket::Done) {
-        fprintf(stderr, "listener.listen not done\n");
+    bool opened = false;
+    for(int i=0; i< 10; i++) {
+        if (pimpl->listener.listen(port, sf::IpAddress(addr)) != sf::Socket::Done) {
+            fprintf(stderr, "listener.listen not done\n");
+//             return -1;
+        } else {
+            opened = true;
+            break;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+    if(!opened) {
+        fprintf(stderr, "Could not open listening port\n");
         return -1;
     }
+
     running = true;
     new std::thread(Impl::listenLoop, (void*)this);
     return 0;
@@ -119,4 +133,6 @@ int TcpServer::listen(int port, aod::net::Callback cb, std::string init_msg) {
 
 } // net
 } // aod
+
+
 
