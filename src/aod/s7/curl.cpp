@@ -7,12 +7,17 @@ namespace aod {
 namespace s7 {
 namespace curl {
 
-size_t write_data(void *ptr, size_t size, size_t nmemb, void *stream) {
+size_t write_data_stringstream(void *ptr, size_t size, size_t nmemb, void *stream) {
     std::string data((const char*) ptr, (size_t) size * nmemb);
     // Note: https://techoverflow.net/2013/03/15/simple-c-http-download-using-libcurl-easy-api/
     // the snippet there was streaming std::endl after the data... why??
-    
+
     *((std::stringstream*) stream) << data;
+    return size * nmemb;
+}
+
+size_t write_data_string(void *contents, size_t size, size_t nmemb, void *userp) {
+    ((std::string*)userp)->append((char*)contents, size * nmemb);
     return size * nmemb;
 }
 
@@ -21,6 +26,7 @@ s7_pointer curl(s7_scheme* sc, s7_pointer args) {
     const char* url = s7_string(s7_car(args));
 
     // https://techoverflow.net/2013/03/15/simple-c-http-download-using-libcurl-easy-api/
+    // https://gist.github.com/alghanmi/c5d7b761b2c9ab199157
     CURL* curl = curl_easy_init();
     curl_easy_setopt(curl, CURLOPT_URL, url);
     /* example.com is redirected, so we tell libcurl to follow redirection */
@@ -33,8 +39,8 @@ s7_pointer curl(s7_scheme* sc, s7_pointer args) {
     // maybe I miss some configuration??
     curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
 
-    std::stringstream out;
-    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    std::string out;
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_string);
     curl_easy_setopt(curl, CURLOPT_WRITEDATA, &out);
 
     CURLcode res = curl_easy_perform(curl);
@@ -47,7 +53,7 @@ s7_pointer curl(s7_scheme* sc, s7_pointer args) {
 
 
     curl_easy_cleanup(curl);
-    return s7_make_string(sc, out.str().c_str());
+    return s7_make_string(sc, out.c_str());
 }
 
 void bind(s7_scheme* sc) {
