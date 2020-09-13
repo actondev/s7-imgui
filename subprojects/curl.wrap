@@ -1,0 +1,4 @@
+[wrap-git]
+ url = https://github.com/curl/curl.git
+ revision = curl-7_72_0
+ depth = 1

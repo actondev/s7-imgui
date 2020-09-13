@@ -58,9 +58,12 @@ meson.override_dependency('imgui', imgui_dep)
 
 cmake = import('cmake')
 sfml_opt = cmake.subproject_options()
-# Call CMake with `-DSOME_OTHER_VAR=ON`
-# skipping audio for now
+
+# audio:
+# ||  Could NOT find VORBIS (missing: VORBIS_LIBRARIES VORBIS_INCLUDE_DIR
+# ||  OGG_INCLUDE_DIR)
 sfml_opt.add_cmake_defines({'SFML_BUILD_AUDIO': false,
+			    'SFML_BUILD_GRAPHICS': false,
 			    # 'SFML_STATIC_LIBRARIES': true,
 			    'BUILD_SHARED_LIBS': false,})
 sfml_opt.append_compile_args('cpp', '-fPIC')
@@ -70,14 +73,10 @@ sfml_opt.append_compile_args('cpp', '-fPIC')
 sfml_proj = cmake.subproject('SFML', options: sfml_opt)
 # Fetch the dependency object
 sfml_system_dep = sfml_proj.dependency('sfml-system')
-sfml_graphics_dep = sfml_proj.dependency('sfml-graphics')
+# sfml_graphics_dep = sfml_proj.dependency('sfml-graphics')
 sfml_window_dep = sfml_proj.dependency('sfml-window')
 sfml_network_dep = sfml_proj.dependency('sfml-network')
-
-# sfml_includes = sfml_proj.include_directories('sfml-system')+
-# sfml_proj.include_directories('sfml-graphics')+
-# sfml_proj.include_directories('sfml-window')
-sfml_includes = sfml_proj.include_directories('sfml-graphics')
+# sfml_audio_dep = sfml_proj.dependency('sfml-audio')
 
 sfml_dep = [sfml_system_dep,
 	    # we don't need the graphics
@@ -85,7 +84,13 @@ sfml_dep = [sfml_system_dep,
 	    # sfml_graphics_dep,
 	    sfml_window_dep,
 	    sfml_network_dep,
+	    # sfml_audio_dep,
 	   ]
+
+
+# curl
+curl_proj = cmake.subproject('curl')
+curl_dep = curl_proj.dependency('libcurl')
 
 subdir('src')
 

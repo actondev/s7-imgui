@@ -1,0 +1,4 @@
+[wrap-git]
+ url = https://github.com/SFML/SFML.git
+ revision = 2.5.1
+ depth = 1

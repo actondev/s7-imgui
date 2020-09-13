@@ -44,7 +44,6 @@ example_sfml = executable(
   dependencies: [
     dependency('threads'),
     sfml_system_dep,
-    sfml_graphics_dep,
     sfml_window_dep,
     ],
   install: true,
@@ -76,4 +75,14 @@ example_repl = executable(
     aod_dep,
     ],
   install: true,
-  )
+)
+
+example_curl = executable(
+  'ex_curl',
+  sources : files(
+    'ex_curl.cpp',
+  ),
+  dependencies: [
+    curl_dep
+    ]
+)

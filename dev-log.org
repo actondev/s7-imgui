@@ -1009,3 +1009,33 @@ ImGui_ImplOpenGL2_NewFrame(); // builds the font (font atlas?)=
   #+END_SRC
 
   before drawing
+* <2020-09-13 Sun> valgrind!
+  at last, =s7_free= was added and with a patch from bil it's working like a charm! added a valgrind test
+* TODO <2020-09-13 Sun> add json support
+  Idea: be able to work with APIs
+
+  - [ ] https://github.com/nlohmann/json
+    has meson wrap
+  - [ ] add system call
+    it's aready there in linux, but not in windows
+  - [ ] create json bindings
+
+  like this I can
+  - curl
+  - parse with json
+  - access properties
+  - call wget later 
+
+  all that to get sound smaples from =freesound= :D
+
+  cpp libs for http calls?
+  - cURLpp
+  - neon
+  - libcurl
+    https://curl.haxx.se/libcurl/
+    https://github.com/curl/curl
+    tag 7.72.0
+    has cmake
+
+* TODO curl & sfml audio
+  - s7-imgui weighs now 12.3 mb (before sfml audio)

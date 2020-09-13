@@ -23,6 +23,9 @@ aod_sources = files(
   'colors.cpp',
   's7/colors.cpp',
   's7/string.cpp',
+  
+  # curl
+  's7/curl.cpp',
 
   # foreign types
   's7/foreign_primitives.cpp',
@@ -73,6 +76,7 @@ aod_lib = library(
     # the problem is cause I want to statically link SFML
     stb_dep, # (only for image read/write for now)
     sfml_dep,
+    curl_dep, 
   ]
   )
 
@@ -83,7 +87,9 @@ aod_dep = declare_dependency(
   link_with: aod_lib,
   link_args: aod_link_args,
   # include from parent dir: to include "aod/s7.hpp" for example
-  include_directories: [aod_includes, sfml_includes],
+  include_directories: [aod_includes,
+			# sfml_includes,
+		       ],
   dependencies: [
     # hm.. this is for the include_directories
     # solving errors like "SDL.h" not found etcF

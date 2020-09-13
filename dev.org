@@ -41,6 +41,9 @@ ln -s `readlink -f ../s7svn/trunk` subprojects/s7
 ls subprojects/s7
    #+END_SRC
 ** Building
+   #+BEGIN_SRC sh
+ninja -C build   
+   #+END_SRC
 ** Building for release
    Setting up
    #+BEGIN_SRC sh
