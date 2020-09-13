@@ -1,0 +1,83 @@
+{
+   free1
+   Memcheck:Leak
+   fun:*
+   fun:init_small_ints
+   fun:s7_init
+   fun:*
+}
+
+{
+   free2
+   Memcheck:Leak
+   fun:*
+   fun:init_chars
+   fun:s7_init
+   fun:*
+}
+
+{
+   free3
+   Memcheck:Leak
+   fun:*
+   fun:init_pows
+   fun:s7_init
+   fun:*
+}
+
+{
+   free4
+   Memcheck:Leak
+   fun:*
+   fun:init_ctables
+   fun:s7_init
+   fun:*
+}
+
+{
+   free5
+   Memcheck:Leak
+   fun:*
+   fun:make_permanent_string
+   fun:init_strings
+   fun:s7_init
+   fun:*
+}
+
+{
+   free6
+   Memcheck:Leak
+   fun:*
+   fun:_dl_new_object
+}
+
+{
+   free7
+   Memcheck:Leak
+   fun:*
+   fun:_dl_check_map_versions
+}
+
+{
+   free8
+   Memcheck:Leak
+   fun:*
+   fun:strdup
+   fun:_dl_load_cache_lookup
+}
+
+{
+   free9
+   Memcheck:Leak
+   fun:*
+   fun:strdup
+   fun:_dl_map_object
+}
+
+{
+   free10
+   Memcheck:Leak
+   fun:*
+   fun:make_permanent_integer_unchecked
+   fun:init_small_ints
+}

@@ -18,10 +18,11 @@ std::optional<std::string> open() {
     }
 
     if (nfd_result == NFD_CANCEL) {
-//         puts("User pressed cancel.");
+        puts("User pressed cancel.");
     } else {
         std::cerr << "NFD Error: " << NFD_GetError() << std::endl;
     }
+    free(out_path);
 
     return {};
 }
@@ -41,6 +42,7 @@ std::optional<std::string> save() {
     } else {
         std::cerr << "NFD Error: " << NFD_GetError() << std::endl;
     }
+    free(out_path);
 
     return {};
 }

@@ -32,6 +32,14 @@ ln -s `readlink -f ../SFML` subprojects/SFML
 # file dialog: needed for some examples
 ln -s `readlink -f ../nativefiledialog` subprojects/nfd
    #+END_SRC
+** TEMP: s7svn
+   #+BEGIN_SRC sh
+
+ln -s `readlink -f ../s7` subprojects/s7
+rm subprojects/s7
+ln -s `readlink -f ../s7svn/trunk` subprojects/s7
+ls subprojects/s7
+   #+END_SRC
 ** Building
 ** Building for release
    Setting up
@@ -67,10 +75,52 @@ ninja -C build && ./build/s7-imgui
    #+NAME: >test
    #+BEGIN_SRC sh
 #ninja -C build
-#./build/test/gtest-all
+./build/test/gtest-all
 ninja -C build test
    #+END_SRC
 
+** COMMENT Valgrind remove
+   #+BEGIN_SRC sh
+ninja -C build
+valgrind --leak-check=full --show-reachable=yes --suppressions=test/valgrind_gen.supp  ./build/test/gtest-valgrind
+./build/test/gtest-valgrind
+
+valgrind --leak-check=full --show-reachable=yes --suppressions=test/s7.supp  ./build/test/gtest-valgrind --gtest_filter="valgrind_gen_supp.*"
+
+
+valgrind --leak-check=full --show-reachable=yes --error-limit=no --gen-suppressions=all --log-file=test/valgrind_gen_supp.log ./build/test/gtest-valgrind --gtest_filter="valgrind_gen_supp.*"
+
+valgrind --leak-check=full --show-reachable=yes --error-limit=no --gen-suppressions=all --log-file=test/valgrind_gen_supp2.log ./build/test/gtest-valgrind
+
+valgrind --leak-check=full --show-reachable=yes --suppressions=test/valgrind_gen.supp ./build/test/gtest-valgrind
+
+chmod +x test/parse_valgrind_suppressions.sh
+./test/parse_valgrind_suppressions.sh < test/valgrind_gen_supp.log
+cat ./test/valgrind_gen_supp.log | test/parse_valgrind_suppressions.sh
+cat test/valgrind_gen_supp.log
+
+
+chmod +x test/grindmerge.sh
+
+cat test/valgrind_gen_supp.log | test/grindmerge.sh >test/valgrind_gen.supp
+cat test/valgrind_gen_supp2.log | test/grindmerge.sh >test/valgrind_gen2.supp
+
+
+valgrind --leak-check=full --show-reachable=yes --suppressions=test/s7.supp --suppressions=test/s7.supp ./build/test/valgrind-s7-1
+   #+END_SRC
+
+** Valgrind
+   #+BEGIN_SRC sh
+#valgrind --leak-check=full --show-reachable=yes  ./build/test/valgrind-gen 
+valgrind --leak-check=full --show-reachable=yes --error-limit=no --gen-suppressions=all --log-file=test/valgrind_gen.log ./build/test/valgrind-gen
+
+cat test/valgrind_gen.log | test/grindmerge.sh >test/valgrind_gen.supp
+
+# testing
+ninja -C build
+valgrind --leak-check=full --show-reachable=yes --suppressions=test/s7.supp --suppressions=test/valgrind_gen.supp  ./build/test/gtest-valgrind
+
+   #+END_SRC
 ** TCP repl
    You can just connect from your terminal to the running instance
    #+BEGIN_SRC sh :session *socket*

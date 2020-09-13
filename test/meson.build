@@ -9,13 +9,12 @@ test_src += files(
   'aod/s7/foreign_primitives_test.cpp',
   'aod/s7/foreign_primitives_arr_test.cpp',
   'aod/s7/environments_test.cpp',
-  'aod/s7/memory_test.cpp',
   'aod/colors_test.cpp',
   'aod/img_test.cpp',
   # ---
   # getting to know how things work, maybe useful for later reference
   # 'aod/s7/ffi_test_raw.cpp',
-  )
+)
 
 gtest_all = executable(
   'gtest-all',
@@ -26,4 +25,31 @@ gtest_all = executable(
     s7_dep,
   ],
 )
+
+gtest_valgrind = executable(
+  'gtest-valgrind',
+  files (
+  'aod/s7/valgrind_s7_test.cpp',
+  ),
+  dependencies : [
+    gtest_main_dep,
+    aod_dep,
+    s7_dep,
+  ],
+)
+
+# generating a supperison file from this
+# currently it's needed only for the nativefiledialog library
+# gtk things I imagine (dl open etc etc)
+valgrind_gen = executable(
+  'valgrind-gen',
+  files(
+    'aod/valgrind_gen.cpp',
+  ),
+  dependencies : [
+    aod_dep,
+    s7_dep,
+  ],
+)
+
 test('gtest tests', gtest_all)

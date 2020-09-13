@@ -12,6 +12,8 @@ fs::path scheme_path = pwd / ".." / "src" / "scheme";
 
 TEST(s7_environments, autoloads_bug) {
     GTEST_SKIP_("Waiting for s7 mailing list for this..");
+    // AHA they have to be sorted by autoload symbol (the autloads array)
+    
     const char *autoloads[6] = {
         // each pair of entries is entity name + file name
         "aod.lib1", "aod/lib1.scm", //
