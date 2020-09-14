@@ -21,6 +21,10 @@ size_t write_data_string(void *contents, size_t size, size_t nmemb, void *userp)
     return size * nmemb;
 }
 
+// TODO that's a nice case for a lambda* actually
+// passing named options
+// eg :ssl-verify-peer 0
+// eg :out "some-file.html"
 const char* help_curl = "(curl url)";
 s7_pointer curl(s7_scheme* sc, s7_pointer args) {
     const char* url = s7_string(s7_car(args));

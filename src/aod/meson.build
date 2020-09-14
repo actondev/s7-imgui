@@ -26,6 +26,8 @@ aod_sources = files(
   
   # curl
   's7/curl.cpp',
+  # json
+  's7/json.cpp',
 
   # foreign types
   's7/foreign_primitives.cpp',
@@ -76,7 +78,8 @@ aod_lib = library(
     # the problem is cause I want to statically link SFML
     stb_dep, # (only for image read/write for now)
     sfml_dep,
-    curl_dep, 
+    curl_dep,
+    nlohmann_json_dep,
   ]
   )
 
@@ -98,5 +101,6 @@ aod_dep = declare_dependency(
     gl_dep,
     nfd_dep,
     sfml_dep,
+    nlohmann_json_dep,
     ]
   )

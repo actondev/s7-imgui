@@ -1011,8 +1011,15 @@ ImGui_ImplOpenGL2_NewFrame(); // builds the font (font atlas?)=
   before drawing
 * <2020-09-13 Sun> valgrind!
   at last, =s7_free= was added and with a patch from bil it's working like a charm! added a valgrind test
+  https://sourceforge.net/p/snd/svn1/945/ is the commit with the proper patch
+
 * TODO <2020-09-13 Sun> add json support
   Idea: be able to work with APIs
+
+    #+BEGIN_SRC sh
+meson wrap install nlohmann_json
+  #+END_SRC
+
 
   - [ ] https://github.com/nlohmann/json
     has meson wrap
@@ -1037,5 +1044,97 @@ ImGui_ImplOpenGL2_NewFrame(); // builds the font (font atlas?)=
     tag 7.72.0
     has cmake
 
-* TODO curl & sfml audio
+* TODO sfml audio
+  hmm cannot compile out of the box (needs vorbis and whatnot)
   - s7-imgui weighs now 12.3 mb (before sfml audio)
+
+* TODO libcurl [2/3]
+  - [X] libcurl cmake module
+  - [X] basic binding
+  - [ ] lambda* binding, pass multiple named params
+    - :ssl-verify-peer 0
+      I have to set this always to 1 for some reason
+    - :out "some-file-path"
+      if not provided returns a string
+
+* TODO freesound list search listen to app
+  <2020-09-14 Mon> let's write how I'd imagine the future
+  code to be
+
+  #+BEGIN_SRC scheme
+(ns aod.freesound
+    :require ((aod.c.curl :as curl :refer curl)
+	      (aod.s.json :as json)))
+
+;; some dynamic variable?
+(defvar *api-secret*)
+
+(define (format-filter filter)
+
+  ;; TODO
+  ;; format filter as from some structure
+  ;; to a string
+  ""
+  )
+
+(define route-fmt "https://freesound.org/apiv2/search/text/?token=~A&query=~A&filter=~A")
+
+(define* (search query
+		 ;; optionals
+		 (fitler "")
+		 )
+  (json/->scm
+   (json/parse
+    (curl (format #f
+		  route-fmt
+		  ,*api-secret*
+		  ;; TODO have to escape following 2
+		  query
+		  (format-filter filter)
+		  ))
+    )))
+
+  #+END_SRC
+** ui
+   #+BEGIN_SRC scheme
+(ns aod.freesound.ui
+    :doc ""
+    :require ((aod.c.imgui :as ig)
+	      (aod.imgui.macros :as igm)
+	      (aod.freesound.core :as fs)))
+
+;; TODO
+;; sfml sound player?
+
+
+;; maybe a macro like
+;; (define-virtual)
+;; could throw an error if there's no definition
+(define-virtual (*play-fn*)
+  ;; I think (name) is not valid
+  ;; i have to give some default
+  ;; if it's like this.. it should NOT
+  ;; it should mean an error, that you have to provide a value
+  "(url (name) )"
+  )
+
+(define *query* (c/new-char[] 512))
+(define *results* '())
+(define (ui)
+  (when (ig/text-input *query* "Search:")
+    (set! *results* (fs/search (*query*))))
+  (igm/list ("Results:")
+	    (map (lambda (res)
+		   (ig/text (res 'name))
+		   (when (ig/buton "play")
+		     ;; sfml sound player ??
+		     ;; or emit something..?
+		     ;; how?
+		     (*play-fn* (res 'url))))
+	,*results*)))
+   #+END_SRC
+** Alternatives?
+
+   I see there's https://labs.freesound.org/apps/2015/06/01/cloud-browser.html
+
+   

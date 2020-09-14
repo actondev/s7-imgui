@@ -52,6 +52,8 @@ endif
 nfd_proj = subproject('nfd')
 nfd_dep = nfd_proj.get_variable('nfd_dep')
 
+nlohmann_json_dep = subproject('nlohmann_json').get_variable('nlohmann_json_dep')
+
 # --- application
 meson.override_dependency('s7', s7_dep)
 meson.override_dependency('imgui', imgui_dep)

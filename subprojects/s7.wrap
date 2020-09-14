@@ -1,4 +1,6 @@
 [wrap-git]
  url = https://github.com/actonDev/s7.git
- revision = feature/meson
+ # feature/meson branch, latest tag 9.6+20200913
+ # contains s7_free with the c_objects fix
+ revision = 9.6+20200913
  depth = 1

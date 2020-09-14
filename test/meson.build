@@ -12,6 +12,7 @@ test_src += files(
   'aod/s7/curl_test.cpp',
   'aod/colors_test.cpp',
   'aod/img_test.cpp',
+  'aod/json_test.cpp',
   # ---
   # getting to know how things work, maybe useful for later reference
   # 'aod/s7/ffi_test_raw.cpp',
