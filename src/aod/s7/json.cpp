@@ -9,11 +9,11 @@ namespace json {
 int tag_json(s7_scheme* sc, s7_pointer env) {
     // fuck, not working
 //     s7_pointer res = s7_eval_c_string_with_environment(sc, "type-json", s7_curlet(sc));
-    
+
     // neither this (passing curlet from the parse function
 //     s7_pointer res = s7_eval_c_string_with_environment(sc, "type-json", env);
     s7_pointer res = s7_eval_c_string(sc, "(aod.c.json 'type-json)");
-    
+
     if (s7_is_integer(res)) {
         return s7_integer(res);
     }
@@ -34,45 +34,56 @@ int tag_json(s7_scheme* sc, s7_pointer env) {
  */
 s7_pointer free_json_new_style(s7_scheme* sc, s7_pointer obj) {
     nlohmann::basic_json<>* p_json = (nlohmann::basic_json<>*) s7_object_value(obj);
-    printf("free json destructor %p\n", p_json);
     delete p_json;
 
     return s7_nil(sc);
 }
 
 s7_pointer ref_json(s7_scheme* sc, s7_pointer args) {
-    printf("ref json\n");
-    // (json* key-string)
     auto p_json = (nlohmann::basic_json<>*)s7_object_value(s7_car(args));
 
-    printf("ref json pointer %p\n", p_json);
+    nlohmann::basic_json ref(*p_json);
+    while (s7_cdr(args) != s7_nil(sc)) {
+        args = s7_cdr(args);
+        s7_pointer key = s7_car(args);
+        if (s7_is_string(key)) {
+            ref = ref.at(s7_string(key));
+        } else if (s7_is_number(key)) {
+            ref = ref.at((int)s7_integer(key));
+        } else {
+            // error?
+            s7_error(sc,
+                     s7_make_symbol(sc, "json-ref"),
+                     // todo check if I can format
+                     // haven't really diven into the s7_error, what it passes
+                     s7_cons(sc, s7_make_string(sc, "passed neither a string nor a symbol"), s7_nil(sc)));
+        }
 
-    // WIP just return a string
-    // TODO check return value
+    }
 
-    // TODO accept multiple args, nested at()?
-
-    // eg (json* "foo" "bar")
-    // performs a json["foo"]["bar"]
-
-    args = s7_cdr(args);
-    const char* key = s7_string(s7_car(args));
-
-    std::string str = p_json->at(key).get<std::string>();
-
-    return s7_make_string(sc, str.c_str());
+    // checking the reuslt
+    if (ref.is_string()) {
+        std::string str = ref.get<std::string>();
+        return s7_make_string(sc, str.c_str());
+    } else if (ref.is_number_integer()) {
+        int num = ref.get<int>();
+        return s7_make_integer(sc, num);
+    } else if (ref.is_number()) { // there are many cases for number, we handle the rest as double
+        double val = ref.get<double>();
+        return s7_make_real(sc, val);
+    } else { // object?
+        // returning a new c_object
+        nlohmann::basic_json<>* p_json = new nlohmann::basic_json<>(ref);
+        return s7_make_c_object(sc, tag_json(sc, s7_curlet(sc)), (void*)p_json);
+    }
 }
 
 s7_pointer parse(s7_scheme* sc, s7_pointer args) {
     const char* json_str = s7_string(s7_car(args));
     nlohmann::basic_json json = nlohmann::json::parse(json_str);
 
-    nlohmann::basic_json<>* json_heap = new nlohmann::basic_json<>(json);
-
-    printf("ref c object %p\n", json_heap);
-
-    return s7_make_c_object(sc, tag_json(sc, s7_curlet(sc)), (void*)json_heap);
-//     return s7_nil(sc);
+    nlohmann::basic_json<>* p_json = new nlohmann::basic_json<>(json);
+    return s7_make_c_object(sc, tag_json(sc, s7_curlet(sc)), (void*)p_json);
 }
 
 void bind(s7_scheme* sc) {
