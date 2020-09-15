@@ -590,3 +590,36 @@ s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::SliderFloat(s7_string(text), p_value, min, max, format));
 }  
   #+END_SRC
+* Fun with lets (c side)
+  How  do we have some default options in an inlet and then overwrite it??
+** Option 1: copying default opts and varlet
+   #+BEGIN_SRC cpp
+// copying env
+s7_pointer varlet = s7_name_to_value(sc, "varlet");
+
+s7_pointer opts = s7_inlet(sc, s7_let_to_list(sc, default_opts));
+// adding bypassing opts
+s7_apply_function(sc,
+		  varlet,
+		  s7_list(sc,
+			  2,
+			  opts,
+			  passed_opts
+		       ));  
+   #+END_SRC
+
+   later, we can use list_ref or eval with env
+** Option 2: sublet
+   #+BEGIN_SRC cpp
+s7_pointer sublet = s7_name_to_value(sc, "sublet");
+s7_pointer opts2 = s7_apply_function(sc,
+				     sublet,
+				     s7_list(sc,
+					     2,
+					     default_opts,
+					     passed_opts
+					  ));   
+
+// usage:
+s7_display(sc, s7_eval_c_string_with_environment(sc, "ssl-verify-peer", opts2), s7_current_output_port(sc));
+   #+END_SRC

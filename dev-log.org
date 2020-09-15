@@ -1048,15 +1048,16 @@ meson wrap install nlohmann_json
   hmm cannot compile out of the box (needs vorbis and whatnot)
   - s7-imgui weighs now 12.3 mb (before sfml audio)
 
-* TODO libcurl [2/3]
+* DONE libcurl [1/1]
   - [X] libcurl cmake module
   - [X] basic binding
-  - [ ] lambda* binding, pass multiple named params
+  - [X] lambda* binding, pass multiple named params
     - :ssl-verify-peer 0
       I have to set this always to 1 for some reason
     - :out "some-file-path"
       if not provided returns a string
-
+** DONE define* from the c side
+   
 * TODO freesound list search listen to app
   <2020-09-14 Mon> let's write how I'd imagine the future
   code to be
