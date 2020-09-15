@@ -1,0 +1,46 @@
+* About modules - monolith vs modular
+  This project started as a playground & as re-entrance to the C++
+  programming. That I'm a big fan of C++, but
+  - it's nice to have some standalone program of few MBs
+  - in some scenarios it's the only way to go: eg audio plugins (VST),
+    or generally you're handled a C API to making an extension
+
+  So, at first I only had
+  - SDL for the windowing
+  - SDL_net for basic networking (TCP server for the REPL)
+  - Dear ImGUI for the GUI work
+  - s7 scheme for the business logic. programming things with scheme
+    on the REPL
+
+  Also, the above libraries are statically linked. Meaning that in order to compile
+  the application, you compile all the above.
+  But little by little I'm adding new functionality. An example is =libcurl= and
+  =json= support. =Json= supports was easy (single header lib - statically linked),
+  but =libcurl= is quite impossible to statically link against. It depends on so many libraries.
+
+  So.. I realized that I have to go with dynamically linking.
+
+  Then I stumbled upon http://www.lua.org/pil/8.2.html#C-packages
+  
+  #+BEGIN_SRC lua
+local path = "/usr/local/lua/lib/libluasocket.so"
+-- or path = "C:\\windows\\luasocket.dll"
+local f = assert(loadlib(path, "luaopen_socket"))
+f()  -- actually open the library
+  #+END_SRC
+
+  And, I got reminded of =php= and its =php.ini= where you have entries like
+  #+BEGIN_SRC 
+extension=php_curl.dll
+  #+END_SRC
+
+   How is, for example, =php_curl.dll= working? It exposes some C function like
+   #+BEGIN_SRC c
+void bind(php* instances);
+   #+END_SRC
+   or something?
+
+   In my monolith app I'm using namespaces for various functionality, where I only expose
+   a =bind= function.
+
+   Could move these to a separate (dynamic) library, and welcome a more modular system.
