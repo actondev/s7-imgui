@@ -135,7 +135,8 @@ Or, more clojure like syntax
 	;; TODO.. check if autoload info exists? if not it should error
 	)
       (begin
-	(print "Skipping already ns-require'd" the-ns)
+	()
+	;; (print "Skipping already ns-require'd" the-ns)
 	)))
 
 ;; Creates the dynamic bindings in the target-env

@@ -15,7 +15,6 @@
 
 (test "regex-search capture"
       (is-true (s/search "abcdef" "^ab(.)(.)ef"))
-      (print "matches " (s/count-matches) "0: "(s/match-at 0) " 1:" (s/match-at 1))
       (is eq? 3 (s/count-matches))
       (is equivalent? "abcdef" (s/match-at 0))
       (is equivalent? "c" (s/match-at 1))
