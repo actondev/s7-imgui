@@ -62,7 +62,7 @@ s7_pointer curl_star(s7_scheme* sc, s7_pointer args) {
 
     s7_pointer default_opts = s7_eval_c_string(sc, "(aod.c.curl '*default-curl-opts*)");
     s7_pointer undefined = s7_undefined(sc);
-    auto get_opt = [=](const char* opt_name)->int{
+    auto get_opt = [ = ](const char* opt_name)->int{
         s7_pointer symbol = s7_make_symbol(sc, opt_name);
         s7_pointer p = s7_let_ref(sc, passed_opts, symbol);
         if (p == undefined) {
@@ -118,6 +118,19 @@ s7_pointer curl_star(s7_scheme* sc, s7_pointer args) {
     }
 }
 
+const char* help_easy_escape = "(easy-escape string)";
+s7_pointer _curl_easy_escape(s7_scheme* sc, s7_pointer args) {
+    CURL* curl = curl_easy_init();
+    auto __curl = finally([curl] { curl_easy_cleanup(curl); });
+
+    const char* str = s7_string(s7_car(args));
+    char* escaped = curl_easy_escape(curl, str, 0);
+    s7_pointer s_str = s7_make_string(sc, escaped);
+    free(escaped);
+
+    return s_str;
+}
+
 void bind(s7_scheme* sc) {
     // NOTE have to add something for cleanup
     curl_global_init(CURL_GLOBAL_ALL);
@@ -131,6 +144,10 @@ void bind(s7_scheme* sc) {
     s7_define(sc, env, s7_make_symbol(sc, "curl"),
               s7_make_function_star(sc, "curl", curl_star,
                                     args_curl_star, help_curl_star));
+
+    s7_define(sc, env, s7_make_symbol(sc, "easy-escape"),
+              s7_make_function(sc, "easy-escape", _curl_easy_escape,
+                               1, 0, false, help_easy_escape));
 
     s7_define_variable(sc, "aod.c.curl", env);
 }

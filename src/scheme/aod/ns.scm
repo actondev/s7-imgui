@@ -103,19 +103,37 @@ Or, more clojure like syntax
 	  force)
       (begin
 	(ns-get-or-create the-ns)
-	(if (and (defined? the-ns)
-		 (let? (symbol->value the-ns)))
-	    (begin
-	      ;; (print the-ns "is already defined globally. Probably c bindings")
-	      (set! (*nss* the-ns) (symbol->value the-ns))
-	      )
-	    ;; else: loading a file with autoload info
-	    ;; TODO.. check if autoload info exists? if not it should error
+	(cond
+	 ;; the-ns is already a let. probably a c binding
+	 ((and (defined? the-ns)
+		    (let? (symbol->value the-ns)))
+	    
+	  (set! (*nss* the-ns) (symbol->value the-ns)))
+	 ;; we have autoload info
+	 ((*autoload* the-ns)
+	  (begin
 	    (apply varlet (*nss* the-ns)
 		   (with-let (unlet)
 			     (let ()
 			       (#_load (*autoload* the-ns) (*nss* the-ns))
 			       (let->list (curlet)))))))
+	 ;; assuming the file path
+	 ;; pff repeated code here..
+	 (#t
+	  (let ((file-path (format #f "~A.scm"
+				   (string-replace-char #\. #\/ (symbol->string the-ns)))))
+	    (apply varlet (*nss* the-ns)
+		   (with-let (unlet)
+			     (let ()
+			       (#_load file-path (*nss* the-ns))
+			       (let->list (curlet)))))
+	    )
+	  )
+	 )
+	
+	;; else: loading a file with autoload info
+	;; TODO.. check if autoload info exists? if not it should error
+	)
       (begin
 	(print "Skipping already ns-require'd" the-ns)
 	)))

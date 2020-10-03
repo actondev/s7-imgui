@@ -8,7 +8,8 @@
 (require aod.clj)
 
 ;; ignornig tests: test expansion/macro replaced in aod.test
-(define-expansion (test . body) #<unspecified>)
+(unless (defined? 'test)
+  (define-expansion (test . body) #<unspecified>))
 (define-expansion (testgui . body) #<unspecified>)
 
 (define (filter pred col)
@@ -71,7 +72,18 @@
 	      ;; (print "ret " ret)
 	      (set! (mem args) ret)
 	      ret))))))
-
+(test "memoize"
+      (with-let (unlet)
+		(define x 1)
+		(define (inc-x amount)
+		  (set! x (+ x amount)))
+		(define inc-x-mem (memoize inc-x))
+		(is (= 3 (inc-x 2)))
+		;; first time we do the call
+		(is (= 5 (inc-x-mem 2)))
+		;; then not
+		(is (= 5 (inc-x-mem 2)))
+		))
 ;; if-let, when-let
 ;; only for one variable
 ;; TODO
@@ -123,3 +135,23 @@
 	   (print "this")
 	   (print "that"))
  )
+
+;; needed in ns.scm
+(define* (string-replace-char from to string)
+  (let ((res ""))
+    (let loop ((start 0)
+	       (end (char-position from string 0)))
+      (if (eq? #f end)
+	  (begin
+	    ;; the end, appending what's left of the string
+	    (set! res (format #f "~A~A" res (substring string start (length string))))
+	    res)
+	  (begin
+	    (set! res (format #f "~A~A~A" res (substring string start end) to))
+	    (loop (inc end) (char-position from string (inc end))))))))
+
+(test "string replace char"
+      (is (equivalent? "test/foo/bar"
+		       (string-replace-char #\. #\/ "test.foo.bar")))
+      (is (equivalent? "test/foo/bar/"
+		       (string-replace-char #\. #\/ "test.foo.bar."))))

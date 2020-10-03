@@ -17,7 +17,7 @@ TEST(curl, get) {
     
     ASSERT_STREQ("bar", s7_string(foo));
     // TODO remove possible httpbin.json file
-    s7_eval_c_string(sc, "(define res2 (curl \"https://httpbin.org/get?foo=bar\" :out \"httpbin.json\" :opts (inlet 'ssl-verify-peer 0)))");
+    // s7_eval_c_string(sc, "(define res2 (curl \"https://httpbin.org/get?foo=bar\" :out \"httpbin.json\" :opts (inlet 'ssl-verify-peer 0)))");
     // TODO test that file httpbin.json exists, open, parse with json again
     
     // TODO s7_free crashes with star function definition

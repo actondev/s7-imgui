@@ -13,6 +13,8 @@
 #include "aod/s7/img.hpp"
 #include "aod/s7/midi.hpp"
 #include "aod/s7/string.hpp"
+#include "aod/s7/curl.hpp"
+#include "aod/s7/json.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -144,6 +146,8 @@ void bind_all(s7_scheme *sc) {
     aod::s7::img::bind(sc);
     aod::s7::midi::bind(sc);
     aod::s7::string::bind(sc);
+    aod::s7::curl::bind(sc);
+    aod::s7::json::bind(sc);
 }
 
 } // s7
