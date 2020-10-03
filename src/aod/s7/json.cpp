@@ -40,37 +40,47 @@ s7_pointer free_json_new_style(s7_scheme* sc, s7_pointer obj) {
 }
 
 s7_pointer ref_json(s7_scheme* sc, s7_pointer args) {
+    s7_pointer sc_json = s7_car(args);
     auto p_json = (nlohmann::basic_json<>*)s7_object_value(s7_car(args));
 
     nlohmann::basic_json ref(*p_json);
     while (s7_cdr(args) != s7_nil(sc)) {
         args = s7_cdr(args);
         s7_pointer key = s7_car(args);
-        if (s7_is_string(key)) {
-            ref = ref.at(s7_string(key));
-        } else if (s7_is_number(key)) {
-            ref = ref.at((int)s7_integer(key));
-        } else if (s7_is_symbol(key)) {
-            // if we hit a symbol, it's a final action, aka returning
-            // it's not something that we can pipe back into our processing
-            if (s7_is_equivalent(sc, key, s7_make_symbol(sc, "count"))) {
-                return s7_make_integer(sc, ref.size());
+        try {
+            if (s7_is_string(key)) {
+                ref = ref.at(s7_string(key));
+            } else if (s7_is_number(key)) {
+                ref = ref.at((int)s7_integer(key));
+            } else if (s7_is_symbol(key)) {
+                // if we hit a symbol, it's a final action, aka returning
+                // it's not something that we can pipe back into our processing
+                if (s7_is_equivalent(sc, key, s7_make_symbol(sc, "count"))) {
+                    return s7_make_integer(sc, ref.size());
+                } else {
+                    s7_error(sc,
+                             s7_make_symbol(sc, "json-ref"),
+                             // todo check if I can format
+                             // haven't really diven into the s7_error, what it passes
+                             s7_cons(sc, s7_make_string(sc, "unknown symbol passed on json reference"), s7_nil(sc)));
+                }
             } else {
+                // error?
                 s7_error(sc,
                          s7_make_symbol(sc, "json-ref"),
                          // todo check if I can format
                          // haven't really diven into the s7_error, what it passes
-                         s7_cons(sc, s7_make_string(sc, "unknown symbol passed on json reference"), s7_nil(sc)));
+                         s7_cons(sc, s7_make_string(sc, "passed neither a string nor a symbol"), s7_nil(sc)));
             }
-        } else {
-            // error?
-            s7_error(sc,
-                     s7_make_symbol(sc, "json-ref"),
-                     // todo check if I can format
-                     // haven't really diven into the s7_error, what it passes
-                     s7_cons(sc, s7_make_string(sc, "passed neither a string nor a symbol"), s7_nil(sc)));
-        }
 
+        } catch (nlohmann::json::exception& e) {
+            return s7_error(sc,
+                     s7_make_symbol(sc, "json-exception"),
+                     s7_list(sc, 3,
+                             s7_make_string(sc, "~A\n; on ~A"),
+                             s7_make_string(sc, e.what()),
+                             sc_json));
+        }
     }
 
     // checking the reuslt
@@ -131,3 +141,4 @@ void bind(s7_scheme* sc) {
 }
 }
 }
+

@@ -1,5 +1,5 @@
 ;; (require aod.test) ;; require didn't work
-(load "aod/test.scm")
+;; (load "aod/test.scm")
 (ns freesound.core
     :require ((aod.c.curl :as curl) ;; todo :refer curl
 	      (aod.c.json :as json)))
@@ -78,13 +78,12 @@
 		 (filter #f))
   (let ((url (-make-search-url query :filter filter)))
     (curl/curl url
-	       :opts (inlet 'ssl-verify-peer 0))))
+	       :opts '(:ssl-verify-peer 0))))
 
 ;; returns a json object
 (define* (search&random query (filter #f))
   (let* ((res (search query :filter filter))
 	 (decoded (json/parse res)))
-    ;; (print "here res " res)
     (let* ((count (decoded "results" 'count))
 	   (idx (random count)))
       (if (> count 0)
@@ -95,7 +94,7 @@
 (define* (get id (fields #f))
   (let ((get-url (-make-get-url id :fields fields)))
     (curl/curl get-url
-	       :opts (inlet 'ssl-verify-peer 0))))
+	       :opts '(:ssl-verify-peer 0))))
 
 (comment
  (get 25667)
@@ -130,11 +129,11 @@
   (ns-require secrets)
   (set! *token* secrets/freesound))
 
-'(test "duration filter"
-      (assert (equivalent?
-	       "duration:[0.0 TO 0.1]"
-	       ;; 0.3 fails, it's formatted as 0.30000000000000004 heh
-	       (print-ret (make-filter :duration '(0.0 0.1))))))
+(test "duration filter"
+      (is equivalent?
+	  "duration:[0.0 TO 0.1]"
+	  ;; 0.3 fails, it's formatted as 0.30000000000000004 heh
+	  (make-filter :duration '(0.0 0.1))))
 
 '(test "search with query and duration filter"
       (let ((filter (make-filter :duration '(0.0 1.0)))

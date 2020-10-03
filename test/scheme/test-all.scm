@@ -16,6 +16,7 @@
 (ns-load 'aod.midi)
 (ns-load 'aod.string)
 (ns-load 'aod.imgui.helpers)
+(ns-load 'freesound.core)
 (ns-load-file "test/c_foreign_test.scm")
 (ns-load-file "test/partial_test.scm")
 (ns-load-file "test/string_test.scm")

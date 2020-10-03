@@ -33,8 +33,11 @@
      (if (,pred a b)
 	       #t
 	       (begin
-		 (throw 'assertion-failed "~A: ~A\n ~A not ~A to ~A~%"
-			(*function* (outlet (curlet)))
+		 (throw 'assertion-failed "~A\n ~W not ~A to ~W~%"
+			;; (*function*)
+			;; TODO cannot find where from is the failure
+			;; I get something like
+			;; (ns-make-empty-let "aod/ns.scm" 31) from (*function*)
 			(list ',pred ',a ',b)
 			a
 			',pred
