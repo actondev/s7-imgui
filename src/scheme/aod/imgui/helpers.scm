@@ -53,5 +53,5 @@
 	      color)))
 
 (test "frgb->u32 : input 0.0 .. 1.0"
-      (is (= -1 (apply ig/color32 '(255 255 255))))
-      (is (= -1 (frgb->u32 '(1 1 1)))))
+      (is = -1 (apply ig/color32 '(255 255 255)))
+      (is = -1 (frgb->u32 '(1 1 1))))

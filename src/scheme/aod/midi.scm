@@ -8,14 +8,14 @@
       ;; happens in my midi keyboard with RtMidi in linux
       (define c1-note-off-2 '(144 12 0))
 
-      (is (eq? #t (apply midi/note-on? c1-note-on)))
-      (is (eq? #f (apply midi/note-off? c1-note-on)))
-      (is (= 12 (apply midi/note-number c1-note-on)))
+      (is-true (apply midi/note-on? c1-note-on))
+      (is-false (apply midi/note-off? c1-note-on))
+      (is = 12 (apply midi/note-number c1-note-on))
       ;; 
-      (is (eq? #f (apply midi/note-on? c1-note-off)))
-      (is (eq? #t (apply midi/note-off? c1-note-off)))
-      (is (= 12 (apply midi/note-number c1-note-off)))
+      (is-false (apply midi/note-on? c1-note-off))
+      (is-true (apply midi/note-off? c1-note-off))
+      (is = 12 (apply midi/note-number c1-note-off))
 
-      (is (eq? #f (apply midi/note-on? c1-note-off-2)))
-      (is (eq? #t (apply midi/note-off? c1-note-off-2)))
+      (is-false (apply midi/note-on? c1-note-off-2))
+      (is-true (apply midi/note-off? c1-note-off-2))
       )

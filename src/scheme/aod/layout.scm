@@ -29,16 +29,18 @@ a known-issue"))
       (with-temp-ns
        (define* (el x y :allow-other-keys)
 	 `(el ,x ,y))
-       (is (equivalent? '((el 1.0 0.0)
-			  (el 0.0 1.0)
-			  (el -1.0 0.0)
-			  (el 0.0 -1.0))
-			(circular el :N 4 :R 1 )))
+       (is equivalent?
+	   '((el 1.0 0.0)
+			 (el 0.0 1.0)
+			 (el -1.0 0.0)
+			 (el 0.0 -1.0))
+	   (circular el :N 4 :R 1 ))
 
-       (is (equivalent? '((el 1.0 0.0)
-			  (el 0.0 -1.0)
-			  (el -1.0 0.0)
-			  (el 0.0 1.0))
-			(circular el :N 4 :R 1 :clock-wise #t)))
+       (is equivalent?
+	   '((el 1.0 0.0)
+			 (el 0.0 -1.0)
+			 (el -1.0 0.0)
+			 (el 0.0 1.0))
+	   (circular el :N 4 :R 1 :clock-wise #t))
        ))
 

@@ -120,14 +120,14 @@
 	   (sdl/delay 10)
 	   (gl/save-screenshot "test/scheme/assets/sxs-wheel-highlight-048.png")
 	   (igsdl/destroy *ctx*)
-	   (is (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"
+	   (is-true (c.img/equivalent? "test/scheme/assets/sxs-wheel.png"
 	   			  "test/scheme/assets/sxs-wheel-snapshot.png"))
-	   (is (c.img/equivalent? "test/scheme/assets/sxs-wheel-highlight-048.png"
+	   (is-true (c.img/equivalent? "test/scheme/assets/sxs-wheel-highlight-048.png"
 	   			  "test/scheme/assets/sxs-wheel-highlight-048-snapshot.png"))
 
 	   ;; test the it's not always true :)
-	   (is (not (c.img/equivalent? "test/scheme/assets/sxs-wheel-snaphost.png"
-				       "test/scheme/assets/sxs-wheel-offset.png"))))
+	   (is-false (c.img/equivalent? "test/scheme/assets/sxs-wheel-snaphost.png"
+				  "test/scheme/assets/sxs-wheel-offset.png")))
 	 
 	 )
 

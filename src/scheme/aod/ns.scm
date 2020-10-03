@@ -273,11 +273,11 @@ Or, more clojure like syntax
 (test "Temp ns"
       (with-temp-ns
        (define x 1)
-       (is (defined? 'x))
-       (is (= x 1)))
+       (is-true (defined? 'x))
+       (is = x 1))
 
       (with-temp-ns
-       (is (not (defined? 'x))))
+       (is-false (defined? 'x)))
       )
 
 (test "with-temp-ns cleanup"
@@ -286,13 +286,13 @@ Or, more clojure like syntax
 	     (lambda ()
 	       (with-temp-ns
 		(define x 1)
-		(is (defined? 'x))
+		(is-true (defined? 'x))
 		i-am-going-to-fail
 		))
 	     (lambda args
 	       (set! caught-something #t)))
-      (is (eq? #t caught-something))
-      (is (not (defined? 'x)))
+      (is-true caught-something)
+      (is-false (defined? 'x))
       )
 
 (define (-ns-is-of-subns? symbol)

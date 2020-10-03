@@ -1,47 +1,47 @@
 (ns test.string
     :require ((aod.c.string :as s)))
 (test "regex-search simple"
-      (is (eq? #t (s/search "abcdef" "abc")))
-      (is (eq? #f (s/search "abcdef" "abd"))))
+      (is-true (s/search "abcdef" "abc"))
+      (is-false (s/search "abcdef" "abd")))
 
 (test "regex-search beginning of line"
-      (is (eq? #t (s/search "abcdef" "^abc")))
-      (is (eq? #t (s/search "abcdef" "bc")))
-      (is (eq? #f (s/search "abcdef" "^bc"))))
+      (is-true (s/search "abcdef" "^abc"))
+      (is-true (s/search "abcdef" "bc"))
+      (is-false (s/search "abcdef" "^bc")))
 
 (test "regex-search case"
-      (is (eq? #t (s/search "abcdef" "^abc")))
-      (is (eq? #f (s/search "abcdef" "^ABC"))))
+      (is-true (s/search "abcdef" "^abc"))
+      (is-false (s/search "abcdef" "^ABC")))
 
 (test "regex-search capture"
-      (is (eq? #t (s/search "abcdef" "^ab(.)(.)ef")))
+      (is-true (s/search "abcdef" "^ab(.)(.)ef"))
       (print "matches " (s/count-matches) "0: "(s/match-at 0) " 1:" (s/match-at 1))
-      (is (eq? 3 (s/count-matches)))
-      (is (equivalent? "abcdef" (s/match-at 0)))
-      (is (equivalent? "c" (s/match-at 1)))
-      (is (equivalent? "d" (s/match-at 2)))
+      (is eq? 3 (s/count-matches))
+      (is equivalent? "abcdef" (s/match-at 0))
+      (is equivalent? "c" (s/match-at 1))
+      (is equivalent? "d" (s/match-at 2))
       )
 
 (test "regex-search capture real case"
-      (is (eq? #t (s/search "Track: split track at time selection" "^Track: (.*)")))
-      (is (eq? 2 (s/count-matches)))
-      (is (equivalent? "split track at time selection" (s/match-at 1)))
-      (is (eq? #f (s/search "Track: split track at time selection" "^Item: (.*)")))
+      (is-true (s/search "Track: split track at time selection" "^Track: (.*)"))
+      (is eq? 2 (s/count-matches))
+      (is equivalent? "split track at time selection" (s/match-at 1))
+      (is-false (s/search "Track: split track at time selection" "^Item: (.*)"))
       )
 
 (test "regex-replace"
-      (is (equivalent? "now-what-next" (s/replace "now what_next" "[ _]" "-"))))
+      (is equivalent? "now-what-next" (s/replace "now what_next" "[ _]" "-")))
 
 (test "convert upper lower"
-      (is (equivalent? "demo text" (s/lowercase "Demo Text")))
-      (is (equivalent? "DEMO TEXT" (s/uppercase "Demo Text"))))
+      (is equivalent? "demo text" (s/lowercase "Demo Text"))
+      (is equivalent? "DEMO TEXT" (s/uppercase "Demo Text")))
 
 (test "negative look ahead"
        (let ((regex "^SWS: (?!.*[0-9']).*track.*$"))
 	 ;; we don't want anything  containing quote ' or numbers
-	 (is (eq? #f (s/search "SWS: Open console with 'V' to set track(s) volume" regex)))
-	 (is (eq? #f (s/search "SWS: Restore saved track selection number 01 ok" regex)))
+	 (is-false (s/search "SWS: Open console with 'V' to set track(s) volume" regex))
+	 (is-false (s/search "SWS: Restore saved track selection number 01 ok" regex))
 	 ;; rest are ok
-	 (is (eq? #t (s/search "SWS: Restore saved track selection" regex)))
+	 (is-true (s/search "SWS: Restore saved track selection" regex))
 	 ;;
 	 ))

@@ -11,7 +11,46 @@
 	   (throw 'assertion-failed "~A: ~A~%" (*function*) ',assertion)
 	   #f))))
 
-(define is assert)
+;;(define is assert)
+
+;; (define-bacro (make-assert fn)
+;;   (macro (a b)
+;;     `(let ((a ,a)
+;; 	   (b ,b))
+;;        (if (,fn a b)
+;; 	   #t
+;; 	   (begin
+;; 	     (throw 'assertion-failed "~A: ~A\n ~A not ~A to ~A~%"
+;; 		    (*function*)
+;; 		    '(',fn ',a ',b)
+;; 		    a
+;; 		    ',fn
+;; 		    b))))))
+
+(define-macro (is pred a b)
+  `(let ((a ,a)
+	 (b ,b))
+     (if (,pred a b)
+	       #t
+	       (begin
+		 (throw 'assertion-failed "~A: ~A\n ~A not ~A to ~A~%"
+			(*function* (outlet (curlet)))
+			(list ',pred ',a ',b)
+			a
+			',pred
+			b)))))
+(define-macro (is-true x)
+  `(is eq? #t ,x))
+(define-macro (is-false x)
+  `(is eq? #f ,x))
+
+(comment
+ (test "blah"
+       (is eq? 1 (random 10)))
+
+ (test "blah2"
+       (is = -1 (random 10)))
+ )
 
 (define *aod.test* (let ((ht (make-hash-table)))
 		     (set! (ht 'fail) 0)

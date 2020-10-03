@@ -212,14 +212,14 @@
        lines))
 
 (test "Line(s) offset"
-      (is (equivalent? '(1 1 2 2)
-			   (line-offset '(0 0 1 1)
-					'(1 1))))
+      (is equivalent? '(1 1 2 2)
+	  (line-offset '(0 0 1 1)
+		       '(1 1)))
 
 
-      (is (equivalent? '((1 1 2 2) (1 1 11 11))
-			   (lines-offset '((0 0 1 1) (0 0 10 10))
-					 '(1 1)))))
+      (is equivalent? '((1 1 2 2) (1 1 11 11))
+	  (lines-offset '((0 0 1 1) (0 0 10 10))
+			'(1 1))))
 
 (define* (mk-circle cx cy r)
   (list cx cy r))
@@ -238,13 +238,13 @@
 		     lines)))
 
 (test "Repeat lines"
-      (is (equivalent? '((-1 0 0 1) (0 0 1 1) (1 0 2 1))
-		       (repeat-line '(0 0 1 1)
-				    '((-1 0) (0 0) (1 0)))))
+      is (equivalent? '((-1 0 0 1) (0 0 1 1) (1 0 2 1))
+		      (repeat-line '(0 0 1 1)
+				   '((-1 0) (0 0) (1 0))))
 
-      (is (equivalent? '((-1 0 0 1) (0 0 1 1) (1 0 2 1) (9 10 10 11) (10 10 11 11) (11 10 12 11))
-		       (repeat-lines '((0 0 1 1) (10 10 11 11))
-				     '((-1 0) (0 0) (1 0)))))
+      is (equivalent? '((-1 0 0 1) (0 0 1 1) (1 0 2 1) (9 10 10 11) (10 10 11 11) (11 10 12 11))
+		      (repeat-lines '((0 0 1 1) (10 10 11 11))
+				    '((-1 0) (0 0) (1 0))))
       )
 
 (define (radius-line circle theta)

@@ -12,10 +12,10 @@
 	    (loop (char-position char string (inc pos))))))))
 
 (test "Count char occurences in string"
-      (is (= 4 (count-char-occurs #\. "1.2.3.4.")))
-      (is (= 0 (count-char-occurs #\, "1.2.3.4.")))
+      (is = 4 (count-char-occurs #\. "1.2.3.4."))
+      (is = 0 (count-char-occurs #\, "1.2.3.4."))
       )
 
 (test "Count char occurences in string, with stop limit"
-      (is (= 2 (count-char-occurs #\. "1.2.3.4." :limit 2)))
+      (is = 2 (count-char-occurs #\. "1.2.3.4." :limit 2))
       )

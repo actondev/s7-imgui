@@ -78,11 +78,11 @@
 		(define (inc-x amount)
 		  (set! x (+ x amount)))
 		(define inc-x-mem (memoize inc-x))
-		(is (= 3 (inc-x 2)))
+		(is = 3 (inc-x 2))
 		;; first time we do the call
-		(is (= 5 (inc-x-mem 2)))
+		(is = 5 (inc-x-mem 2))
 		;; then not
-		(is (= 5 (inc-x-mem 2)))
+		(is = 5 (inc-x-mem 2))
 		))
 ;; if-let, when-let
 ;; only for one variable
@@ -98,7 +98,7 @@
 
 (define-macro (when-let binding . body)
   `(let ((,(car binding) ,(cadr binding)))
-     (when ,(car bindings)
+     (when ,(car binding)
        ,@body)))
 
 ;; from s7 stuff.scm
@@ -122,9 +122,10 @@
 	 1
 	 2)
 
- (when-let (x #f)
+ (when-let (x #t)
 	   (print "one")
-	   (print "two"))
+	   (print "two")
+	   1)
  
  (if-let* ((x #t)
 	  (y #t))
@@ -151,7 +152,7 @@
 	    (loop (inc end) (char-position from string (inc end))))))))
 
 (test "string replace char"
-      (is (equivalent? "test/foo/bar"
-		       (string-replace-char #\. #\/ "test.foo.bar")))
-      (is (equivalent? "test/foo/bar/"
-		       (string-replace-char #\. #\/ "test.foo.bar."))))
+      (is equivalent? "test/foo/bar"
+	  (string-replace-char #\. #\/ "test.foo.bar"))
+      (is equivalent? "test/foo/bar/"
+	  (string-replace-char #\. #\/ "test.foo.bar.")))
