@@ -1009,10 +1009,15 @@ ImGui_ImplOpenGL2_NewFrame(); // builds the font (font atlas?)=
   #+END_SRC
 
   before drawing
-* <2020-09-13 Sun> valgrind!
+* <2020-09-13 Sun> s7_free, valgrind etc
   at last, =s7_free= was added and with a patch from bil it's working like a charm! added a valgrind test
   https://sourceforge.net/p/snd/svn1/945/ is the commit with the proper patch
 
+  <2020-09-15 Tue> found a bug. s7_free crashes when have define_function_star with default arg =(inlet)=
+  #+BEGIN_SRC sh
+ninja -C build
+./build/examples/ex_s7_temp
+  #+END_SRC
 * TODO <2020-09-13 Sun> add json support
   Idea: be able to work with APIs
 
@@ -1065,10 +1070,10 @@ meson wrap install nlohmann_json
   #+BEGIN_SRC scheme
 (ns aod.freesound
     :require ((aod.c.curl :as curl :refer curl)
-	      (aod.s.json :as json)))
+	      (aod.c.json :as json)))
 
 ;; some dynamic variable?
-(defvar *api-secret*)
+(define *api-secret* "abcdefg")
 
 (define (format-filter filter)
 

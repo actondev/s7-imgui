@@ -47,15 +47,17 @@ bool Repl::handleInput(const char* str, bool clearPreviousInput) {
         // picture sending (ns foo) (do-that) and they all arrive together over network
         // .. then only the (ns foo) will run cause of how the reader works
 //         if (std::regex_search(input_buffer, repl::NS_REGEXP)) {
-            // if the input_buffer is "(ns ...)" then skip wrapping
-            // that makes the eval-hook easy to recognize such eval'd forms
-            // one just has to check (eq? 'ns (car (hook 'form)))
+        // if the input_buffer is "(ns ...)" then skip wrapping
+        // that makes the eval-hook easy to recognize such eval'd forms
+        // one just has to check (eq? 'ns (car (hook 'form)))
 //             wrapped = input_buffer;
 //         } else {
-            wrapped = "(with-let *ns* (begin " + input_buffer + "))";
+        // new line is important! (begin .... \n ) : might have comments in last line
+        wrapped = "(with-let *ns* (begin " + input_buffer + "\n))";
 //         }
     } else {
-        wrapped = "(begin " + input_buffer + ")";
+        // new line is important! (begin .... \n ) : might have comments in last line
+        wrapped = "(begin " + input_buffer + "\n)";
     }
 
     const char *c_str = wrapped.c_str();

@@ -623,3 +623,7 @@ s7_pointer opts2 = s7_apply_function(sc,
 // usage:
 s7_display(sc, s7_eval_c_string_with_environment(sc, "ssl-verify-peer", opts2), s7_current_output_port(sc));
    #+END_SRC
+* Loading dynamic libraries
+  I think atm this is only supported in linux.
+
+  See https://github.com/janet-lang/janet/blob/24b8b0e382557aab5415f083f03a69c0ddb6f4d5/src/core/corelib.c#L45 for an example for windows/linux

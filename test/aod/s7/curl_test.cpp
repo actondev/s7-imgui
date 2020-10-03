@@ -21,5 +21,6 @@ TEST(curl, get) {
     // TODO test that file httpbin.json exists, open, parse with json again
     
     // TODO s7_free crashes with star function definition
-//     s7_free(sc);
+    // ok, fixed in upstream (probably around 24-9-2020)
+    s7_free(sc);
 }
