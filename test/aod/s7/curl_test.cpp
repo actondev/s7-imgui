@@ -11,7 +11,7 @@ TEST(curl, get) {
     s7_eval_c_string(sc, "(define curl (aod.c.curl 'curl))");
     s7_eval_c_string(sc, "(define parse (aod.c.json 'parse))");
     
-    s7_eval_c_string(sc, "(define res (curl \"https://httpbin.org/get?foo=bar\" :opts (inlet 'ssl-verify-peer 0)))");
+    s7_eval_c_string(sc, "(define res (curl \"https://httpbin.org/get?foo=bar\" :opts '(:ssl-verify-peer 0)))");
     s7_eval_c_string(sc, "(define parsed (parse res))");
     s7_pointer foo = s7_eval_c_string(sc, "(define foo (parsed \"args\" \"foo\"))");
     

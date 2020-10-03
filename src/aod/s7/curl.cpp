@@ -41,9 +41,9 @@ static size_t write_data_file(void *ptr, size_t size, size_t nmemb, void *stream
 const char* curl_default_opts = R"__(
 (define *default-curl-opts*
  (inlet
-   'ssl-verify-peer 1
+   :ssl-verify-peer 1
    ;; 'no-signal 1
-   'follow-location 1
+   :follow-location 1
    ))
 ;;)__";
 const char* help_curl_star = "(curl url (out #f) (opts *default-curl-opts*))";
@@ -59,6 +59,12 @@ s7_pointer curl_star(s7_scheme* sc, s7_pointer args) {
     // curl-opts
     args = s7_cdr(args);
     s7_pointer passed_opts = s7_car(args);
+    if (s7_is_list(sc, passed_opts)) {
+        s7_pointer inlet = s7_name_to_value(sc, "inlet");
+        passed_opts = s7_apply_function(sc,
+                                        inlet,
+                                        passed_opts);
+    }
 
     s7_pointer default_opts = s7_eval_c_string(sc, "(aod.c.curl '*default-curl-opts*)");
     s7_pointer undefined = s7_undefined(sc);
