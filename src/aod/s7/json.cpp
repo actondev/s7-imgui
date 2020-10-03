@@ -50,6 +50,18 @@ s7_pointer ref_json(s7_scheme* sc, s7_pointer args) {
             ref = ref.at(s7_string(key));
         } else if (s7_is_number(key)) {
             ref = ref.at((int)s7_integer(key));
+        } else if (s7_is_symbol(key)) {
+            // if we hit a symbol, it's a final action, aka returning
+            // it's not something that we can pipe back into our processing
+            if (s7_is_equivalent(sc, key, s7_make_symbol(sc, "count"))) {
+                return s7_make_integer(sc, ref.size());
+            } else {
+                s7_error(sc,
+                         s7_make_symbol(sc, "json-ref"),
+                         // todo check if I can format
+                         // haven't really diven into the s7_error, what it passes
+                         s7_cons(sc, s7_make_string(sc, "unknown symbol passed on json reference"), s7_nil(sc)));
+            }
         } else {
             // error?
             s7_error(sc,
@@ -78,6 +90,16 @@ s7_pointer ref_json(s7_scheme* sc, s7_pointer args) {
     }
 }
 
+s7_pointer json_to_string(s7_scheme* sc, s7_pointer args) {
+    auto p_json = (nlohmann::basic_json<>*)s7_object_value(s7_car(args));
+    nlohmann::basic_json ref(*p_json);
+
+//     const char* ref.free_json_new_style(
+//     std::string res = ref.dump();
+    std::string res = "<json " + ref.dump() + ">";
+    return s7_make_string(sc, res.c_str());
+}
+
 s7_pointer parse(s7_scheme* sc, s7_pointer args) {
     const char* json_str = s7_string(s7_car(args));
     nlohmann::basic_json json = nlohmann::json::parse(json_str);
@@ -96,6 +118,7 @@ void bind(s7_scheme* sc) {
               s7_make_integer(sc, type));
     s7_c_type_set_gc_free(sc, type, free_json_new_style);
     s7_c_type_set_ref(sc, type, ref_json);
+    s7_c_type_set_to_string(sc, type, json_to_string);
 
     // functions
     s7_define(sc, env, s7_make_symbol(sc, "parse"),
