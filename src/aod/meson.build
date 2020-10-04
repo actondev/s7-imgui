@@ -45,6 +45,9 @@ aod_sources = files(
   # net
 #   'net/net_impl_sdl.cpp',
   'net/net_impl_sfml.cpp',
+  
+  # os
+  's7/os.cpp',
 )
 
 gl_dep = dependency('gl', required : false)

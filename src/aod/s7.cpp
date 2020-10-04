@@ -15,6 +15,7 @@
 #include "aod/s7/string.hpp"
 #include "aod/s7/curl.hpp"
 #include "aod/s7/json.hpp"
+#include "aod/s7/os.hpp"
 
 #include <sstream>
 #include <iostream>
@@ -148,6 +149,7 @@ void bind_all(s7_scheme *sc) {
     aod::s7::string::bind(sc);
     aod::s7::curl::bind(sc);
     aod::s7::json::bind(sc);
+    aod::s7::os::bind(sc);
 }
 
 } // s7

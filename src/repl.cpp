@@ -21,17 +21,9 @@ int main(int argc, char **argv) {
     // TODO fix this for redistribution.
     // eg providing repl executable, and then a relative scheme/ folder
     fs::path scheme_path = base_path  / ".." / "src" / "scheme";
-    // cout << "scheme path " << scheme_path << endl;
-
-//     s7_scheme *sc = s7_init();
-//     aod::s7::set_print_stderr(sc);
-//     aod::s7::set_autoloads(sc);
-//     aod::s7::bind_all(sc);
-// 
-//     s7_add_to_load_path(sc, scheme_path.c_str());
     
+    // note: this also loads aod.core (aod/core.scm)
     s7_scheme* sc = aod::s7::init(scheme_path);
-    
 
     if (argc >= 2) {
         cout << "Passed custom scheme file " << argv[1] << endl;
@@ -40,10 +32,8 @@ int main(int argc, char **argv) {
             passed_file = (fs::current_path() /  passed_file);
         }
         fprintf(stderr, "Passed file %s\n", passed_file.string().c_str());
-        aod::s7::load_file(sc, "aod/core.scm");
         aod::s7::ns_load_file(sc, passed_file.string());
-//         aod::s7::load_file(sc, passed_file.string());
-//         s7_load(sc, passed_file.c_str());
+        // aod::s7::load_file(sc, passed_file.string());
     }
 
     aod::s7::Repl repl(sc);
