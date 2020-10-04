@@ -13,8 +13,6 @@ Or, more clojure like syntax
   :require ((some.lib :as lib)
 	    (other.lib :as other)))
 |#
-
-(provide 'aod.ns)
 (require aod.clj) ;; for (comment .. )
 
 ;; Holding all the namespaces, to be able to switch.
@@ -340,3 +338,5 @@ Or, more clojure like syntax
  (documentation ((*nss* 'aod.c.gl) 'save-screenshot))
  (let->list (*nss* 'aod.c.gl))
  )
+
+(provide 'aod.ns)

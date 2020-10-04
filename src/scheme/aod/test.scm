@@ -1,4 +1,3 @@
-(provide 'aod.test)
 (define-macro* (assert assertion (msg ""))
   ;; hm msg is not used
   `(begin
@@ -92,3 +91,4 @@
 (define testgui (if (provided? 'aod.test.gui)
 		    test
 		    comment))
+(provide 'aod.test)

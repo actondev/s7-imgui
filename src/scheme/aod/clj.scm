@@ -1,6 +1,5 @@
 ;; some basic functionality that I miss from clojure
 (display "loading aod/clj.scm\n")
-(provide 'aod.clj)
 
 #;
 (define-macro (comment . body)
@@ -230,3 +229,96 @@ i is 2
  ;; (1 2 3 4 5)
  )
 
+;; -> ->>
+(comment
+ (defmacro ->
+  "Threads the expr through the forms. Inserts x as the
+  second item in the first form, making a list of it if it is not a
+  list already. If there are more forms, inserts the first form as the
+  second item in second form, etc."
+  {:added "1.0"}
+  [x & forms]
+  (loop [x x, forms forms]
+    (if forms
+      (let [form (first forms)
+            threaded (if (seq? form)
+                       (with-meta `(~(first form) ~x ~@(next form)) (meta form))
+                       (list form x))]
+        (recur threaded (next forms)))
+      x)))
+
+ (defmacro as->
+  "Binds name to expr, evaluates the first form in the lexical context
+  of that binding, then binds name to that result, repeating for each
+  successive form, returning the result of the last form."
+  {:added "1.5"}
+  [expr name & forms]
+  `(let [~name ~expr
+         ~@(interleave (repeat name) (butlast forms))]
+     ~(if (empty? forms)
+        name
+        (last forms))))
+ )
+
+(define (nnull? x)
+  (not (null? x)))
+
+;; https://github.com/clojure/clojure/blob/clojure-1.10.1/src/clj/clojure/core.clj#L1677
+(define-macro (-> x . forms)
+  (let loop ((x x)
+	     (forms forms))
+    (if (nnull? forms)
+	(let* ((form (car forms))
+	      (threaded (if (list? form)
+			    `(,(car form) ,x ,@(cdr form))
+			    `(,form ,x))))
+	  (loop threaded (cdr forms)))
+	x)))
+
+(define-macro (->> x . forms)
+  (let loop ((x x)
+	     (forms forms))
+    (if (nnull? forms)
+	(let* ((form (car forms))
+	      (threaded (if (list? form)
+			    `(,(car form) ,@(cdr form) ,x) ;; only the order here changes
+			    `(,form ,x))))
+	  (loop threaded (cdr forms)))
+	x)))
+
+(test "-> and ->>"
+      (is = 5.0 (-> 10.0
+		   (/ 2)
+		   ))
+
+      (is = 0.2 (->> 10.0
+		   (/ 2)
+		   )))
+
+(comment
+ (-> 10
+     inc
+     (* 2))
+
+ (-> 1
+     (< 2))
+
+ (->> 1
+     (< 2))
+
+ (->> 10
+     inc
+     (* 2))
+ )
+
+(comment
+ (apply + 1)
+ (if (not (null? (cdr (list 1))))
+     1
+     0)
+
+ (-> 10
+     inc
+     (* 2))
+ )
+(provide 'aod.clj)
