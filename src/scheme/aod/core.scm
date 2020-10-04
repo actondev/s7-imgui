@@ -1,16 +1,18 @@
 (display "loading aod/core\n")
 ;; putting the autload info here, among other necessary things (that I use often)
-(provide 'aod.core)
-
 (load "aod/autoloads.scm")
 ;; comment, map-indexed, dotimes, range, mod
 ;; on the (rootlet)
-(require aod.clj)
 
 ;; ignornig tests: test expansion/macro replaced in aod.test
-(unless (defined? 'test)
-  (define-expansion (test . body) #<unspecified>))
-(define-expansion (testgui . body) #<unspecified>)
+(unless (provided? 'aod.core)
+  ;; defining test and testgui only the first time
+  ;; cause i replace them later on. if for some reason this file is reloaded
+  ;; don't want it to replace that definition
+  (define-expansion (test . body) #<unspecified>)
+  (define-expansion (testgui . body) #<unspecified>))
+
+(require aod.clj)
 
 (define (filter pred col)
   (let loop ((res (list ))
@@ -156,3 +158,5 @@
 	  (string-replace-char #\. #\/ "test.foo.bar"))
       (is equivalent? "test/foo/bar/"
 	  (string-replace-char #\. #\/ "test.foo.bar.")))
+
+(provide 'aod.core)
