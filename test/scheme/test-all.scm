@@ -20,6 +20,7 @@
 (ns-load-file "test/c_foreign_test.scm")
 (ns-load-file "test/partial_test.scm")
 (ns-load-file "test/string_test.scm")
+(ns-load-file "test/c-os-test.scm")
 
 
 ;; Testing gui components?

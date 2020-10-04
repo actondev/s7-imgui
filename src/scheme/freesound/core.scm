@@ -1,13 +1,20 @@
 ;; (require aod.test) ;; require didn't work
 ;; (load "aod/test.scm")
 (ns freesound.core
-    :require ((aod.c.curl :as curl) ;; todo :refer curl
-	      (aod.c.json :as json)))
+    :require ((aod.c.curl :as curl) ;; todo :refer (curl)
+	      (aod.c.json :as json)
+	      ;; TODO is that a nice (consistent) of adding secrets?
+	      ;; I mean, in a variable in the "secrets" namespace
+	      (secrets)))
 
 
 ;; defvar.. ?
 ;; some dynamic variable?
-(define *token* "YOUR_FREESOUND_SECRET_TOKEN")
+(define *token*
+  (if (defined? 'secrets/freesound)
+      secrets/freesound
+      "YOUR_FREESOUND_SECRET_TOKEN"))
+
 (define *default-preview* "preview-hq-ogg")
 
 (define* (make-filter
@@ -123,12 +130,6 @@
  (search&random "snare")
  )
 
-;; for tests
-;; I have secrets.scm file
-'(when (provided? 'aod.test)
-  (ns-require secrets)
-  (set! *token* secrets/freesound))
-
 (test "duration filter"
       (is equivalent?
 	  "duration:[0.0 TO 0.1]"
@@ -144,3 +145,13 @@
       (let* ((filter (make-filter :duration '(0.0 1.0)))
 	    (result (search&random "amen snare" :filter filter)))
 	(print result)))
+
+(comment
+ (ns-require aod.c.os :as os)
+ (os/path-filename "/home/me/bar.txt")
+
+ (let* ((url (search&random-preview "amen snare" :filter '(:duration (0.0 1.0))))
+	(filename (os/path-filename url)))
+   (curl/curl url :out filename :opts '(:ssl-verify-peer 0)))
+ ;; the end
+ )
