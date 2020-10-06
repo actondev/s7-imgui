@@ -1,5 +1,5 @@
-(ns aod.midi)
-(ns-require aod.c.midi :as midi)
+(ns aod.midi
+    :require ((aod.c.midi :as midi)))
 
 (test "Basic midi"
       (define c1-note-on '(144 12 127))

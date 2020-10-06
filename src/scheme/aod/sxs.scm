@@ -1,5 +1,5 @@
-(ns aod.sxs)
-(ns-require aod.geom :as geom)
+(ns aod.sxs
+    :require ((aod.geom :as geom)))
 
 ;; note: if i direclty pass this file to the repl executable
 ;; i need to laod the aod.test in the (rootlet) in order for

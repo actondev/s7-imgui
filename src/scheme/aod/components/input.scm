@@ -1,6 +1,6 @@
-(ns aod.components.input)
-(ns-require aod.c.foreign :as c)
-(ns-require aod.imgui.macros :as igm)
+(ns aod.components.input
+    :require ((aod.c.foreign :as c)
+	      (aod.imgui.macros :as igm)))
 
 (define char-size 128)
 

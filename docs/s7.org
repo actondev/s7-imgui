@@ -431,8 +431,8 @@ f1
 ;; sets the *ns* symbol in a new environment (let)
 ;; subsequent calls are evaluated in this environment
 
-(ns-require foo.bar2)
-(ns-require foo.bar3 :as bar3)
+(ns-require 'foo.bar2)
+(ns-require 'foo.bar3 :as 'bar3)
 ;; fully qualified namespace for calling
 (foo.bar2/hi)
 
@@ -627,3 +627,17 @@ s7_display(sc, s7_eval_c_string_with_environment(sc, "ssl-verify-peer", opts2), 
   I think atm this is only supported in linux.
 
   See https://github.com/janet-lang/janet/blob/24b8b0e382557aab5415f083f03a69c0ddb6f4d5/src/core/corelib.c#L45 for an example for windows/linux
+* define* and default value
+  I had the following
+  #+BEGIN_SRC scheme
+(define* (ns-require the-ns (as #f) (force #f) (dynamic *ns-require-dynamic*))
+  ;; ..
+  )
+  #+END_SRC
+  And was wondering if upon =(set! *ns-require-dynamic* #f)= subsequent calls to =ns-require= has the updated dynamic.
+  Or, if the default value is determined in the =define*= definition time, or when calling it.
+
+  The answer: when calling it!
+
+  So *indeed* I can =set!= the =*ns-require-dynamic*= and have its changes take effect
+  on next calls to =ns-require=

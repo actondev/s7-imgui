@@ -5,14 +5,14 @@
 ;; their rendering.  Input state => output a png image. I can then
 ;; compare the images
 
-(ns aod.components.sxs-wheel)
-
-(ns-require aod.c.imgui :as ig)
-(ns-require aod.imgui.macros :as igm)
-(ns-require aod.layout :as l)
-(ns-require aod.sxs :as sxs)
-(ns-require aod.imgui.helpers :as igh)
-(ns-require aod.colors :as colors)
+(ns aod.components.sxs-wheel
+    :require
+    ((aod.c.imgui :as ig)
+     (aod.imgui.macros :as igm)
+     (aod.layout :as l)
+     (aod.sxs :as sxs)
+     (aod.imgui.helpers :as igh)
+     (aod.colors :as colors)))
 
 (define* (mk-sxs-element highlights (bg '(0 0 0)) (r 34) (r-internal 30))
   (lambda* (cx cy (phase 0) (n 0) (N 1))
@@ -82,10 +82,10 @@
 ;; this is failing now..
 ;; I guess cause of removing sdl
 '(testgui "SXS Color Wheel snapshot"
-	 (ns-require aod.c.imgui-sdl :as igsdl)
-	 (ns-require aod.c.gl :as gl)
-	 (ns-require aod.c.sdl :as sdl)
-	 (ns-require aod.c.img :as c.img)
+	 (ns-require 'aod.c.imgui-sdl :as 'igsdl)
+	 (ns-require 'aod.c.gl :as 'gl)
+	 (ns-require 'aod.c.sdl :as 'sdl)
+	 (ns-require 'aod.c.img :as 'c.img)
 	 (define R 180)
 	 (define r 35)
 	 (define size (* 2 (+ R r)))
@@ -138,7 +138,7 @@
  (exit)
 
  
- (ns-require aod.c.gl :as gl)
+ (ns-require 'aod.c.gl :as 'gl)
  (define test-element (new))
  (define *ctx* (igsdl/setup 420 420))
  (igsdl/prepare *ctx*)

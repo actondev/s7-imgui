@@ -147,7 +147,7 @@
 	(print result)))
 
 (comment
- (ns-require aod.c.os :as os)
+ (ns-require 'aod.c.os :as 'os)
  (os/path-filename "/home/me/bar.txt")
 
  (let* ((url (search&random-preview "amen snare" :filter '(:duration (0.0 1.0))))

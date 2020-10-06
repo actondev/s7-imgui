@@ -2,4 +2,4 @@
 ;; for playin around
 (require aod.test)
 (ns scratch)
-(ns-require aod.sxs)
+(ns-require 'aod.sxs)

@@ -2,8 +2,8 @@
        (autoload 'ns.bar "ns-bar.scm")
        (autoload 'ns.bar2 "ns-bar2.scm"))
 (ns user)
-(ns-require ns.bar2 :as bar2)
-;; (ns-require ns.bar :as bar)
+(ns-require 'ns.bar2 :as 'bar2)
+;; (ns-require 'ns.bar :as 'bar)
 
     
 

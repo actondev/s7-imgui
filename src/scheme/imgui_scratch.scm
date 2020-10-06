@@ -1,14 +1,14 @@
 ;; (ns imgui-sratch)
 
-(ns-require aod.c.imgui-sdl :as igsdl)
-(ns-require aod.c.imgui :as ig)
-(ns-require aod.imgui.macros :as igm)
-(ns-require aod.c.gl :as gl) ;; for screenshots
-(ns-require aod.layout :as l)
-(ns-require aod.imgui.helpers :as igh)
-(ns-require aod.colors :as colors)
-(ns-require aod.components.piano-wheel :as piano)
-(ns-require aod.components.sxs-wheel :as sxs)
+(ns-require 'aod.c.imgui-sdl :as 'igsdl)
+(ns-require 'aod.c.imgui :as 'ig)
+(ns-require 'aod.imgui.macros :as 'igm)
+(ns-require 'aod.c.gl :as gl) ;; for 'screenshots
+(ns-require 'aod.layout :as 'l)
+(ns-require 'aod.imgui.helpers :as 'igh)
+(ns-require 'aod.colors :as 'colors)
+(ns-require 'aod.components.piano-wheel :as 'piano)
+(ns-require 'aod.components.sxs-wheel :as 'sxs)
 
 (define *ctx* (igsdl/setup 420 420))
 

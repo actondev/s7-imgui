@@ -1,6 +1,6 @@
-(ns-require aod.imgui.macros :as igm)
-(ns-require aod.c.imgui :as ig)
-(ns-require aod.c.foreign :as c)
+(ns-require 'aod.imgui.macros :as 'igm)
+(ns-require 'aod.c.imgui :as 'ig)
+(ns-require 'aod.c.foreign :as 'c)
 
 ;; the exposed functions
 (define (setup)

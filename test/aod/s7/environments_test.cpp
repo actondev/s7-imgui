@@ -69,7 +69,7 @@ TEST(s7_environments, require) {
 
     const char* sexp = "(begin "
                        "(require aod.core)"
-                       "(ns-require aod.c.foreign)"
+                       "(ns-require 'aod.c.foreign)"
                        "(define i2 (aod.c.foreign/new-int 2))"
                        "(i2)"
                        ")"
@@ -95,7 +95,7 @@ TEST(s7_environments, require_as) {
     const char* sexp2 = "(begin "
                         "(require aod.core)"
                         "(comment aha)"
-                        "(ns-require aod.c.foreign :as c)"
+                        "(ns-require 'aod.c.foreign :as 'c)"
                         "(define i2 (c/new-int 2))"
                         "(i2)"
                         ")"
@@ -105,11 +105,11 @@ TEST(s7_environments, require_as) {
     const char* sexp3 = "(begin "
                         "(require aod.core)"
                         "(comment YUP cause aod.clj is already normally required from aod.core)"
-                        "(ns-require aod.clj)"
+                        "(ns-require 'aod.clj)"
                         "(aod.clj/comment AHA clj style require with aod/require)"
-                        "(ns-require aod.clj :as my-clj-things)"
+                        "(ns-require 'aod.clj :as 'my-clj-things)"
                         "(my-clj-things/comment AHA 2! clj style require with aod/require)"
-                        "(ns-require aod.clj :as my-clj-things)" // should see a warning that it's already defined
+                        "(ns-require 'aod.clj :as 'my-clj-things)" // should see a warning that it's already defined
                         "3)"
                         ;
     ASSERT_EQ(3, s7_integer(s7_eval_c_string(sc, sexp3)));

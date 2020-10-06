@@ -1,5 +1,6 @@
-(ns aod.colors)
-(ns-require aod.c.colors)
+(ns aod.colors
+    :require ((aod.c.colors)))
+
 ;; https://en.wikipedia.org/wiki/Hue#/media/File:HSV-RGB-comparison.svg
 ;; starts with the "red"
 (define (-triplet-ramp1 phase360)

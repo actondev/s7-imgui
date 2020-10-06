@@ -1,9 +1,9 @@
-(ns-require aod.imgui.macros :as igm)
-(ns-require aod.c.imgui :as ig)
-(ns-require aod.c.foreign :as c)
-(ns-require aod.components.input :as input)
-(ns-require aod.c.imgui.col :as igc)
-(ns-require aod.imgui.helpers :as igh)
+(ns-require 'aod.imgui.macros :as 'igm)
+(ns-require 'aod.c.imgui :as 'ig)
+(ns-require 'aod.c.foreign :as 'c)
+(ns-require 'aod.components.input :as 'input)
+(ns-require 'aod.c.imgui.col :as 'igc)
+(ns-require 'aod.imgui.helpers :as 'igh)
 
 
 ;; the exposed functions

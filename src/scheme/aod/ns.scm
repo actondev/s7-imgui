@@ -3,8 +3,8 @@
 usage:
 
 (ns foo.bar)
-(ns-require some.lib :as lib)
-(ns-require some.lib.other :as other)
+(ns-require 'some.lib :as 'lib)
+(ns-require 'some.lib.other :as 'other)
 
 Or, more clojure like syntax
 
@@ -49,7 +49,7 @@ Or, more clojure like syntax
   ;; (format *stderr* "Creating namespace ~A\n" the-ns)
   (if *ns-load-mode*
       (begin
-	(print "we're in load mode")
+	;; (print "we're in load mode")
 	(set! (*nss* the-ns) *ns*)
 	(set! *ns-load-mode* #f))
       (set! (*nss* the-ns) (ns-make-empty-let)))
@@ -94,6 +94,43 @@ Or, more clojure like syntax
 	 (eq? #f (char-position #\/ symbol-string))
 	 )))
 
+;; Loads a file and if it has a (ns) definition,
+;; correctly loads it there.
+;;
+;; The proces:
+;; - loading the file in a new empty environment
+;; - setting ns-load-mode to #t
+;; 
+;; this makes the (ns ..) form to not create a new environmnet
+;; but use the existing *ns*. it also immediately unsets this flag
+(define (ns-load-file file)
+  (set! *ns-load-mode* #t)
+  (set! *ns* (ns-make-empty-let))
+  (load file *ns*)
+  ;; if there was no (ns .. ) form in the loaded file, we add the
+  ;; bindings to the rootlet
+  (with-let *ns*
+	    (if (not (defined? '*ns-name*))
+		(apply varlet (rootlet)
+		       (let->list *ns*))
+		;; (print "indeed loaded a file with (ns ..) : " *ns-name*)
+		)))
+
+;; this simply loads the file into the *nss* hash-table under the <the-ns> key
+(define (ns-load-from-file the-ns file)
+  (load file (*nss* the-ns))
+  (let ((loaded-ns ((*nss* the-ns) '*ns-name*)))
+    (unless (eq? the-ns loaded-ns)
+      (throw 'invalid-namespace "expecting to load ns ~A from file ~A but got ~A~%"
+	     the-ns
+	     file
+	     loaded-ns))))
+
+;; eg returns foo/bar.scm given 'foo.bar
+(define (ns-resolve-file the-ns)
+  (format #f "~A.scm"
+	  (string-replace-char #\. #\/ (symbol->string the-ns))))
+
 ;; Loads the namespace in its own environment
 ;; and puts it in the *nss* hash table, under the 'the-ns key
 (define* (ns-load the-ns (force #f))
@@ -110,28 +147,10 @@ Or, more clojure like syntax
 	 ;; we have autoload info
 	 ((*autoload* the-ns)
 	  (begin
-	    (apply varlet (*nss* the-ns)
-		   (with-let (unlet)
-			     (let ()
-			       (#_load (*autoload* the-ns) (*nss* the-ns))
-			       (let->list (curlet)))))))
+	    (ns-load-from-file the-ns (*autoload* the-ns))))
 	 ;; assuming the file path
-	 ;; pff repeated code here..
 	 (#t
-	  (let ((file-path (format #f "~A.scm"
-				   (string-replace-char #\. #\/ (symbol->string the-ns)))))
-	    (apply varlet (*nss* the-ns)
-		   (with-let (unlet)
-			     (let ()
-			       (#_load file-path (*nss* the-ns))
-			       (let->list (curlet)))))
-	    )
-	  )
-	 )
-	
-	;; else: loading a file with autoload info
-	;; TODO.. check if autoload info exists? if not it should error
-	)
+	  (ns-load-from-file the-ns (ns-resolve-file the-ns)))))
       (begin
 	()
 	;; (print "Skipping already ns-require'd" the-ns)
@@ -141,7 +160,7 @@ Or, more clojure like syntax
 ;; 
 ;; eg
 ;; (ns my.ns)
-;; (ns-require foo.bar :as b)
+;; (ns-require 'foo.bar :as 'b)
 ;;
 ;; That creates the bindings b/fun inside my.ns
 ;; that call ((*nss* 'foo.bar) 'fun) and so on
@@ -149,7 +168,7 @@ Or, more clojure like syntax
 ;; This is what enables the redifinitions to work!
 ;; If i'm in the foo.bar namespace and change the definition
 ;; of fun, this will be reflected inside my.ns
-(define* (ns-require-alias the-ns as (target-env (outlet (curlet))) (dynamic #t))
+(define* (ns-create-bindings the-ns as target-env dynamic)
   (apply varlet target-env
 	 (with-let (unlet)
 		   (let ()
@@ -171,60 +190,31 @@ Or, more clojure like syntax
 					  ;; This is enabled when we're dealing with procedures and the dynamic options is #t
 					  (if (and (procedure? (cdr binding))
 						  dynamic)
-					      (let ((ns-internal-target the-ns)
-						    (ns-internal-func (car binding)))
+					      (lambda args
 						;; TODO copy the documentatoin of the forwarding function?
 						;; Could be useful in the future if something like geiser support
 						;; is added, to show the documentation of the symbol under cursor
-						(lambda args
-						  (eval `(apply ,ns-internal-func ',args) (*nss* ns-internal-target))
-						  ))
-					      (begin
-						;; (print "not a procedure, just binding it?")
-						(cdr binding)))
+						(eval `(apply ,(car binding) ',args) (*nss* the-ns))
+						)
+					      ;; if it's not a procedure, just binding its value to where we called ns-require from
+					      (cdr binding))
 					  )))))
 			  (*nss* the-ns))))))
 
 ;; TODO throw an error if ns not found
 ;; was scratching my head until I realised that I had a typo in the definition
 ;; and then i was requiring with the "correct" name.. but the ns was not defined!
-(define-macro* (ns-require the-ns (as #f) (force #f) (dynamic #<undefined>))
-  ;; clearing the ns-load-mode flag This is needed when we call
-  ;;(ns-load-file) and the loaded file doesn't have an (ns..) form.
-  (if (eq? dynamic #<undefined>)
-      (set! dynamic *ns-require-dynamic*))
+(define* (ns-require the-ns (as #f) (force #f) (dynamic *ns-require-dynamic*))
   (set! *ns-load-mode* #f)
   (let ((current-ns *ns*))
-    `(begin
-      (ns-load ',the-ns :force ,force)
-      (with-let ,current-ns
-      	      (ns-require-alias ',the-ns
-				 (or ',as ',the-ns)
+    (begin
+      (ns-load the-ns :force force)
+      (eval `(ns-create-bindings ',the-ns
+				 :as (or ',as ',the-ns)
 				 :target-env ,current-ns
-				 :dynamic ,dynamic))
-      (set! *ns* ,current-ns))))
-
-;; Loads a file and if it has a (ns) definition,
-;; correctly loads it there.
-;;
-;; The proces:
-;; - loading the file in a new empty environment
-;; - setting ns-load-mode to #t
-;; 
-;; this makes the (ns ..) form to not create a new environmnet
-;; but use the existing *ns*. it also immediately unsets this flag
-(define (ns-load-file file . args)
-  (set! *ns-load-mode* #t)
-  (set! *ns* (ns-make-empty-let))
-  (load file *ns*)
-  ;; if there was no (ns .. ) form in the loaded file, we add the
-  ;; bindings to the rootlet
-  (with-let *ns*
-	    (if (not (defined? '*ns-name*))
-		(apply varlet (rootlet)
-		       (let->list *ns*))
-		;; (print "indeed loaded a file with (ns ..) : " *ns-name*)
-		)))
+				 :dynamic ,dynamic)
+		current-ns)
+      (set! *ns* current-ns))))
 
 ;; maybe I should make this a normal function
 ;; keep things simpler..
@@ -235,8 +225,7 @@ Or, more clojure like syntax
      (map (lambda (require-form)
 	    (apply ns-require require-form))
 	  ',require)
-     ',the-ns)
-  )
+     ',the-ns))
 
 (define-macro (with-ns the-ns . body)
   `(with-let (*nss* ',the-ns)
@@ -294,15 +283,6 @@ Or, more clojure like syntax
       (is-false (defined? 'x))
       )
 
-(define (-ns-is-of-subns? symbol)
-  (char-position #\/ (symbol->string symbol))
-  )
-
-(comment
- (-ns-is-of-subns? 'ig/help)
- (-ns-is-of-subns? 'ig)
- )
-
 (define* (ns-doc the-ns fun)
   ;; it could be that it's not loaded in *nss* but it's defined
   ;; from the c side. In that case (symbol->value ..) gives us the
@@ -325,10 +305,7 @@ Or, more clojure like syntax
 		       (cons
 			(car fn-pair)
 			(documentation (cdr fn-pair)))))
-		 (let->list env))
-	    )
-	)))
-  )
+		 (let->list env)))))))
 
 (comment
  (ns-doc 'aod.c.gl 'save-screenshot)

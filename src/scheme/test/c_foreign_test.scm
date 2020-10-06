@@ -1,5 +1,5 @@
-(ns aod.test.c.foreign)
-(ns-require aod.c.foreign :as c)
+(ns aod.test.c.foreign
+    :require ((aod.c.foreign :as c)))
 
 (test "new bool"
       (with-temp-ns

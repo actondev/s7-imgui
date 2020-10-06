@@ -1,7 +1,7 @@
-(ns aod.components.piano-wheel)
-(ns-require aod.c.imgui :as ig)
-(ns-require aod.imgui.helpers :as igh)
-(ns-require aod.layout :as l)
+(ns aod.components.piano-wheel
+    :require ((aod.c.imgui :as ig)
+	      (aod.imgui.helpers :as igh)
+	      (aod.layout :as l)))
 
 (define black-keys '(1 3 6 8 10))
 (define color-black (igh/frgb->u32 '(0 0 0)))

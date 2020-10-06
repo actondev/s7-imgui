@@ -18,7 +18,7 @@
 	  ;; that yields double time in the dynamic require
 	  )
 
-(ns-require aod.benchmark :as b-dynamic)
+(ns-require 'aod.benchmark :as 'b-dynamic)
 (test "Dynamic (ns-require)"
       (print
        "ns-require: Time fib" bench-fib-n "times x" bench-fib-N
@@ -47,7 +47,7 @@
       )
 
 (set! *ns-require-dynamic* #f)
-(ns-require aod.benchmark :as b-non-dynamic2)
+(ns-require 'aod.benchmark :as 'b-non-dynamic2)
 (test "ns-require with dynamic #f - v2"
       (print
        "ns-require :dynamic #f v2 : Time fib" bench-fib-n "times x" bench-fib-N

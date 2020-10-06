@@ -1,5 +1,5 @@
-(ns aod.imgui.helpers)
-(ns-require aod.c.imgui :as ig)
+(ns aod.imgui.helpers
+    :require ((aod.c.imgui :as ig)))
 
 (define* (draw-circle circle (color -1) (segments 0) (filled #f) (thickness 1))
   (if filled
