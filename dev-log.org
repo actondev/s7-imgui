@@ -1144,6 +1144,9 @@ meson wrap install nlohmann_json
    I see there's https://labs.freesound.org/apps/2015/06/01/cloud-browser.html
 
    
-* TODO <2020-10-03 Sat> freesound progress
-  - [ ] json objects to string
+* DONE <2020-10-03 Sat> freesound progress
+  - [X] json objects to string
     .. missing this one
+* TODO <2020-10-06 Tue> gen-doc, ns.scm cleanup? [1/2]
+  - [X] gen-doc: directly generate .md file
+  - [ ] ns.scm cleanup.. is it readable..?

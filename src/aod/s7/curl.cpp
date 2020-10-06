@@ -39,10 +39,10 @@ static size_t write_data_file(void *ptr, size_t size, size_t nmemb, void *stream
 }
 
 const char* curl_default_opts = R"__(
-(define *default-curl-opts*
+(define *default-opts*
  (inlet
    :ssl-verify-peer 1
-   ;; 'no-signal 1
+   ;; :no-signal 1
    :follow-location 1
    ))
 ;;)__";
@@ -66,7 +66,7 @@ s7_pointer curl_star(s7_scheme* sc, s7_pointer args) {
                                         passed_opts);
     }
 
-    s7_pointer default_opts = s7_eval_c_string(sc, "(aod.c.curl '*default-curl-opts*)");
+    s7_pointer default_opts = s7_eval_c_string(sc, "(aod.c.curl '*default-opts*)");
     s7_pointer undefined = s7_undefined(sc);
     auto get_opt = [ = ](const char* opt_name)->int{
         s7_pointer symbol = s7_make_symbol(sc, opt_name);
@@ -154,6 +154,9 @@ void bind(s7_scheme* sc) {
     s7_define(sc, env, s7_make_symbol(sc, "easy-escape"),
               s7_make_function(sc, "easy-escape", _curl_easy_escape,
                                1, 0, false, help_easy_escape));
+
+    s7_define(sc, env, s7_make_symbol(sc, "*ns-doc*"),
+              s7_make_string(sc, "Basic bindings for libcurl"));
 
     s7_define_variable(sc, "aod.c.curl", env);
 }

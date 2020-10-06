@@ -199,13 +199,23 @@ build/repl test/scheme/test-all.scm
 build/repl test/scheme/test-core.scm
    #+END_SRC
 
+   #+CALL: repl()
    #+CALL: repl(file="test/scheme/test-all.scm")
    #+CALL: repl(file="test/scheme/test-core.scm")
+
+** COMMENT how fast are all the tests?
+   #+BEGIN_SRC sh
+time build/repl test/scheme/test-all.scm
+# real	0m0.033s
+   #+END_SRC
+
+# temp
+   #+CALL: repl(file="src/scheme/freesound/core.scm")
 
 * Repl
   Normal Repl
   #+NAME: repl
-  #+BEGIN_SRC emacs-lisp :var file="test/scheme/test-all.scm" :results silent
+  #+BEGIN_SRC emacs-lisp :var file="" :results silent
 (run-scheme (concat (projectile-project-root) "build/repl " file))   
   #+END_SRC
 
@@ -213,7 +223,7 @@ build/repl test/scheme/test-core.scm
   #+CALL: repl(file="test/scheme/test-core.scm")
 
   #+CALL: repl(file="src/scheme/imgui_scratch.scm")
-  #+CALL: repl(file="")
+  #+CALL: repl()
 
   "GUI" Repl. The C++ code will call =setup= and =draw= functions
   #+NAME: gui-repl
@@ -231,104 +241,12 @@ build/repl test/scheme/test-core.scm
    #+CALL: _build-and-run-scm(file="src/scheme/aod/components/sxs-wheel.scm")
 
 * Generating documentation for the scheme namespaces
-  Generating an org-mode file from the generated =ns-doc.el=
-  
-  First, we have to run the [[file:test/scheme/gen-doc.scm]] (this produces the [[file:docs/ns-doc.el]] )
-
-** Generating the =ns-doc.el= from scheme
-   #+NAME: gen-doc
+  The following command will generate the [[file:docs/ns-doc.md]] file
    #+BEGIN_SRC sh :results silent
 ./build/repl test/scheme/gen-doc.scm
    #+END_SRC
 
-   #+CALL: gen-doc()
-
-** Generating the markdown document
-   Generating a markdown document
-   #+NAME: gen-ns-doc-md
-   #+BEGIN_SRC emacs-lisp :var out="" :wrap SRC org :results silent
-(with-temp-buffer
-  ;; (org-mode)
-  (let ((ns-doc (read (get-file-contents
-		       (expand-file-name "docs/ns-doc.el" )))))
-    (mapcar (lambda (ns)
-	      (beginning-of-line)
-	      (insert (format "# `%s`" (car ns)))
-	      (newline)
-	      ;; the ns documentation
-	      (insert (format "%s" (cadr ns)))
-	      (newline)
-	      ;; going through the functions
-	      (mapcar (lambda (fun)
-			(print fun)
-			;; fun is usually (name . docstring)
-			;; but in some weird case it's (name [] docstring)
-			;; eg when the name is "new-char[]" what emacs reads is
-			;; (new-char [] "the docstring..")
-			;; 
-			;; could actually solve this also by exporting a string instead of symbol
-			;; for the function name
-			(let ((fun-name (if (stringp (cdr fun))
-					    (car fun)
-					  (format "%s%s" (car fun) (cadr fun))
-					  ))
-			      (fun-docstring (if (stringp (cdr fun))
-						 (cdr fun)
-					       (cddr fun))))
-			  (insert (format "## %s" fun-name))
-			  (newline)
-			  (insert (format "%s" fun-docstring))
-			  (newline)))
-		      (cddr ns)))
-	    ns-doc)
-    (if (string-empty-p out)
-	(buffer-string)
-      (write-file (expand-file-name out) nil))))
-   #+END_SRC
-
-   #+CALL: gen-ns-doc-md(out="docs/ns-doc.md")
-  
-** COMMENT generating the org-mode document
-   Generating the =.org= file from the =ns-doc.el= (the =out= parameter is passed by calling this block from org-babel)
-   #+NAME: gen-ns-doc-org
-   #+BEGIN_SRC emacs-lisp :var out="" :wrap SRC org :results silent
-(with-temp-buffer
-  ;; (org-mode)
-  (let ((ns-doc (read (get-file-contents
-		       (expand-file-name "docs/ns-doc.el" )))))
-    (mapcar (lambda (ns)
-	      (beginning-of-line)
-	      (org-insert-heading)
-	      ;; car is the namespace
-	      (insert (format "%s" (car ns)))
-	      (newline-and-indent)
-	      ;; the ns documentation
-	      (insert "#+BEGIN_SRC markdown")
-	      (newline)
-	      (insert (format "%s" (cadr ns)))
-	      (newline)
-	      (insert "#+END_SRC")
-	      ;; going through the functions
-	      (mapcar (lambda (fun)
-			(newline-and-indent)
-			;; car fun: the function name
-			;; cadr fun : the docstring
-			(insert (format "  - %s" (car fun)))
-			(newline-and-indent)
-			(insert "#+BEGIN_SRC markdown")
-			(newline)
-			(insert (format "%s" (cdr fun)))
-			(newline)
-			(insert "#+END_SRC")
-			(newline))
-		      (cddr ns)))
-	    ns-doc)
-    (if (string-empty-p out)
-	(buffer-string)
-      (write-file (expand-file-name out) nil))))
-   #+END_SRC
-  
-   #+CALL: gen-ns-doc-org(out="docs/ns-doc.org")
+   #+CALL: repl("test/scheme/gen-doc.scm")
 
 * COMMENT Local variables
   Unfortunately the =(org-babel-goto-named-result "buttons")= doesn't do anything

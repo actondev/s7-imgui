@@ -75,11 +75,11 @@ s7_pointer ref_json(s7_scheme* sc, s7_pointer args) {
 
         } catch (nlohmann::json::exception& e) {
             return s7_error(sc,
-                     s7_make_symbol(sc, "json-exception"),
-                     s7_list(sc, 3,
-                             s7_make_string(sc, "~A\n; on ~A"),
-                             s7_make_string(sc, e.what()),
-                             sc_json));
+                            s7_make_symbol(sc, "json-exception"),
+                            s7_list(sc, 3,
+                                    s7_make_string(sc, "~A\n; on ~A"),
+                                    s7_make_string(sc, e.what()),
+                                    sc_json));
         }
     }
 
@@ -134,6 +134,9 @@ void bind(s7_scheme* sc) {
     s7_define(sc, env, s7_make_symbol(sc, "parse"),
               s7_make_function(sc, "parse", parse, 1, 0, false,
                                "(parse json-str) Returns a json c-object"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "*ns-doc*"),
+              s7_make_string(sc, "Basic bindings for nlohmann/json"));
 
 
     s7_define_variable(sc, "aod.c.json", env);
