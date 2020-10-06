@@ -15,22 +15,7 @@ Or, more clojure like syntax
 |#
 (require aod.clj) ;; for (comment .. )
 
-;; Holding all the namespaces, to be able to switch.
-;; 
-;; mnemonic: NameSpaceS
-(define *nss* (make-hash-table))
-(define *ns-require-dynamic* #t)
-
-;; Setting to #t when loading a file (ns-load-file "foo/bar.scm")
-;;
-;; We use it to "merge" with any (ns..) declaration hacky, but it
-;; works for now See more comments in the (ns-load-file)
-(define *ns-load-mode* #f)
-(define (ns-make-empty-let)
-  (with-let (unlet)
-	    (let ()
-	      (curlet))))
-
+(define *ns-name* 'rootlet)
 ;; Holds the current namespace.
 ;; 
 ;; The repl running on the c-side should read this to eval incoming
@@ -43,20 +28,21 @@ Or, more clojure like syntax
   ;; Also, with the repl. when we start we should be in the (rootlet)
   (rootlet)
   )
+;; Holds the namespaces! key (namespace name) => let
+(define *nss* (make-hash-table))
+(define *ns-require-dynamic* #t)
+
+(define (ns-make-empty-let)
+  (with-let (unlet)
+	    (let ()
+	      (curlet))))
 
 (define (ns-create the-ns)
-  ;; should check about the *ns-load-mode*
-  ;; (format *stderr* "Creating namespace ~A\n" the-ns)
-  (if *ns-load-mode*
-      (begin
-	;; (print "we're in load mode")
-	(set! (*nss* the-ns) *ns*)
-	(set! *ns-load-mode* #f))
-      (set! (*nss* the-ns) (ns-make-empty-let)))
+  (set! (*nss* the-ns) (ns-make-empty-let))
   ;; note: the-ns is not available in the with-let form
   ;; thus we use eval and then unquote ;)
-  (eval `(with-let (*nss* the-ns)
-		  (define *ns-name* ',the-ns))))
+  (eval `(define *ns-name* ',the-ns)
+	(*nss* the-ns)))
 
 (define (ns-get-or-create the-ns)
   ;; can also do (ns (rootlet) :require ...)
@@ -94,34 +80,35 @@ Or, more clojure like syntax
 	 (eq? #f (char-position #\/ symbol-string))
 	 )))
 
-;; Loads a file and if it has a (ns) definition,
-;; correctly loads it there.
-;;
-;; The proces:
-;; - loading the file in a new empty environment
-;; - setting ns-load-mode to #t
-;; 
-;; this makes the (ns ..) form to not create a new environmnet
-;; but use the existing *ns*. it also immediately unsets this flag
+;; Loads a file and if it has a (ns) form
+;; works as expected. If not, the file definitions are
+;; put into rootlet
+;; Should only run once, from c side
 (define (ns-load-file file)
-  (set! *ns-load-mode* #t)
-  (set! *ns* (ns-make-empty-let))
-  (load file *ns*)
-  ;; if there was no (ns .. ) form in the loaded file, we add the
-  ;; bindings to the rootlet
-  (with-let *ns*
-	    (if (not (defined? '*ns-name*))
-		(apply varlet (rootlet)
-		       (let->list *ns*))
-		;; (print "indeed loaded a file with (ns ..) : " *ns-name*)
-		)))
+  (let ((temp-ns (ns-make-empty-let)))
+    (eval `(begin
+	     ;; the *ns-load-file* is checked later on
+	     ;; to maybe apply the bindings to the rootlet
+	     ;; this happens after the (ns ..) macro run all the
+	     ;; requires
+	     (define *ns-load-file* #t)
+	     (define *ns* ,temp-ns))
+	  temp-ns)
+    (load file temp-ns)
+    ;; (print "(temp-ns '*ns-name*)" (temp-ns '*ns-name*))
+    (when (or (eq? 'rootlet (temp-ns '*ns-name*))
+	      (eq? '#<undefined> (temp-ns '*ns-name*)))
+      ;; (print "ns-load-file : contents will go into rootlet")
+      (apply varlet (rootlet)
+	     (let->list temp-ns)))))
 
 ;; this simply loads the file into the *nss* hash-table under the <the-ns> key
 (define (ns-load-from-file the-ns file)
+  ;; (print "loading " the-ns "from " file)
   (load file (*nss* the-ns))
   (let ((loaded-ns ((*nss* the-ns) '*ns-name*)))
     (unless (eq? the-ns loaded-ns)
-      (throw 'invalid-namespace "expecting to load ns ~A from file ~A but got ~A~%"
+      (error 'invalid-namespace "expecting to load ns ~A from file ~A but got ~A~%"
 	     the-ns
 	     file
 	     loaded-ns))))
@@ -205,15 +192,13 @@ Or, more clojure like syntax
 ;; was scratching my head until I realised that I had a typo in the definition
 ;; and then i was requiring with the "correct" name.. but the ns was not defined!
 (define* (ns-require the-ns (as #f) (force #f) (dynamic *ns-require-dynamic*))
-  (set! *ns-load-mode* #f)
   (let ((current-ns *ns*))
     (begin
       (ns-load the-ns :force force)
-      (eval `(ns-create-bindings ',the-ns
-				 :as (or ',as ',the-ns)
-				 :target-env ,current-ns
-				 :dynamic ,dynamic)
-		current-ns)
+      (ns-create-bindings the-ns
+			   :as (or as the-ns)
+			   :target-env current-ns
+			   :dynamic dynamic)
       (set! *ns* current-ns))))
 
 ;; maybe I should make this a normal function
@@ -225,6 +210,11 @@ Or, more clojure like syntax
      (map (lambda (require-form)
 	    (apply ns-require require-form))
 	  ',require)
+     (when (and (defined? '*ns-load-file*)
+		(not (eq? *ns* (rootlet))))
+       (apply varlet (curlet)
+	      (let->list *ns*))
+       (set! *ns* (curlet)))
      ',the-ns))
 
 (define-macro (with-ns the-ns . body)
@@ -233,7 +223,8 @@ Or, more clojure like syntax
 
 (define-macro (with-temp-ns . body)
   (let ((ns-symbol (gensym "temp-ns"))
-	(previous-ns (gensym "temp-ns-prev")))
+	(previous-ns (gensym "temp-ns-prev"))
+	(previous-ns-name (*ns* '*ns-name*)))
     `(begin
        (set! (*nss* ',previous-ns) *ns*)
        ;; ughhh ns is macro
@@ -251,38 +242,13 @@ Or, more clojure like syntax
 		(set! (*nss* ',previous-ns) #f)
 		(set! (*nss* ',ns-symbol) #f)
 		(apply throw tag info)))
+       (ns ,previous-ns-name)
        (set! *ns* (*nss* ',previous-ns))
        (set! (*nss* ',previous-ns) #f)
        (set! (*nss* ',ns-symbol) #f))))
 (comment
  (require aod.test)
  )
-
-(test "Temp ns"
-      (with-temp-ns
-       (define x 1)
-       (is-true (defined? 'x))
-       (is = x 1))
-
-      (with-temp-ns
-       (is-false (defined? 'x)))
-      )
-
-(test "with-temp-ns cleanup"
-      (define caught-something #f)
-      (catch #t
-	     (lambda ()
-	       (with-temp-ns
-		(define x 1)
-		(is-true (defined? 'x))
-		i-am-going-to-fail
-		))
-	     (lambda args
-	       (set! caught-something #t)))
-      (is-true caught-something)
-      (is-false (defined? 'x))
-      )
-
 (define* (ns-doc the-ns fun)
   ;; it could be that it's not loaded in *nss* but it's defined
   ;; from the c side. In that case (symbol->value ..) gives us the
@@ -316,4 +282,27 @@ Or, more clojure like syntax
  (let->list (*nss* 'aod.c.gl))
  )
 
+(test "Temp ns"
+      (with-temp-ns
+       (define x 1)
+       (is-true (defined? 'x))
+       (is = x 1))
+
+      (with-temp-ns
+       (is-false (defined? 'x)))
+      )
+(test "with-temp-ns cleanup"
+      (define caught-something #f)
+      (catch #t
+	     (lambda ()
+	       (with-temp-ns
+		(define x 1)
+		(is-true (defined? 'x))
+		i-am-going-to-fail
+		))
+	     (lambda args
+	       (set! caught-something #t)))
+      (is-true caught-something)
+      (is-false (defined? 'x))
+      )
 (provide 'aod.ns)

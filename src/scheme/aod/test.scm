@@ -10,22 +10,6 @@
 	   (throw 'assertion-failed "~A: ~A~%" (*function*) ',assertion)
 	   #f))))
 
-;;(define is assert)
-
-;; (define-bacro (make-assert fn)
-;;   (macro (a b)
-;;     `(let ((a ,a)
-;; 	   (b ,b))
-;;        (if (,fn a b)
-;; 	   #t
-;; 	   (begin
-;; 	     (throw 'assertion-failed "~A: ~A\n ~A not ~A to ~A~%"
-;; 		    (*function*)
-;; 		    '(',fn ',a ',b)
-;; 		    a
-;; 		    ',fn
-;; 		    b))))))
-
 (define-macro (is pred a b)
   `(let ((a ,a)
 	 (b ,b))
@@ -59,7 +43,9 @@
 		     (set! (ht 'pass) 0)
 		     ht))
 
-(define-macro (test name . body)
+;; hm with the last ns.scm changes I did,
+;; this has to be a bacro
+(define-bacro (test name . body)
   (let ((test-header (or (*ns* '*ns-name*) "")))
     `(catch #t
 	    (lambda ()
@@ -67,17 +53,15 @@
 				 (let? *ns*))
 			    *ns*
 			    (curlet))
-			(let ((*test-env* (curlet)))
-			  (call-with-exit
-			   (lambda (return)
-			     (map (lambda (e)
-				    ;; (print "===> eval " e)
-				    (eval e *test-env*))
-				  ',body)
-			     (set! (*aod.test* 'pass) (+ 1 (*aod.test* 'pass)))
-			     (format *stderr* "PASS: ~A \"~A\"~%" ',test-header ,name)
-			     #t
-			     )))))
+			(call-with-exit
+			 (lambda (return)
+			   (map (lambda (e)
+				  (eval e ,(curlet)))
+				',body)
+			   (set! (*aod.test* 'pass) (+ 1 (*aod.test* 'pass)))
+			   (format *stderr* "PASS: ~A \"~A\"~%" ',test-header ,name)
+			   #t
+			   ))))
 	    (lambda (tag info)
 	      (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
 	      (format *stderr* "FAIL: ~A \"~A\" \n\t~A~%\t~A~%"

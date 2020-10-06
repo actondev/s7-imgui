@@ -37,7 +37,7 @@
 			   (fib bench-fib-n))))
 		))
 
-(ns-require aod.benchmark :as b-non-dynamic :dynamic #f)
+(ns-require 'aod.benchmark :as 'b-non-dynamic :dynamic #f)
 (test "ns-require with dynamic #f"
       (print
        "ns-require :dynamic #f : Time fib" bench-fib-n "times x" bench-fib-N

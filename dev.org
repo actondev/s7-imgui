@@ -202,6 +202,13 @@ build/repl test/scheme/test-core.scm
    #+CALL: repl()
    #+CALL: repl(file="test/scheme/test-all.scm")
    #+CALL: repl(file="test/scheme/test-core.scm")
+   #+CALL: repl(file="test/scheme/test-benchmark.scm")
+
+
+   # testing the ns stuff...
+   #+CALL: repl(file="src/scheme/test/ns-load-test.scm")
+   #+CALL: repl(file="src/scheme/test/ns-load-test2.scm")
+   #+CALL: repl(file="src/scheme/test/ns-load-test3.scm")
 
 ** COMMENT how fast are all the tests?
    #+BEGIN_SRC sh

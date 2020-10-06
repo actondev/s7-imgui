@@ -8,7 +8,8 @@
 (ns aod.test-all)
 
 ;; testing files:
-(ns-load 'aod.ns)
+(load "aod/core.scm")
+(load "aod/ns.scm")
 (ns-load 'aod.geom)
 (ns-load 'aod.sxs)
 (ns-load 'aod.layout)
@@ -17,11 +18,11 @@
 (ns-load 'aod.string)
 (ns-load 'aod.imgui.helpers)
 (ns-load 'freesound.core)
-(ns-load-file "test/c_foreign_test.scm")
-(ns-load-file "test/partial_test.scm")
-(ns-load-file "test/string_test.scm")
-(ns-load-file "test/c-os-test.scm")
 
+(ns-load 'test.c-foreign-test)
+(ns-load 'test.partial-test)
+(ns-load 'test.string-test)
+(ns-load 'test.c-os-test)
 
 ;; Testing gui components?
 

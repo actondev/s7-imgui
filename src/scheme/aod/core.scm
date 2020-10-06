@@ -63,7 +63,6 @@
 ;; aod.ns has tests and may make some use of the rest of
 ;; internal funtions, so requiring at the end
 (require aod.ns)
-
 (define (memoize fn)
   (let ((mem (make-hash-table)))
     (lambda args
@@ -74,18 +73,6 @@
 	      ;; (print "ret " ret)
 	      (set! (mem args) ret)
 	      ret))))))
-(test "memoize"
-      (with-let (unlet)
-		(define x 1)
-		(define (inc-x amount)
-		  (set! x (+ x amount)))
-		(define inc-x-mem (memoize inc-x))
-		(is = 3 (inc-x 2))
-		;; first time we do the call
-		(is = 5 (inc-x-mem 2))
-		;; then not
-		(is = 5 (inc-x-mem 2))
-		))
 ;; if-let, when-let
 ;; only for one variable
 ;; TODO
@@ -153,6 +140,18 @@
 	    (set! res (format #f "~A~A~A" res (substring string start end) to))
 	    (loop (inc end) (char-position from string (inc end))))))))
 
+(test "memoize"
+      (with-let (unlet)
+		(define x 1)
+		(define (inc-x amount)
+		  (set! x (+ x amount)))
+		(define inc-x-mem (memoize inc-x))
+		(is = 3 (inc-x 2))
+		;; first time we do the call
+		(is = 5 (inc-x-mem 2))
+		;; then not
+		(is = 5 (inc-x-mem 2))
+		))
 (test "string replace char"
       (is equivalent? "test/foo/bar"
 	  (string-replace-char #\. #\/ "test.foo.bar"))

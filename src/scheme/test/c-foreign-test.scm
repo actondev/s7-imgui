@@ -1,8 +1,11 @@
-(ns aod.test.c.foreign
+(ns test.c-foreign-test
     :require ((aod.c.foreign :as c)))
 
+;; (print "curlet out " (curlet))
 (test "new bool"
       (with-temp-ns
+       ;; (print "curlet?" (outlet (curlet)))
+       ;; (ns-require 'aod.c.foreign :as 'c)
        (is-false (defined? 'x))
        (define x (c/new-bool #f))
        (is-false (x))
@@ -12,6 +15,7 @@
 
 (test "new bool[]"
       (with-temp-ns
+       (ns-require 'aod.c.foreign :as 'c)
        (is-false (defined? 'x))
        (define x (c/new-bool[] 3))
        (is-false (x 0))
@@ -25,6 +29,7 @@
 
 (test "new int"
       (with-temp-ns
+       (ns-require 'aod.c.foreign :as 'c)
        (is-false (defined? 'x))
        (define x (c/new-int 10))
        (is eq? 10 (x))
@@ -35,6 +40,7 @@
 
 (test "new int[]"
       (with-temp-ns
+       (ns-require 'aod.c.foreign :as 'c)
        (is-false (defined? 'x))
        (define x (c/new-int[] 3))
        (is eq? 0 (x 0))

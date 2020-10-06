@@ -1,4 +1,4 @@
-(ns test.string
+(ns test.string-test
     :require ((aod.c.string :as s)))
 (test "regex-search simple"
       (is-true (s/search "abcdef" "abc"))
