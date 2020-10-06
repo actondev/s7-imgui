@@ -69,9 +69,9 @@ void bind(s7_scheme* sc, s7_pointer env) {
 }
 
 namespace windows {
-const char* help_begin = "(begin name &optional *bool window-flags)\n"
-                         "- name: the name of the window, a scheme string\n"
-                         "- *bool: a pointer to bool, from aod.c.foreign. Closing the window modifies the pointer value";
+const char* help_begin = "(begin name &optional p-open window-flags)\n"
+                         "- `name`: the name of the window, a scheme string\n"
+                         "- `p-open`: a `bool*`, as returned from `aod.c.foreign/new-bool`. Closing the window modifies the pointer value";
 s7_pointer begin(s7_scheme *sc, s7_pointer args) {
     s7_pointer title = s7_car(args);
     if (!s7_is_string(title))
@@ -705,7 +705,8 @@ s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::SliderFloat(s7_string(text), p_value, min, max, format));
 }
 
-const char* help_slider_int = "(label *value min max) value: *int pointer from aod.c.foreign/new-int";
+const char* help_slider_int = "(slider-int label p-value min max)\n"
+"`p-value`: `int*` pointer from `aod.c.foreign/new-int`";
 s7_pointer slider_int(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text)) {
@@ -803,7 +804,8 @@ s7_pointer input_text(s7_scheme* sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::InputText(s7_string(sc_label), str, s7_integer(sc_size), ImGuiInputTextFlags_EnterReturnsTrue));
 }
 
-const char* help_input_text_multiline = "(input-text-multiline label *buffer buffer-size) *buffer is c-pointer to char* from aod.c.foreign/new-char[]";
+const char* help_input_text_multiline = "(input-text-multiline label p-buffer buffer-size)\n"
+"`p-buffer`: a `char*` as returned from `aod.c.foreign/new-char[]`";
 s7_pointer input_text_multiline(s7_scheme* sc, s7_pointer args) {
     s7_pointer sc_label = s7_car(args);
 
@@ -840,9 +842,9 @@ s7_pointer input_text_multiline(s7_scheme* sc, s7_pointer args) {
                            ));
 }
 
-static const char* help_combo = "(combo name *index labels)\n"
-                                "- *index an int* pointer returned from aod.c.foreign/new-int\n"
-                                "- labels is a list of strings";
+static const char* help_combo = "(combo name p-index labels)\n"
+                                "- `p-index`: an `int*` pointer as returned from `aod.c.foreign/new-int`\n"
+                                "- `labels`: a list of strings";
 
 s7_pointer combo(s7_scheme* sc, s7_pointer args) {
     if (!s7_is_string(s7_car(args))) {
@@ -858,20 +860,18 @@ s7_pointer combo(s7_scheme* sc, s7_pointer args) {
 
     if (index == NULL) {
         return (s7_wrong_type_arg_error(sc, "combo", 2, s7_car(args),
-                                        "int* from aod.c.foreign/new-int"));
+                                        "int* pointer from aod.c.foreign/new-int"));
     }
 
     args = s7_cdr(args);
     s7_pointer labels = s7_car(args);
     int n_labels = s7_list_length(sc, labels);
-//     char** c_labels = new char*[n_labels];
 
     const char* preview = "";
     int flags = ImGuiComboFlags_NoPreview;
     bool clicked = false;
     if (ImGui::BeginCombo(name, preview, flags)) { // The second parameter is the label previewed before opening the combo.
         for (int i = 0; i < n_labels; i++) {
-//             bool selected = false;
             bool is_selected = (i == *index);
             if (ImGui::Selectable(s7_string(s7_car(labels)), &is_selected)) {
                 *index = i;

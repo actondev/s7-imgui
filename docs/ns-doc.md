@@ -151,15 +151,17 @@ IsItemDeactivated
 ## `is-item-deactivated-after-edit` <small>procedure?</small>
 IsItemDeactivatedAfterEdit
 ## `combo` <small>procedure?</small>
-(combo name *index labels)
-- *index an int* pointer returned from aod.c.foreign/new-int
-- labels is a list of strings
+(combo name p-index labels)
+- `p-index`: an `int*` pointer as returned from `aod.c.foreign/new-int`
+- `labels`: a list of strings
 ## `input-text-multiline` <small>procedure?</small>
-(input-text-multiline label *buffer buffer-size) *buffer is c-pointer to char* from aod.c.foreign/new-char[]
+(input-text-multiline label p-buffer buffer-size)
+`p-buffer`: a `char*` as returned from `aod.c.foreign/new-char[]`
 ## `input-text` <small>procedure?</small>
 (input-text label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]
 ## `slider-int` <small>procedure?</small>
-(label *value min max) value: *int pointer from aod.c.foreign/new-int
+(slider-int label p-value min max)
+`p-value`: `int*` pointer from `aod.c.foreign/new-int`
 ## `slider-float` <small>procedure?</small>
 (slider-float label *value min max &optional (format "%.3f"))
 ## `color-edit-3` <small>procedure?</small>
@@ -227,9 +229,9 @@ Button
 (begin-maximized title &optional window-flags) NOT PART OF IMGUI: A convenient way to do a maximized window
 window-flags is just one int with bit flags set. There are already plenty set like NoTitleBar, NoResize etc.
 ## `begin` <small>procedure?</small>
-(begin name &optional *bool window-flags)
-- name: the name of the window, a scheme string
-- *bool: a pointer to bool, from aod.c.foreign. Closing the window modifies the pointer value
+(begin name &optional p-open window-flags)
+- `name`: the name of the window, a scheme string
+- `p-open`: a `bool*`, as returned from `aod.c.foreign/new-bool`. Closing the window modifies the pointer value
 # (ns `aod.c.gl`)
 
 ## `save-screenshot` <small>procedure?</small>
