@@ -7,7 +7,8 @@
 #include <cstring>
 #include <cstdlib>
 #ifdef _WIN32
-#include <Windows.h> // gl.h errors if not (void should be preceded.. etc)
+// uppercase Windows.h not found with mingw in linux??
+#include <windows.h> // gl.h errors if not (void should be preceded.. etc)
 #endif
 #include <GL/gl.h>
 #include "./gl.hpp"

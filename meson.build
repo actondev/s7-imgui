@@ -14,10 +14,6 @@ if compiler_id == 'msvc'
   extra_args += ['/wd"4996"', '/wd"4250"', '/wd"4018"', '/wd"4267"', '/wd"4068"', '-D_DEBUG']
 endif
 
-if system == 'windows' and compiler_id != 'msvc'
-  error('Building on windows requires the MSVC compiler. Other compilers are not supported at the moment.')
-endif
-
 link_args = []
 
 # host or build machine?
@@ -72,6 +68,26 @@ sfml_opt.append_compile_args('cpp', '-fPIC')
 # sfml_opt.append_link_args('-ldl', '-lz', '-lrt')
 
 # TODO ad SFML.wrap
+# TODO remove when meson has cmake support?
+if meson.is_cross_build() and system == 'windows'
+  # https://github.com/mesonbuild/meson/issues/7105
+  message('TODO cross build & cmake!')
+  # sfml_proj = cmake.subproject('SFML', options: sfml_opt,
+  # cmake_options: '-DCMAKE_TOOLCHAIN_FILE=mingw.cmake')
+  sfml_opt.add_cmake_defines({
+				# 'CMAKE_TOOLCHAIN_FILE': '/home/actondev/dev/actondev/s7-reaper-repl/subprojects/s7_imgui/mingw.cmake',
+			      'TARGET_ARCH': 'x86_64-w64-mingw32',
+			      'CMAKE_SYSTEM_NAME': 'Windows',
+			      'CMAKE_C_COMPILER': 'x86_64-w64-mingw32-gcc',
+			      'CMAKE_CXX_COMPILER': 'x86_64-w64-mingw32-g++',
+			      'CMAKE_FIND_ROOT_PATH': '/usr/x86_64-w64-mingw32',
+			      'CMAKE_C_COMPILER_WORKS': 1,
+			      'CMAKE_CROSSCOMPILING': 1,
+			      'CMAKE_CXX_COMPILER_WORKS': 1,
+			      
+			     })
+endif
+
 sfml_proj = cmake.subproject('SFML', options: sfml_opt)
 # Fetch the dependency object
 sfml_system_dep = sfml_proj.dependency('sfml-system')
@@ -91,8 +107,27 @@ sfml_dep = [sfml_system_dep,
 
 
 # curl
-curl_proj = cmake.subproject('curl')
+
+curl_opt = cmake.subproject_options()
+if meson.is_cross_build() and system == 'windows'
+  curl_opt.add_cmake_defines({
+				# 'CMAKE_TOOLCHAIN_FILE': '/home/actondev/dev/actondev/s7-reaper-repl/subprojects/s7_imgui/mingw.cmake',
+			      'TARGET_ARCH': 'x86_64-w64-mingw32',
+			      'CMAKE_SYSTEM_NAME': 'Windows',
+			      'CMAKE_C_COMPILER': 'x86_64-w64-mingw32-gcc',
+			      'CMAKE_CXX_COMPILER': 'x86_64-w64-mingw32-g++',
+			      'CMAKE_FIND_ROOT_PATH': '/usr/x86_64-w64-mingw32',
+			      'CMAKE_C_COMPILER_WORKS': 1,
+			      'CMAKE_CROSSCOMPILING': 1,
+			      'CMAKE_CXX_COMPILER_WORKS': 1,
+			      'CMAKE_BUILD_WITH_INSTALL_RPATH': 1,
+			      
+			     })
+endif
+
+curl_proj = cmake.subproject('curl', options: curl_opt)
 curl_dep = curl_proj.dependency('libcurl')
+
 
 subdir('src')
 

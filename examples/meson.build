@@ -86,3 +86,14 @@ example_curl = executable(
     curl_dep
     ]
 )
+
+
+example_s7_temp = executable(
+  'ex_s7_temp',
+  sources : files(
+    'ex_s7_temp.cpp',
+  ),
+  dependencies: [
+    aod_dep,
+    ]
+)

@@ -61,7 +61,12 @@ endif
 
 aod_link_args = []
 if system == 'windows'
-  aod_link_args = ['Ws2_32.lib'] # for SFML network
+  message('compiler id' + meson.get_compiler('cpp').get_id())
+  if compiler_id == 'gcc'
+    aod_link_args = ['-lws2_32'] # for SFML network
+  elif compiler_id == 'msvc'
+    aod_link_args = ['Ws2_32.lib'] # for SFML network
+  endif
 endif
 aod_lib = library(
   'aod',
