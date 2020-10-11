@@ -1,0 +1,6 @@
+[wrap-file]
+directory = openssl-1.1.1h-win64-mingw
+source_url = https://curl.haxx.se/windows/dl-7.72.0_5/openssl-1.1.1h_5-win64-mingw.zip
+source_filename = openssl-1.1.1h_5-win64-mingw.zip
+source_hash = 49173d74e8c4645206374dff4f33dd093d5e2d43bf05223899c8db00a1041b24 
+patch_directory = openssl-win64-mingw

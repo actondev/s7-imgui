@@ -22,28 +22,11 @@ link_args = []
 s7_proj = subproject('s7')
 s7_dep = s7_proj.get_variable('s7_dep')
 
-sdl2_proj = subproject('sdl2', required: false)
-if sdl2_proj.found()
-  sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
-  sdl2main_dep = sdl2_proj.get_variable('sdl2main_dep')
-  # imgui looks for sdl
-  # https://mesonbuild.com/Reference-manual.html#dependency
-  meson.override_dependency('sdl', sdl2_dep)
-endif
-
 imgui_opts = ['opengl2=enabled']
-if sdl2_proj.found()
-  imgui_opts += 'sdl=enabled'
-endif
 
 imgui = subproject('imgui',
 		   default_options: imgui_opts)
 imgui_dep = imgui.get_variable('imgui_dep')
-
-if sdl2_proj.found()
-  sdl_net_proj = subproject('sdl_net')
-  sdl_net_dep = sdl_net_proj.get_variable('sdl_net_dep')
-endif
 
 nfd_proj = subproject('nfd')
 nfd_dep = nfd_proj.get_variable('nfd_dep')
@@ -125,50 +108,66 @@ if meson.is_cross_build() and system == 'windows'
 			     })
 endif
 
-curl_proj = cmake.subproject('curl', options: curl_opt)
-curl_dep = curl_proj.dependency('libcurl')
+if system == 'windows' and compiler_id == 'gcc'
+  # curl_proj = cmake.subproject('curl', options: curl_opt)
+  # curl_dep = curl_proj.dependency('libcurl')
+  # curl_proj = subproject('curl_windows')
+  # curl_dep = curl_proj.get_variable('libcurl_dep')
+
+  # using prebuilt binaries
+  # https://mesonbuild.com/Shipping-prebuilt-binaries-as-wraps.html
+
+  # TODO architecture: win32 ?
+  curl_proj = subproject('curl-win64-mingw')
+  curl_dep = curl_proj.get_variable('libcurl_dep')
+
+  # we just need the dlls from here, to copy them later on next to the .exe
+  # libcrypto-1_1-x64.dll
+  # libssl-1_1-x64.dll
+  openssll_proj = subproject('openssl-win64-mingw')
+endif
 
 
 subdir('src')
 
 if not meson.is_subproject()
   # hm probably remove the app
-  if sdl2_proj.found()
-    app = executable(
-      's7-imgui',
-      dependencies : [
-	sdl2_dep, # the core library
-	sdl2main_dep, # abstracts out the main thing: windows needs WinMain
-	sdl_net_dep,
-	imgui_dep,
-	s7_dep,
-	app_dep,
-      ],
-      link_args: link_args,
-      cpp_args: extra_args,
-      gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
-      install: true,
-    )
+  # if sdl2_proj.found()
+  #   app = executable(
+  #     's7-imgui',
+  #     dependencies : [
+  # 	sdl2_dep, # the core library
+  # 	sdl2main_dep, # abstracts out the main thing: windows needs WinMain
+  # 	sdl_net_dep,
+  # 	imgui_dep,
+  # 	s7_dep,
+  # 	app_dep,
+  #     ],
+  #     link_args: link_args,
+  #     cpp_args: extra_args,
+  #     gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
+  #     install: true,
+  #   )
 
-    gui_repl = executable(
-      'gui_repl',
-      sources: files(
-	'src/gui_repl.cpp',
-      ),
-      dependencies : [
-	sdl2_dep, # the core library
-	sdl2main_dep, # abstracts out the main thing: windows needs WinMain
-	sdl_net_dep,
-	imgui_dep,
-	s7_dep,
-	aod_dep,
-      ],
-      link_args: link_args,
-      cpp_args: extra_args,
-      gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
-      install: true,
-    )
-  endif
+  #   gui_repl = executable(
+  #     'gui_repl',
+  #     sources: files(
+  # 	'src/gui_repl.cpp',
+  #     ),
+  #     dependencies : [
+  # 	sdl2_dep, # the core library
+  # 	sdl2main_dep, # abstracts out the main thing: windows needs WinMain
+  # 	sdl_net_dep,
+  # 	imgui_dep,
+  # 	s7_dep,
+  # 	aod_dep,
+  #     ],
+  #     link_args: link_args,
+  #     cpp_args: extra_args,
+  #     gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
+  #     install: true,
+  #   )
+  # endif
 
   gui_repl_sfml = executable(
     'gui_repl_sfml',
@@ -185,21 +184,16 @@ if not meson.is_subproject()
     gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
     install: true,
   )
-  
-  repl = executable(
-    'repl',
-    sources: files('src/repl.cpp'),
-    dependencies : [
-      sdl2_dep, # the core library
-      sdl_net_dep,
-      imgui_dep,
-      s7_dep,
-      aod_dep,
+
+
+repl = executable(
+  'repl',
+  sources: files('src/repl.cpp'),
+  dependencies: [
+    aod_dep,
     ],
-    link_args: link_args,
-    cpp_args: extra_args,
-    install: true,
-  )
+  install: true,
+)
 
   # TODO switch building the examples with a definition option
   subdir('examples')

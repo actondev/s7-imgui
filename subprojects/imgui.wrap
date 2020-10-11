@@ -1,3 +1,4 @@
+# TODO use my patch with the IMGUI_TLS option
 [wrap-file]
 directory = imgui-1.76
 

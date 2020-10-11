@@ -29,6 +29,8 @@ ln -s `readlink -f ../SDL_net` subprojects/sdl_net
 ls -alh subprojects/sdl_net # subprojects/sdl_net -> xxxx/SDL_net
 ln -s `readlink -f ../SFML` subprojects/SFML
 
+ln -s `readlink -f ../imgui` subprojects/imgui
+
 # file dialog: needed for some examples
 ln -s `readlink -f ../nativefiledialog` subprojects/nfd
    #+END_SRC
@@ -58,6 +60,31 @@ ninja -C build/release
      zipped ~1.3mb
 *** TODO release
     - do not build tests.. duh
+
+** Building: cross-build (mingw)
+   #+BEGIN_SRC sh
+meson setup build-win64 --cross-file mingw_x64.ini
+
+ninja -C build-win64
+
+# helper commands
+meson setup --reconfigure build-win64
+meson setup --wipe build-win64
+# to cleanup/regenerate
+rm -rf build-win64
+   #+END_SRC
+
+   #+BEGIN_SRC sh
+cp /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll build-win64
+cp /usr/lib/gcc/x86_64-w64-mingw32/9.3-posix/libgcc_s_seh-1.dll build-win64
+cp /usr/lib/gcc/x86_64-w64-mingw32/9.3-posix/libstdc++-6.dll build-win64
+cp build-win64/subprojects/curl/libcm_libcurl.dll build-win64
+   #+END_SRC
+
+
+  #+BEGIN_SRC emacs-lisp :var file="" :results silent
+(run-scheme (concat "wine64 " (projectile-project-root) "build-win64/repl.exe " file))
+  #+END_SRC
 
 ** COMMENT Running
    #+NAME: >build & run

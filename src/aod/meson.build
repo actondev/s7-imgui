@@ -61,7 +61,6 @@ endif
 
 aod_link_args = []
 if system == 'windows'
-  message('compiler id' + meson.get_compiler('cpp').get_id())
   if compiler_id == 'gcc'
     aod_link_args = ['-lws2_32'] # for SFML network
   elif compiler_id == 'msvc'

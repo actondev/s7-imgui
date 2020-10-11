@@ -1167,3 +1167,72 @@ sudo bash -c "echo -n | openssl s_client -showcerts -connect $hostname:$port -se
   #+END_SRC
 
   #+RESULTS:
+* <2020-10-11 Sun> mingw
+** curl not working
+   #+BEGIN_QUOTE
+   >curl_easy_perform()failed:Unsupportedprotocol
+wine: Unhandled page fault on read access to 0000000000000000 at address 00007F2C0AF1C2B8 (thread 0024), starting debugger...
+
+   #+END_QUOTE
+
+
+
+   #+BEGIN_SRC sh
+cp /usr/x86_64-w64-mingw32/lib/libwinpthread-1.dll build-win64/examples
+cp /usr/lib/gcc/x86_64-w64-mingw32/9.3-posix/libgcc_s_seh-1.dll build-win64/examples
+cp /usr/lib/gcc/x86_64-w64-mingw32/9.3-posix/libstdc++-6.dll build-win64/examples
+cp build-win64/subprojects/curl/libcm_libcurl.dll build-win64/examples
+
+wine64 ./build-win64/examples/ex_curl.exe
+   #+END_SRC
+
+   #+BEGIN_QUOTE
+*Protocol"https"notsupportedordisabledinlibcurl
+*Closingconnection-1
+curl_easy_perform() failed: Unsupported protocol
+   #+END_QUOTE
+
+   #+BEGIN_EXAMPLE
+||-- curl version=[7.72.0-DEV]
+||-- Could NOT find LibSSH2 (missing: LIBSSH2_LIBRARY LIBSSH2_INCLUDE_DIR)  
+||-- CA path only supported by OpenSSL, GnuTLS or mbed TLS. Set CURL_CA_PATH=none or enable one of those TLS backends.
+
+   #+END_EXAMPLE
+
+
+   #+BEGIN_SRC sh
+apt-cache search libssh2
+sudo apt-get install libssh2-1-dev libssh2-1
+
+apt-cache search ssh2
+locate ssh
+   #+END_SRC
+
+   #+BEGIN_SRC sh
+apt-cache search mingw
+   #+END_SRC
+
+   https://www.libssh.org/archive/libssh/2017-10/0000011.html
+
+
+   https://mesonbuild.com/Shipping-prebuilt-binaries-as-wraps.html this! and just creating a wrap for  curl
+
+   #+BEGIN_QUOTE
+    curl 7.72.0_5 was built and statically linked with
+
+    OpenSSL 1.1.1h [64bit/32bit] 
+   #+END_QUOTE
+
+   fuck! then why do I get (oh, I guess the curl.exe is statically linked.. yup)
+   #+BEGIN_QUOTE
+   0024:err:module:import_dll Library libcrypto-1_1-x64.dll (which is needed by L"Z:\\home\\actondev\\dev\\actondev\\s7-imgui\\build-win64\\examples\\libcurl-x64.dll") not found
+0024:err:module:import_dll Library libssl-1_1-x64.dll (which is needed by L"Z:\\home\\actondev\\dev\\actondev\\s7-imgui\\build-win64\\examples\\libcurl-x64.dll") not found
+0024:err:module:import_dll Library libcurl-x64.dll (which is needed by L"Z:\\home\\actondev\\dev\\actondev\\s7-imgui\\build-win64\\examples\\ex_curl.exe") not found
+
+   #+END_QUOTE
+
+   anyway, it's working with downloading as well the https://curl.haxx.se/windows/dl-7.72.0_5/openssl-1.1.1h_5-win64-mingw.zip
+
+   #+BEGIN_SRC sh
+wine64 /home/actondev/dev/actondev/s7-imgui/subprojects/curl_windows/bin/curl.exe -k https://httpbin.org/get?foo=bar   
+   #+END_SRC

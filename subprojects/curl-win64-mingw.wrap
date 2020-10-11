@@ -1,0 +1,6 @@
+[wrap-file]
+directory = curl-7.72.0-win64-mingw
+source_url = https://curl.haxx.se/windows/dl-7.72.0_5/curl-7.72.0_5-win64-mingw.zip
+source_filename = curl-7.72.0_5-win64-mingw.zip
+source_hash = eab5aa680c503df7a3eef68685bc7058856077720c1c0a7a96d60c26b0b03f11
+patch_directory = curl-win64-mingw

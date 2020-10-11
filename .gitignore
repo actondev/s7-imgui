@@ -3,6 +3,7 @@ build*/
 .wg/
 subprojects/*
 !subprojects/*.wrap
+!subprojects/packagefiles
 .settings/
 
 # kdevelop files
