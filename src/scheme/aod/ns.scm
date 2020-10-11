@@ -201,8 +201,6 @@ Or, more clojure like syntax
 			   :dynamic dynamic)
       (set! *ns* current-ns))))
 
-;; maybe I should make this a normal function
-;; keep things simpler..
 (define-macro* (ns the-ns (require ()) (doc ""))
   `(begin
      (set! *ns* (ns-get-or-create ',the-ns))

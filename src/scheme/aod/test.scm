@@ -65,6 +65,8 @@
 	    (lambda (tag info)
 	      (set! (*aod.test* 'fail) (+ 1 (*aod.test* 'fail)))
 	      (format *stderr* "FAIL: ~A \"~A\" \n\t~A~%\t~A~%"
+		      ;; ((owlet) 'error-file) is the closes to see where the fail comes from
+		      ;; don't know about line though etc
 		      ',test-header
 		      ,name
 		      tag

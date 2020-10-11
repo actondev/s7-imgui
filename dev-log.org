@@ -1147,6 +1147,23 @@ meson wrap install nlohmann_json
 * DONE <2020-10-03 Sat> freesound progress
   - [X] json objects to string
     .. missing this one
-* TODO <2020-10-06 Tue> gen-doc, ns.scm cleanup? [1/2]
+* DONE <2020-10-06 Tue> gen-doc, ns.scm cleanup? [2/2]
   - [X] gen-doc: directly generate .md file
-  - [ ] ns.scm cleanup.. is it readable..?
+  - [X] ns.scm cleanup.. is it readable..?
+    just left the =ns= macro (=ns-require= now is a function)
+    and changed also the =ns-load-file= behavior.
+    Generally, some code was shit, eg =eval= or =with-let=... without need
+* TODO ns.scm : can I do anything about the errors (line etc)
+  
+* s7 ccrma gitlab
+  #+BEGIN_SRC sh
+hostname=cm-gitlab.stanford.edu
+port=443
+trust_cert_file_location=`curl-config --ca`
+
+sudo bash -c "echo -n | openssl s_client -showcerts -connect $hostname:$port -servername $hostname \
+    2>/dev/null  | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p'  \
+    >> $trust_cert_file_location"
+  #+END_SRC
+
+  #+RESULTS:

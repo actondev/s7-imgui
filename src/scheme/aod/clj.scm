@@ -79,6 +79,10 @@ i is 2
 	  (set! (car p) i))))))
 
 (define range iota)
+;; reverse range
+(define (rrange n)
+  (range n :start (dec n) :incr -1))
+
 (define mod modulo)
 
 (define-macro (not= . args)
@@ -262,6 +266,19 @@ i is 2
 
 (define (nnull? x)
   (not (null? x)))
+
+(define (drop n coll)
+  (let loop ((i 0)
+	     (coll coll))
+    (if (= i n)
+	coll
+	(loop (inc i)
+	      (cdr coll)))))
+
+(test "drop"
+      (is equivalent?
+	  '(c d)
+	  (drop 2 '(a b c d))))
 
 ;; https://github.com/clojure/clojure/blob/clojure-1.10.1/src/clj/clojure/core.clj#L1677
 (define-macro (-> x . forms)

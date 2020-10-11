@@ -14,7 +14,7 @@
 (ns-load 'aod.sxs)
 (ns-load 'aod.layout)
 (ns-load 'aod.colors)
-(ns-load 'aod.midi)
+(ns-load 'aod.midi.core)
 (ns-load 'aod.string)
 (ns-load 'aod.imgui.helpers)
 (ns-load 'freesound.core)

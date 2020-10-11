@@ -1,4 +1,4 @@
-(ns aod.scales)
+(ns aod.midi.scales)
 
 ;; Scales given as a vector of semitones from the root
 ;;
@@ -11,7 +11,7 @@
 ;; - https://learningmusic.ableton.com/advanced-topics/modes.html
 ;; - https://www.bandnotes.info/tidbits/scales/half-whl.htm
 
-(define chromatic (range 12))
+(define chromatic '(0 1 2 3 4 5 6 7 8 9 10 11))
 ;; Whole - Whole - Half - Whole - Whole - Whole - Half
 (define major '(0 2 4 5 7 9 11))
 
