@@ -48,6 +48,7 @@ aod_sources = files(
   
   # os
   's7/os.cpp',
+  'wm/wm.cpp'
 )
 
 gl_dep = dependency('gl', required : false)
@@ -66,11 +67,17 @@ if system == 'windows'
   elif compiler_id == 'msvc'
     aod_link_args = ['Ws2_32.lib'] # for SFML network
   endif
+elif system == 'linux'
 endif
+# glib_dep = dependency('glib2')
 aod_lib = library(
   'aod',
   # sources: aod_sources,
-  include_directories: include_directories('..'),
+  include_directories: [
+  '/usr/include/glib-2.0', # TODO linux wm
+  '/usr/lib/x86_64-linux-gnu/glib-2.0/include', # has the glibconfig.h
+  include_directories('..'),
+  ],
   sources: aod_sources,
   # link_args: ['-ldl'],
   link_args: aod_link_args,
@@ -78,6 +85,8 @@ aod_lib = library(
   dependencies : [
     # dependency('s7', required: true),
     s7_dep,
+    # TODO linux wm
+#     glib_dep,
     imgui_dep,
     gl_dep,
     nfd_dep,
@@ -91,15 +100,13 @@ aod_lib = library(
   )
 
 aod_includes = include_directories('..')
-# aod_includes += sfml_includes
+
 
 aod_dep = declare_dependency(
   link_with: aod_lib,
   link_args: aod_link_args,
   # include from parent dir: to include "aod/s7.hpp" for example
-  include_directories: [aod_includes,
-			# sfml_includes,
-		       ],
+  include_directories: [aod_includes],
   dependencies: [
     # hm.. this is for the include_directories
     # solving errors like "SDL.h" not found etcF

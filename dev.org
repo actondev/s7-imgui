@@ -45,6 +45,7 @@ ls subprojects/s7
    #+END_SRC
 ** Building
    #+BEGIN_SRC sh
+ninja -C build clean
 ninja -C build
    #+END_SRC
 ** Building for release
@@ -105,8 +106,8 @@ ninja -C build && ./build/s7-imgui
 ** Running the tests
    #+NAME: >test
    #+BEGIN_SRC sh
-#ninja -C build
-./build/test/gtest-all
+# the tests assume a pwd of of build/test
+bash -c "cd build/test && ./gtest-all"
 ninja -C build test
    #+END_SRC
 

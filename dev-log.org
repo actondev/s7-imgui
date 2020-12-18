@@ -1236,3 +1236,25 @@ apt-cache search mingw
    #+BEGIN_SRC sh
 wine64 /home/actondev/dev/actondev/s7-imgui/subprojects/curl_windows/bin/curl.exe -k https://httpbin.org/get?foo=bar   
    #+END_SRC
+* <2020-12-17 Thu> idea to make a rofi alternative
+  Resources
+  - https://github.com/dancor/wmctrl/blob/master/main.c#L1323
+    #+begin_src sh
+wmctrl -l
+wmctrl --help    
+
+# eg  0x07a00004 spotify
+wmctrl -a -x spotify
+
+xdotool search --title ""
+
+# needed for glib.h
+sudo apt-get install libglib2.0-dev libglib2.0-0
+apt-cache search libglib
+    #+end_src
+
+    random: imgui wanted sdl?
+    #+begin_src sh
+# don't know if it helped
+meson configure -Dimgui:sdl='disabled'    
+    #+end_src

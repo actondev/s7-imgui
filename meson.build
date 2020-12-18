@@ -22,7 +22,7 @@ link_args = []
 s7_proj = subproject('s7')
 s7_dep = s7_proj.get_variable('s7_dep')
 
-imgui_opts = ['opengl2=enabled']
+imgui_opts = ['opengl2=enabled', 'sdl=disabled']
 
 imgui = subproject('imgui',
 		   default_options: imgui_opts)
@@ -125,6 +125,9 @@ if system == 'windows' and compiler_id == 'gcc'
   # libcrypto-1_1-x64.dll
   # libssl-1_1-x64.dll
   openssll_proj = subproject('openssl-win64-mingw')
+elif system == 'linux'
+  curl_proj = cmake.subproject('curl', options: curl_opt)
+  curl_dep = curl_proj.dependency('libcurl')
 endif
 
 
