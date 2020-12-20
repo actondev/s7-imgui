@@ -11,7 +11,14 @@ s7_pointer list_windows(s7_scheme* sc, s7_pointer args) {
     s7_pointer list = s7_cons(sc, s7_nil(sc), s7_nil(sc));
     s7_pointer list_run = list;
     std::list<aod::wm::t_window> windows = aod::wm::list_windows();
+    int count = 0;
     for (const auto& window : windows) {
+        if (count++ > 0) {
+            // appending
+            s7_set_cdr(list_run, s7_cons(sc, s7_nil(sc), s7_nil(sc)));
+            list_run = s7_cdr(list_run);
+        }
+
         s7_set_car(list_run,
                    s7_inlet(sc,
                             s7_list(sc, 4,
@@ -20,8 +27,6 @@ s7_pointer list_windows(s7_scheme* sc, s7_pointer args) {
                                     s7_make_symbol(sc, "window"),
                                     s7_make_integer(sc, window.window)
                                    )));
-        s7_set_cdr(list_run, s7_cons(sc, s7_nil(sc), s7_nil(sc)));
-        list_run = s7_cdr(list_run);
     }
 
     return list;

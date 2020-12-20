@@ -17,6 +17,9 @@
 #include "aod/s7/json.hpp"
 #include "aod/s7/os.hpp"
 
+// window manager
+#include "aod/s7/wm.hpp"
+
 #include <sstream>
 #include <iostream>
 using std::cout;
@@ -150,6 +153,9 @@ void bind_all(s7_scheme *sc) {
     aod::s7::curl::bind(sc);
     aod::s7::json::bind(sc);
     aod::s7::os::bind(sc);
+    
+    // window manager
+    aod::s7::wm::bind(sc, s7_nil(sc));
 }
 
 } // s7

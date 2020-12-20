@@ -13,6 +13,14 @@ example_repl = executable(
   install: true,
 )
 
+example_imgui_sfml = executable(
+    'ex-imgui-sfml',
+    sources: files ('ex-imgui-sfml.cpp'),
+    dependencies: [
+    aod_dep,
+    ],
+    )
+
 example_curl = executable(
   'ex_curl',
   sources : files(

@@ -1242,6 +1242,8 @@ wine64 /home/actondev/dev/actondev/s7-imgui/subprojects/curl_windows/bin/curl.ex
   - https://github.com/jordansissel/xdotool/blob/master/cmd_windowfocus.c
   - https://github.com/jordansissel/xdotool/blob/master/xdo.c#L392
     xdo_focus_window
+
+** code snippets
     #+begin_src c
 bool focus_window(const Display* disp, Window wid) {
   int ret = 0;
@@ -1255,7 +1257,8 @@ bool focus_window(const Display* disp, Window wid) {
     #+begin_src sh
 xdotool search --name "Mozilla Firefox" 
 # eg 46137347
-xdotool windowfocus 46137347
+xdotool windowraise 127926276
+xdotool windowfocus 127926276
 
 # or
 xdotool search --name "Mozilla Firefox" windowfocus
@@ -1280,6 +1283,16 @@ apt-cache search libglib
 # don't know if it helped
 meson configure -Dimgui:sdl='disabled'    
     #+end_src
+
+** <2020-12-20 Sun> windows vs linux?
+   - https://docs.microsoft.com/en-us/windows/win32/winprog/windows-data-types
+     - hwnd is ...
+     - typedef PVOID HANDLE;
+     - use a template..?
+** windows 
+   - https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow
+** Imgui lists etc
+   - [[file:~/dev/actondev/imgui/imgui_demo.cpp::ImGui::ListBox("listbox\n(single select)", &item_current, items, IM_ARRAYSIZE(items), 4);]]
 * <2020-12-18 Fri> c++ templates ??
   - https://en.cppreference.com/w/cpp/language/template_specialization
   maybe have a generic

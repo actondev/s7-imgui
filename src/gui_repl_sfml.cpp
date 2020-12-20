@@ -48,7 +48,7 @@ bool g_force_redraw = false;
 
 
 int guiLoop() {
-    sf::Window window(sf::VideoMode(200, 200), "SFML works!");
+    sf::Window window(sf::VideoMode(200, 200), "S7 GUI REPL!");
 
 
     IMGUI_CHECKVERSION();
@@ -77,12 +77,14 @@ int guiLoop() {
 
         ImGui::SFML::Update(window, deltaClock.restart());
         ImGui_ImplOpenGL2_NewFrame(); // builds the font (font atlas?)
-        
+
         s7_eval_c_string(sc, "(draw)");
 
 //         window.clear();
         ImGui::SFML::Render(window);
         window.display();
+        // TODO do not redraw if no event..?
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     ImGui_ImplOpenGL2_Shutdown();

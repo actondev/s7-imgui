@@ -15,6 +15,7 @@
 // c++ std
 #include <string>
 #include <list>
+// #include <iostream>
 
 #define MAX_PROPERTY_VALUE_LEN 4096
 
@@ -142,8 +143,7 @@ std::list<t_window> list_windows() {
         };
         list.push_back(win);
 
-        printf("windows %ld ,title %s\n", client_list[i], title_utf8);
-
+//         printf("windows %ld ,title %s\n", client_list[i], title_utf8);
         g_free(title_utf8);
     }
     g_free(client_list);

@@ -173,7 +173,7 @@ if not meson.is_subproject()
   # endif
 
   gui_repl_sfml = executable(
-    'gui_repl_sfml',
+    'gui_repl',
     sources: files(
       'src/gui_repl_sfml.cpp',
     ),
