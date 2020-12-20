@@ -123,9 +123,12 @@ std::list<t_window> list_windows() {
         return list;
     }
 
+
+
     Window *client_list;
     unsigned long client_list_size;
     int i;
+    unsigned long *desktop;
 
     if ((client_list = get_client_list(disp, &client_list_size)) == NULL) {
         // error
@@ -134,6 +137,16 @@ std::list<t_window> list_windows() {
 
     /* print the list */
     for (i = 0; i < client_list_size / sizeof(Window); i++) {
+                        /* desktop ID */
+        if ((desktop = (unsigned long *)get_property(disp, client_list[i],
+                       XA_CARDINAL, "_NET_WM_DESKTOP", NULL)) == NULL) {
+            desktop = (unsigned long *)get_property(disp, client_list[i],
+                                                    XA_CARDINAL, "_WIN_WORKSPACE", NULL);
+        }
+        if((signed long)*desktop == -1){
+            // eg xfce4-panel, Dekstop
+            continue;
+        }
         // gchar is just char? what about the utf8?
         char *title_utf8 = get_window_title(disp, client_list[i]); /* UTF8 */
 
@@ -143,7 +156,8 @@ std::list<t_window> list_windows() {
         };
         list.push_back(win);
 
-//         printf("windows %ld ,title %s\n", client_list[i], title_utf8);
+        printf("desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title_utf8);
+
         g_free(title_utf8);
     }
     g_free(client_list);
@@ -186,16 +200,16 @@ void raise_window(unsigned long window) {
 //         fprintf(stderr, "Cannot open display.\n");
 //         return EXIT_FAILURE;
 //     }
-// 
+//
 //     Window *client_list;
 //     unsigned long client_list_size;
 //     int i;
 //     int max_client_machine_len = 0;
-// 
+//
 //     if ((client_list = get_client_list(disp, &client_list_size)) == NULL) {
 //         return EXIT_FAILURE;
 //     }
-// 
+//
 //     /* find the longest client_machine name */
 //     for (i = 0; i < client_list_size / sizeof(Window); i++) {
 //         char *client_machine;
@@ -205,7 +219,7 @@ void raise_window(unsigned long window) {
 //         }
 //         free(client_machine);
 //     }
-// 
+//
 //     /* print the list */
 //     for (i = 0; i < client_list_size / sizeof(Window); i++) {
 //         gchar is just char? what about the utf8?
@@ -216,44 +230,44 @@ void raise_window(unsigned long window) {
 //         int x, y, junkx, junky;
 //         unsigned int wwidth, wheight, bw, depth;
 //         Window junkroot;
-// 
+//
 //         /* desktop ID */
 //         if ((desktop = (unsigned long *)get_property(disp, client_list[i],
 //                        XA_CARDINAL, "_NET_WM_DESKTOP", NULL)) == NULL) {
 //             desktop = (unsigned long *)get_property(disp, client_list[i],
 //                                                     XA_CARDINAL, "_WIN_WORKSPACE", NULL);
 //         }
-// 
+//
 //         /* client machine */
 //         client_machine = get_property(disp, client_list[i],
 //                                       XA_STRING, "WM_CLIENT_MACHINE", NULL);
-// 
+//
 //         /* pid */
 //         pid = (unsigned long *)get_property(disp, client_list[i],
 //                                             XA_CARDINAL, "_NET_WM_PID", NULL);
-// 
+//
 //         /* geometry */
 //         XGetGeometry(disp, client_list[i], &junkroot, &junkx, &junky,
 //                      &wwidth, &wheight, &bw, &depth);
 //         XTranslateCoordinates(disp, client_list[i], junkroot, junkx, junky,
 //                               &x, &y, &junkroot);
 //         printf("title %s\n", title_utf8);
-// 
+//
 //         /* special desktop ID -1 means "all desktops", so we
 //            have to convert the desktop value to signed long */
 //         printf("0x%.8lx %2ld", client_list[i],
 //                desktop ? (signed long)*desktop : 0);
-// 
-// 
-// 
+//
+//
+//
 //         g_free(title_utf8);
 //         g_free(desktop);
 //         g_free(client_machine);
 //         g_free(pid);
 //     }
 //     g_free(client_list);
-// 
-// 
+//
+//
 // }
 
 } // !wm
