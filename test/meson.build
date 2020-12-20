@@ -13,7 +13,9 @@ test_src += files(
   'aod/colors_test.cpp',
   'aod/img_test.cpp',
   'aod/json_test.cpp',
-  'aod/wm_test.cpp'
+  # window manager
+  'aod/wm_test.cpp',
+  'aod/s7/wm_test.cpp'
   # ---
   # getting to know how things work, maybe useful for later reference
   # 'aod/s7/ffi_test_raw.cpp',

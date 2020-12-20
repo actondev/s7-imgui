@@ -48,7 +48,8 @@ aod_sources = files(
   
   # os
   's7/os.cpp',
-  'wm/wm.cpp'
+  'wm/wm.cpp',
+  's7/wm.cpp',
 )
 
 gl_dep = dependency('gl', required : false)

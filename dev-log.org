@@ -1239,6 +1239,28 @@ wine64 /home/actondev/dev/actondev/s7-imgui/subprojects/curl_windows/bin/curl.ex
 * <2020-12-17 Thu> idea to make a rofi alternative
   Resources
   - https://github.com/dancor/wmctrl/blob/master/main.c#L1323
+  - https://github.com/jordansissel/xdotool/blob/master/cmd_windowfocus.c
+  - https://github.com/jordansissel/xdotool/blob/master/xdo.c#L392
+    xdo_focus_window
+    #+begin_src c
+bool focus_window(const Display* disp, Window wid) {
+  int ret = 0;
+  ret = XSetInputFocus(disp, wid, RevertToParent, CurrentTime);
+  XFlush(disp);
+  return ret == 0;
+}
+
+    #+end_src
+
+    #+begin_src sh
+xdotool search --name "Mozilla Firefox" 
+# eg 46137347
+xdotool windowfocus 46137347
+
+# or
+xdotool search --name "Mozilla Firefox" windowfocus
+    #+end_src
+
     #+begin_src sh
 wmctrl -l
 wmctrl --help    
@@ -1258,3 +1280,16 @@ apt-cache search libglib
 # don't know if it helped
 meson configure -Dimgui:sdl='disabled'    
     #+end_src
+* <2020-12-18 Fri> c++ templates ??
+  - https://en.cppreference.com/w/cpp/language/template_specialization
+  maybe have a generic
+  #+begin_src cpp
+template<typename T>
+s7_pointer aod::s7::ffi_object(s7_scheme* sc, T);
+  #+end_src
+
+  with default 
+* TODO udate meson (55.3 -> 56)
+  #+begin_src sh
+pip3 install --upgrade meson
+  #+end_src
