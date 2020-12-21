@@ -90,12 +90,12 @@ s7_pointer begin(s7_scheme *sc, s7_pointer args) {
                    aod::s7::foreign::tag_bool(sc));
 
     args = s7_cdr(args);
-    if(args == s7_nil(sc)){
+    if (args == s7_nil(sc)) {
         // passed 1 optional argument: the open flag
         ImGui::Begin(str, p_open);
         return s7_nil(sc);
     }
-    
+
     ImGuiWindowFlags flags = 0;
     s7_pointer sc_flags = s7_car(args);
     if (s7_is_number(sc_flags)) {
@@ -103,7 +103,7 @@ s7_pointer begin(s7_scheme *sc, s7_pointer args) {
         flags |= s7_integer(sc_flags);
     }
     ImGui::Begin(str, p_open, flags);
-    
+
     return s7_nil(sc);
 }
 
@@ -706,7 +706,7 @@ s7_pointer slider_float(s7_scheme *sc, s7_pointer args) {
 }
 
 const char* help_slider_int = "(slider-int label p-value min max)\n"
-"`p-value`: `int*` pointer from `aod.c.foreign/new-int`";
+                              "`p-value`: `int*` pointer from `aod.c.foreign/new-int`";
 s7_pointer slider_int(s7_scheme *sc, s7_pointer args) {
     s7_pointer text = s7_car(args);
     if (!s7_is_string(text)) {
@@ -805,7 +805,7 @@ s7_pointer input_text(s7_scheme* sc, s7_pointer args) {
 }
 
 const char* help_input_text_multiline = "(input-text-multiline label p-buffer buffer-size)\n"
-"`p-buffer`: a `char*` as returned from `aod.c.foreign/new-char[]`";
+                                        "`p-buffer`: a `char*` as returned from `aod.c.foreign/new-char[]`";
 s7_pointer input_text_multiline(s7_scheme* sc, s7_pointer args) {
     s7_pointer sc_label = s7_car(args);
 
@@ -886,6 +886,89 @@ s7_pointer combo(s7_scheme* sc, s7_pointer args) {
 }
 
 
+
+static const char* help_ListBoxHeader = "(begin-list-box name)\n"
+                                        "took the liberty of renaming it for ListBoxHeader, it's marked as as TODO in imgui\n"
+                                        "TODO add optional params?";
+s7_pointer _ListBoxHeader(s7_scheme* sc, s7_pointer args) {
+    if (!s7_is_string(s7_car(args))) {
+        return (s7_wrong_type_arg_error(sc, "list", 1, s7_car(args),
+                                        "string"));
+    }
+    const char* name = s7_string(s7_car(args));
+
+    return s7_make_boolean(sc, ImGui::ListBoxHeader(name));
+}
+
+s7_pointer _ListBoxFooter(s7_scheme* sc, s7_pointer _) {
+    ImGui::ListBoxFooter();
+    return s7_nil(sc);
+}
+
+const char* help_selectable = "(selectable name *sel) *sel is bool pointer";
+s7_pointer selectable(s7_scheme* sc, s7_pointer args) {
+    if (!s7_is_string(s7_car(args))) {
+        return (s7_wrong_type_arg_error(sc, "list", 1, s7_car(args),
+                                        "string"));
+    }
+    const char* name = s7_string(s7_car(args));
+    args = s7_cdr(args);
+
+    // with flags 0 ImGui::IsMouseDoubleClicked() doesn't work
+    ImGuiSelectableFlags flags = ImGuiSelectableFlags_AllowDoubleClick;
+
+    if (s7_is_c_object(s7_car(args))) {
+        bool* sel = (bool*) s7_c_object_value_checked(s7_car(args),
+                    aod::s7::foreign::tag_bool(sc));
+        return s7_make_boolean(sc, ImGui::Selectable(name, sel, flags));
+    }
+
+    bool sel = s7_boolean(sc, s7_car(args));
+    return s7_make_boolean(sc, ImGui::Selectable(name, sel, flags));
+}
+
+// copied from combo
+static const char* help_list = "(list name p-index labels)\n"
+                               "- `p-index`: an `int*` pointer as returned from `aod.c.foreign/new-int`\n"
+                               "- `labels`: a list of strings";
+s7_pointer list(s7_scheme* sc, s7_pointer args) {
+    if (!s7_is_string(s7_car(args))) {
+        return (s7_wrong_type_arg_error(sc, "list", 1, s7_car(args),
+                                        "string"));
+    }
+    const char* name = s7_string(s7_car(args));
+
+    args = s7_cdr(args);
+
+    int* index = (int*) s7_c_object_value_checked(s7_car(args),
+                 aod::s7::foreign::tag_int(sc));
+
+    if (index == NULL) {
+        return (s7_wrong_type_arg_error(sc, "combo", 2, s7_car(args),
+                                        "int* pointer from aod.c.foreign/new-int"));
+    }
+
+    args = s7_cdr(args);
+    s7_pointer labels = s7_car(args);
+    int n_labels = s7_list_length(sc, labels);
+
+    bool clicked = false;
+    if (ImGui::ListBoxHeader(name)) { // The second parameter is the label previewed before opening the combo.
+        for (int i = 0; i < n_labels; i++) {
+            bool is_selected = (i == *index);
+            if (ImGui::Selectable(s7_string(s7_car(labels)), &is_selected)) {
+                *index = i;
+                clicked = true;
+            }
+            labels = s7_cdr(labels);
+        }
+        ImGui::ListBoxFooter();
+    }
+
+    return s7_make_boolean(sc, clicked);
+}
+
+
 void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "input-text"),
               s7_make_function(sc, "input-text", input_text, 3, // label, char*, size
@@ -901,9 +984,53 @@ void bind(s7_scheme *sc, s7_pointer env) {
               s7_make_function(sc, "combo", combo, 3,
                                0, false,
                                help_combo));
+
+    s7_define(sc, env, s7_make_symbol(sc, "list"),
+              s7_make_function(sc, "list", list, 3,
+                               0, false,
+                               help_list));
+
+    s7_define(sc, env, s7_make_symbol(sc, "begin-list-box"),
+              s7_make_function(sc, "begin-list-box", _ListBoxHeader, 1, 0, false,
+                               help_ListBoxHeader));
+    s7_define(sc, env, s7_make_symbol(sc, "end-list-box"),
+              s7_make_function(sc, "end-list-box", _ListBoxFooter, 0, 0, false,
+                               "(end-list-box)"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "selectable"),
+              s7_make_function(sc, "selectable", selectable, 2, 0, false,
+                               help_selectable));
 }
 
+} // ! inputs
+
+namespace mouse {
+
+const char* help_is_mouse_clicked = "(mouse-clicked? button) eg button=0 left button";
+s7_pointer IsMouseClicked(s7_scheme* sc, s7_pointer args) {
+    int button = s7_integer(s7_car(args));
+    // TODO pass 2nd arg bool repeat
+    return s7_make_boolean(sc, ImGui::IsMouseClicked(button));
 }
+
+const char* help_is_mouse_double_clicked = "(mouse-double-clicked? button) eg button=0 left button";
+s7_pointer IsMouseDoubleClicked(s7_scheme* sc, s7_pointer args) {
+    int button = s7_integer(s7_car(args));
+    return s7_make_boolean(sc, ImGui::IsMouseDoubleClicked(button));
+}
+
+void bind(s7_scheme *sc, s7_pointer env) {
+    s7_define(sc, env, s7_make_symbol(sc, "mouse-clicked?"),
+              s7_make_function(sc, "mouse-clicked?", IsMouseClicked, 1, 0, false,
+                               help_is_mouse_clicked));
+
+    s7_define(sc, env, s7_make_symbol(sc, "mouse-double-clicked?"),
+              s7_make_function(sc, "mouse-double-clicked?", IsMouseDoubleClicked, 1, 0, false,
+                               help_is_mouse_double_clicked));
+}
+
+} // !mouse
+
 // exposed function (inc in header)
 void bind(s7_scheme *sc) {
 //     using namespace menus;
@@ -920,6 +1047,7 @@ void bind(s7_scheme *sc) {
     sliders::bind(sc, env);
     inputs::bind(sc, env);
     state::bind(sc, env);
+    mouse::bind(sc, env);
     aod::s7::imgui::enums::bind(sc);
 
     // the provide is needed to define the *features* symbol in this environment

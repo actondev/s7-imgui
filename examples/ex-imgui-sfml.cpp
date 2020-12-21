@@ -64,6 +64,9 @@ int main(int argc, char *argv[]) {
         sf::Event event;
         while (window.pollEvent(event)) {
             printf("event!\n");
+            // TODO I get click events even if another window
+            // has focus (on top of this windows)
+            // the window.hasFocus doesn't help
             ImGui::SFML::ProcessEvent(event);
 
             if (event.type == sf::Event::Closed) {
@@ -92,4 +95,5 @@ int main(int argc, char *argv[]) {
 
     return 0;
 }
+
 
