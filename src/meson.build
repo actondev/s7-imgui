@@ -9,6 +9,7 @@ includes += include_directories('.')
 
 subdir('lib')
 subdir('aod')
+subdir('s7bi')
 
 app_dep = declare_dependency(
   include_directories: includes,

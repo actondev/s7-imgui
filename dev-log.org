@@ -1306,3 +1306,45 @@ s7_pointer aod::s7::ffi_object(s7_scheme* sc, T);
   #+begin_src sh
 pip3 install --upgrade meson
   #+end_src
+* <2020-12-23 Wed> mongoose http server
+  https://stackoverflow.com/questions/19063975/linking-c-compiled-static-library-to-c-program
+  
+  #+begin_src sh :session *mongoose* :dir subprojects :shell-type vterm
+git clone https://github.com/cesanta/mongoose.git
+cd mongoose
+git tag
+
+touch meson.build
+pwd
+cd ..
+cd ../build/subprojects/
+
+ls
+
+objdump libmongoose.a
+nm --demangle libmongoose.a
+  #+end_src
+
+  #+begin_src sh
+ninja -C build && ./build/test/gtest-all --gtest_filter="mongoose.*"
+  #+end_src
+
+  #+begin_src sh :session *benchmark*
+ab -n 1 -v 4 "http://localhost:8000/"
+ab -n 1 -v 4 "https://httpbin.org/get"
+
+ab -n 2 -v 4 "http://localhost:3000/hi"
+
+sudo apt-get install siege
+
+siege -d0 -r5 -c1 http://localhost:3000
+siege -d0 -r10000 -c1 http://localhost:8000
+curl http://localhost:8000
+siege -d0 -r10000 -c1 http://localhost:8080
+siege -d0 -r10000 -c1 http://localhost:8081
+  #+end_src
+
+  #+begin_src sh :session *node-echo*
+npx http-echo-server
+node benchmark/index
+  #+end_src

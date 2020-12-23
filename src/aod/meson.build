@@ -50,7 +50,7 @@ aod_sources = files(
   's7/os.cpp',
   'wm/wm.cpp',
   's7/wm.cpp',
-)
+  )
 
 gl_dep = dependency('gl', required : false)
 if gl_dep.found()

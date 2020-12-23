@@ -22,6 +22,10 @@ link_args = []
 s7_proj = subproject('s7')
 s7_dep = s7_proj.get_variable('s7_dep')
 
+mongoose_proj = subproject('mongoose')
+mongoose_dep = mongoose_proj.get_variable('mongoose_dep')
+
+
 imgui_opts = ['opengl2=enabled', 'sdl=disabled']
 
 imgui = subproject('imgui',

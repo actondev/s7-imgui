@@ -15,10 +15,13 @@ test_src += files(
   'aod/json_test.cpp',
   # window manager
   'aod/wm_test.cpp',
-  'aod/s7/wm_test.cpp'
+  'aod/s7/wm_test.cpp',
   # ---
   # getting to know how things work, maybe useful for later reference
   # 'aod/s7/ffi_test_raw.cpp',
+  
+  # mongoose temp
+  'aod/mongoose_test.cpp'
 )
 
 gtest_all = executable(
@@ -28,6 +31,8 @@ gtest_all = executable(
     gtest_main_dep,
     aod_dep,
     s7_dep,
+    mongoose_dep,
+    s7bi_dep,
   ],
 )
 

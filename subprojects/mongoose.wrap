@@ -1,0 +1,4 @@
+[wrap-git]
+ url = https://github.com/actonDev/mongoose.git
+ revision = feature/meson
+ # depth = 1
