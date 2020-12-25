@@ -20,6 +20,50 @@ Basic bindings for nlohmann/json
 (parse json-str) Returns a json c-object
 ## `type-json` <small>integer?</small>
 
+# (ns `aod.c.string`)
+
+## `lowercase` <small>procedure?</small>
+(lowercase str)
+## `uppercase` <small>procedure?</small>
+(uppercase str)
+## `replace` <small>procedure?</small>
+(replace str regex replacement)
+## `match-at` <small>procedure?</small>
+(match-at)
+## `count-matches` <small>procedure?</small>
+(count-matches)
+## `search` <small>procedure?</small>
+(search str regex) Returns #t or #f
+# (ns `aod.c.foreign`)
+Provides a way to create heap allocated primitives like int* float*, int* array, char* array etc. For example, to create a c string call `(new-char[] size)`
+## `new-char[]` <small>procedure?</small>
+creates a heap allocated char[] (c-object)
+## `type-char[]` <small>integer?</small>
+
+## `new-float[]` <small>procedure?</small>
+creates a heap allocated float[] (c-object)
+## `type-float[]` <small>integer?</small>
+
+## `new-int[]` <small>procedure?</small>
+creates a heap allocated int[] (c-object)
+## `type-int[]` <small>integer?</small>
+
+## `new-bool[]` <small>procedure?</small>
+creates a heap allocated bool[] (c-object)
+## `type-bool[]` <small>integer?</small>
+
+## `new-float` <small>procedure?</small>
+creates a heap allocated float (c-object)
+## `type-float` <small>integer?</small>
+
+## `new-int` <small>procedure?</small>
+creates a heap allocated int (c-object)
+## `type-int` <small>integer?</small>
+
+## `new-bool` <small>procedure?</small>
+creates a heap allocated bool (c-object)
+## `type-bool` <small>integer?</small>
+
 # (ns `aod.imgui.macros`)
 Some macros to make life easier while working with ImGui.
 The usual syntax is (args . body)
@@ -56,89 +100,12 @@ applies args to imgui/begin, executes body and calls imgui/end
 
 ## `draw-circle` <small>procedure?</small>
 
-# (ns `aod.c.imgui.window-flags`)
-One-to-one relation between ImGuiWindowFlags_* int values.
-To use perform bitwise-or and pass the imgui begin as window flags
-## `NoInputs` <small>integer?</small>
-
-## `NoDecoration` <small>integer?</small>
-
-## `NoNav` <small>integer?</small>
-
-## `UnsavedDocument` <small>integer?</small>
-
-## `NoNavFocus` <small>integer?</small>
-
-## `NoNavInputs` <small>integer?</small>
-
-## `AlwaysUseWindowPadding` <small>integer?</small>
-
-## `AlwaysHorizontalScrollbar` <small>integer?</small>
-
-## `AlwaysVerticalScrollbar` <small>integer?</small>
-
-## `NoBringToFrontOnFocus` <small>integer?</small>
-
-## `NoFocusOnAppearing` <small>integer?</small>
-
-## `HorizontalScrollbar` <small>integer?</small>
-
-## `MenuBar` <small>integer?</small>
-
-## `NoMouseInputs` <small>integer?</small>
-
-## `NoSavedSettings` <small>integer?</small>
-
-## `NoBackground` <small>integer?</small>
-
-## `AlwaysAutoResize` <small>integer?</small>
-
-## `NoCollapse` <small>integer?</small>
-
-## `NoScrollWithMouse` <small>integer?</small>
-
-## `NoScrollbar` <small>integer?</small>
-
-## `NoMove` <small>integer?</small>
-
-## `NoResize` <small>integer?</small>
-
-## `NoTitleBar` <small>integer?</small>
-
-## `None` <small>integer?</small>
-
-# (ns `aod.c.foreign`)
-Provides a way to create heap allocated primitives like int* float*, int* array, char* array etc. For example, to create a c string call `(new-char[] size)`
-## `new-char[]` <small>procedure?</small>
-creates a heap allocated char[] (c-object)
-## `type-char[]` <small>integer?</small>
-
-## `new-float[]` <small>procedure?</small>
-creates a heap allocated float[] (c-object)
-## `type-float[]` <small>integer?</small>
-
-## `new-int[]` <small>procedure?</small>
-creates a heap allocated int[] (c-object)
-## `type-int[]` <small>integer?</small>
-
-## `new-bool[]` <small>procedure?</small>
-creates a heap allocated bool[] (c-object)
-## `type-bool[]` <small>integer?</small>
-
-## `new-float` <small>procedure?</small>
-creates a heap allocated float (c-object)
-## `type-float` <small>integer?</small>
-
-## `new-int` <small>procedure?</small>
-creates a heap allocated int (c-object)
-## `type-int` <small>integer?</small>
-
-## `new-bool` <small>procedure?</small>
-creates a heap allocated bool (c-object)
-## `type-bool` <small>integer?</small>
-
 # (ns `aod.c.imgui`)
 ImGui bindings. The majority of the bindings are a one-to-one relationship with the underlying ImGui::foo calls
+## `mouse-double-clicked?` <small>procedure?</small>
+(mouse-double-clicked? button) eg button=0 left button
+## `mouse-clicked?` <small>procedure?</small>
+(mouse-clicked? button) eg button=0 left button
 ## `set-keyboard-focus-here` <small>procedure?</small>
 SetKeyboardFocusHere (&optional offset)
 focus keyboard on the next widget. Use positive 'offset' to access sub components of a multiple component widget. Use -1 to access previous widget
@@ -150,6 +117,18 @@ SetItemDefaultFocus
 IsItemDeactivated
 ## `is-item-deactivated-after-edit` <small>procedure?</small>
 IsItemDeactivatedAfterEdit
+## `selectable` <small>procedure?</small>
+(selectable name *sel) *sel is bool pointer
+## `end-list-box` <small>procedure?</small>
+(end-list-box)
+## `begin-list-box` <small>procedure?</small>
+(begin-list-box name)
+took the liberty of renaming it for ListBoxHeader, it's marked as as TODO in imgui
+TODO add optional params?
+## `list` <small>procedure?</small>
+(list name p-index labels)
+- `p-index`: an `int*` pointer as returned from `aod.c.foreign/new-int`
+- `labels`: a list of strings
 ## `combo` <small>procedure?</small>
 (combo name p-index labels)
 - `p-index`: an `int*` pointer as returned from `aod.c.foreign/new-int`
@@ -232,6 +211,57 @@ window-flags is just one int with bit flags set. There are already plenty set li
 (begin name &optional p-open window-flags)
 - `name`: the name of the window, a scheme string
 - `p-open`: a `bool*`, as returned from `aod.c.foreign/new-bool`. Closing the window modifies the pointer value
+# (ns `aod.c.imgui.window-flags`)
+One-to-one relation between ImGuiWindowFlags_* int values.
+To use perform bitwise-or and pass the imgui begin as window flags
+## `NoInputs` <small>integer?</small>
+
+## `NoDecoration` <small>integer?</small>
+
+## `NoNav` <small>integer?</small>
+
+## `UnsavedDocument` <small>integer?</small>
+
+## `NoNavFocus` <small>integer?</small>
+
+## `NoNavInputs` <small>integer?</small>
+
+## `AlwaysUseWindowPadding` <small>integer?</small>
+
+## `AlwaysHorizontalScrollbar` <small>integer?</small>
+
+## `AlwaysVerticalScrollbar` <small>integer?</small>
+
+## `NoBringToFrontOnFocus` <small>integer?</small>
+
+## `NoFocusOnAppearing` <small>integer?</small>
+
+## `HorizontalScrollbar` <small>integer?</small>
+
+## `MenuBar` <small>integer?</small>
+
+## `NoMouseInputs` <small>integer?</small>
+
+## `NoSavedSettings` <small>integer?</small>
+
+## `NoBackground` <small>integer?</small>
+
+## `AlwaysAutoResize` <small>integer?</small>
+
+## `NoCollapse` <small>integer?</small>
+
+## `NoScrollWithMouse` <small>integer?</small>
+
+## `NoScrollbar` <small>integer?</small>
+
+## `NoMove` <small>integer?</small>
+
+## `NoResize` <small>integer?</small>
+
+## `NoTitleBar` <small>integer?</small>
+
+## `None` <small>integer?</small>
+
 # (ns `aod.c.gl`)
 
 ## `save-screenshot` <small>procedure?</small>

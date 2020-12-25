@@ -8,12 +8,13 @@
 	      (aod.imgui.helpers)
 	      (aod.imgui.macros)
 	      (aod.c.gl)
+	      (aod.c.string)
 	      (aod.c.nfd)
 	      (aod.c.curl)
 	      (aod.c.json)
 	      ))
 
-(print "Writing namespaces documentation to ns-doc.el")
+(print "Writing namespaces documentation to ns-doc.md")
 
 (call-with-output-file "docs/ns-doc.md"
   (lambda (out)

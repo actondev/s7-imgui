@@ -112,7 +112,7 @@ void bind_colors(s7_scheme* sc) {
 void bind_window_flags(s7_scheme* sc) {
     s7_pointer env = s7_inlet(sc, s7_nil(sc));
     s7_gc_protect(sc, env);
-    
+
     s7_define(sc, env, s7_make_symbol(sc, "None"),
               s7_make_integer(sc, ImGuiWindowFlags_None));
     s7_define(sc, env, s7_make_symbol(sc, "NoTitleBar"),
@@ -161,19 +161,47 @@ void bind_window_flags(s7_scheme* sc) {
               s7_make_integer(sc, ImGuiWindowFlags_NoDecoration));
     s7_define(sc, env, s7_make_symbol(sc, "NoInputs"),
               s7_make_integer(sc, ImGuiWindowFlags_NoInputs));
-    
+
     s7_define(sc, env, s7_make_symbol(sc, "*ns-doc*"),
               s7_make_string(sc, "One-to-one relation between ImGuiWindowFlags_* int values.\n"
-                  "To use perform bitwise-or and pass the imgui begin as window flags"
-            ));
-    
+                             "To use perform bitwise-or and pass the imgui begin as window flags"
+                            ));
+
     s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "aod.c.imgui.window-flags"), env);
+}
+
+void bind_key_indices(s7_scheme* sc) {
+    s7_pointer env = s7_inlet(sc, s7_nil(sc));
+    s7_gc_protect(sc, env);
+    s7_define(sc, env, s7_make_symbol(sc, "Enter"),
+              s7_make_integer(sc, ImGuiKey_Enter));
+
+    s7_define(sc, env, s7_make_symbol(sc, "Escape"),
+              s7_make_integer(sc, ImGuiKey_Escape));
+
+    s7_define(sc, env, s7_make_symbol(sc, "LeftArrow"),
+              s7_make_integer(sc, ImGuiKey_LeftArrow));
+
+    s7_define(sc, env, s7_make_symbol(sc, "RightArrow"),
+              s7_make_integer(sc, ImGuiKey_RightArrow));
+
+    s7_define(sc, env, s7_make_symbol(sc, "UpArrow"),
+              s7_make_integer(sc, ImGuiKey_UpArrow));
+
+    s7_define(sc, env, s7_make_symbol(sc, "DownArrow"),
+              s7_make_integer(sc, ImGuiKey_DownArrow));
+
+    s7_define(sc, env, s7_make_symbol(sc, "*ns-doc*"),
+              s7_make_string(sc, "One-to-one relation between ImGuiKey_* int values."));
+
+    s7_define(sc, s7_nil(sc), s7_make_symbol(sc, "aod.c.imgui.keys"), env);
 }
 
 // binds all the color constants under aod.c.imgui.col
 void bind(s7_scheme *sc) {
     bind_colors(sc);
     bind_window_flags(sc);
+    bind_key_indices(sc);
 }
 
 }

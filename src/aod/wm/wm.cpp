@@ -137,16 +137,13 @@ std::list<t_window> list_windows() {
 
     /* print the list */
     for (i = 0; i < client_list_size / sizeof(Window); i++) {
-                        /* desktop ID */
+        /* desktop ID */
         if ((desktop = (unsigned long *)get_property(disp, client_list[i],
                        XA_CARDINAL, "_NET_WM_DESKTOP", NULL)) == NULL) {
             desktop = (unsigned long *)get_property(disp, client_list[i],
                                                     XA_CARDINAL, "_WIN_WORKSPACE", NULL);
         }
-        if((signed long)*desktop == -1){
-            // eg xfce4-panel, Dekstop
-            continue;
-        }
+
         // gchar is just char? what about the utf8?
         char *title_utf8 = get_window_title(disp, client_list[i]); /* UTF8 */
 
@@ -154,6 +151,12 @@ std::list<t_window> list_windows() {
             .title = std::string(title_utf8),
             .window = client_list[i]
         };
+        if ((signed long)*desktop == -1) {
+            printf("SKIPPING desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title_utf8);
+
+            // eg xfce4-panel, Dekstop
+            continue;
+        }
         list.push_back(win);
 
         printf("desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title_utf8);

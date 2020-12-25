@@ -766,7 +766,7 @@ void bind(s7_scheme* sc, s7_pointer env) {
                                help_slider_int));
 
 }
-}
+} // !sliders
 
 namespace inputs {
 const char* help_input_text = "(input-text label *buffer buffer-size) *buffer is c-pointer to *char from aod.c.foreign/new-char[]";
@@ -801,7 +801,9 @@ s7_pointer input_text(s7_scheme* sc, s7_pointer args) {
 
     // shit.. I have to know the buffer size
     // maybe in future accept user flags
-    return s7_make_boolean(sc, ImGui::InputText(s7_string(sc_label), str, s7_integer(sc_size), ImGuiInputTextFlags_EnterReturnsTrue));
+    // TODO breaking change, see where i'm using input-text
+    // this now returns true if text was changed, NOT on enter
+    return s7_make_boolean(sc, ImGui::InputText(s7_string(sc_label), str, s7_integer(sc_size)));
 }
 
 const char* help_input_text_multiline = "(input-text-multiline label p-buffer buffer-size)\n"
@@ -968,6 +970,15 @@ s7_pointer list(s7_scheme* sc, s7_pointer args) {
     return s7_make_boolean(sc, clicked);
 }
 
+s7_pointer SetKeyboardFocusHere(s7_scheme* sc, s7_pointer args) {
+    (void)sc;
+    (void)args;
+    // TODO there's an offset optional argument
+    ImGui::SetKeyboardFocusHere();
+
+    return s7_nil(sc);
+}
+
 
 void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "input-text"),
@@ -1000,9 +1011,33 @@ void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "selectable"),
               s7_make_function(sc, "selectable", selectable, 2, 0, false,
                                help_selectable));
+
+    s7_define(sc, env, s7_make_symbol(sc, "set-keyboard-focus-here"),
+              s7_make_function(sc, "set-keyboard-focus-here", SetKeyboardFocusHere, 0, 0, false,
+                               "(set-keyboard-focus-here) TODO optional arg offset"));
 }
 
 } // ! inputs
+
+namespace keyboard {
+
+s7_pointer IsKeyPressed(s7_scheme* sc, s7_pointer args) {
+    int key = s7_integer(s7_car(args));
+    bool reapeat = false;
+    return s7_make_boolean(sc, ImGui::IsKeyPressed(ImGui::GetIO().KeyMap[key], reapeat));
+}
+
+void bind(s7_scheme* sc, s7_pointer env) {
+    s7_define(sc, env, s7_make_symbol(sc, "key-pressed?"),
+              s7_make_function(sc, "key-pressed?", IsKeyPressed, 1, 0, false,
+                               "(key-pressed? key-idx)"));
+
+    s7_define(sc, env, s7_make_symbol(sc, "key-pressed?"),
+              s7_make_function(sc, "key-pressed?", IsKeyPressed, 1, 0, false,
+                               "(key-pressed? key-idx)"));
+}
+
+} // !keyboard
 
 namespace mouse {
 
@@ -1048,6 +1083,7 @@ void bind(s7_scheme *sc) {
     inputs::bind(sc, env);
     state::bind(sc, env);
     mouse::bind(sc, env);
+    keyboard::bind(sc, env);
     aod::s7::imgui::enums::bind(sc);
 
     // the provide is needed to define the *features* symbol in this environment

@@ -48,7 +48,7 @@ bool g_force_redraw = false;
 
 
 int guiLoop() {
-    sf::Window window(sf::VideoMode(200, 200), "S7 GUI REPL!");
+    sf::Window window(sf::VideoMode(700, 400), "S7 GUI REPL!");
 
 
     IMGUI_CHECKVERSION();
@@ -66,6 +66,7 @@ int guiLoop() {
 
     sf::Clock deltaClock;
     while (window.isOpen()) {
+        std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
         sf::Event event;
         while (window.pollEvent(event)) {
             ImGui::SFML::ProcessEvent(event);

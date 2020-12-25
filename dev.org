@@ -7,7 +7,7 @@
   #+END_SRC
 
   #+RESULTS: buttons
-  | [>win:build] | [>repl] | [>test] | [>gui-repl] | [>run] | [>build & run] | [>rebuild] | [>clean] | [>build] |
+  | [>test] | [>win:build] | [>repl] | [>test] | [>gui-repl] | [>run] | [>build & run] | [>build] |
 
 * Linux
   Setting up
@@ -44,8 +44,8 @@ ln -s `readlink -f ../s7svn/trunk` subprojects/s7
 ls subprojects/s7
    #+END_SRC
 ** Building
+   #+name: >build
    #+BEGIN_SRC sh
-ninja -C build clean
 ninja -C build
    #+END_SRC
 ** Building for release
@@ -269,6 +269,7 @@ time build/repl test/scheme/test-all.scm
   #+CALL: gui-repl(file="src/scheme/examples/text-input.scm")
   #+CALL: gui-repl(file="src/scheme/examples/text-editor.scm")
   #+CALL: gui-repl(file="src/scheme/examples/window-list.scm")
+  #+CALL: build()
 
 ** Benchmark
    #+CALL: repl(file="test/scheme/test-benchmark.scm")
