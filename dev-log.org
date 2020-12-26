@@ -1294,6 +1294,31 @@ meson configure -Dimgui:sdl='disabled'
    - https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setforegroundwindow
 ** Imgui lists etc
    - [[file:~/dev/actondev/imgui/imgui_demo.cpp::ImGui::ListBox("listbox\n(single select)", &item_current, items, IM_ARRAYSIZE(items), 4);]]
+** <2020-12-26 Sat> window class?
+   https://github.com/jordansissel/xdotool/blob/dd45db42f16954f22b445a2c2c928fec202314c4/xdo_search.c#L123
+
+   #+begin_src c
+    if (title_want && !_xdo_match_window_title(xdo, wid, &title_re)) {
+      if (debug) fprintf(stderr, "skip %ld title\n", wid);
+      title_ok = False;
+    }
+
+    if (name_want && !_xdo_match_window_name(xdo, wid, &name_re)) {
+      if (debug) fprintf(stderr, "skip %ld winname\n", wid);
+      name_ok = False;
+    }
+
+    if (class_want && !_xdo_match_window_class(xdo, wid, &class_re)) {
+      if (debug) fprintf(stderr, "skip %ld winclass\n", wid);
+      class_ok = False;
+    }
+
+    if (classname_want && !_xdo_match_window_classname(xdo, wid, &classname_re)) {
+      if (debug) fprintf(stderr, "skip %ld winclassname\n", wid);
+      classname_ok = False;
+    }
+   #+end_src
+
 * <2020-12-18 Fri> c++ templates ??
   - https://en.cppreference.com/w/cpp/language/template_specialization
   maybe have a generic

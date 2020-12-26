@@ -8,10 +8,11 @@ namespace wm {
 
 struct t_window {
     std::string title;
+    std::string class_name;
     // Window is just unsigned long
     // TODO windows?
     // Window is just unsigned long
-    unsigned long window;
+    unsigned long handle;
 };
 
 // int list_windows_old();

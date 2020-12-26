@@ -21,11 +21,13 @@ s7_pointer list_windows(s7_scheme* sc, s7_pointer args) {
 
         s7_set_car(list_run,
                    s7_inlet(sc,
-                            s7_list(sc, 4,
+                            s7_list(sc, 6,
+                                    s7_make_symbol(sc, "class-name"),
+                                    s7_make_string(sc, window.class_name.c_str()),
                                     s7_make_symbol(sc, "title"),
                                     s7_make_string(sc, window.title.c_str()),
-                                    s7_make_symbol(sc, "window"),
-                                    s7_make_integer(sc, window.window)
+                                    s7_make_symbol(sc, "handle"),
+                                    s7_make_integer(sc, window.handle)
                                    )));
     }
 

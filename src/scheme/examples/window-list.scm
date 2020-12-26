@@ -21,12 +21,19 @@
 			   string))
 	  windows))
 
+(define (format-window window)
+  (let* ((len 30)
+	 (format-str (format #f "~~A~~~AT\"~~A\"" (+ 10 len))))
+    (format #f format-str
+	    (object->string (window 'class-name) #f len)
+	    (object->string (window 'title) #f len))))
+
 (define sel-idx 0)
 
 (define (raise-and-focus w)
   (print "raising " w)
-  (wm/raise-window (w 'window))
-  (wm/focus-window (w 'window))
+  (wm/raise-window (w 'handle))
+  (wm/focus-window (w 'handle))
   (exit)
   )
 
@@ -53,7 +60,7 @@
      (let ((idx 0))
        (ig/begin-group)
        (for-each (lambda (w)
-		   (ig/selectable (w 'title)
+		   (ig/selectable (format-window w)
 				  (= idx sel-idx))
 		   (when (and (ig/is-item-hovered)
 			      (ig/mouse-moved?))

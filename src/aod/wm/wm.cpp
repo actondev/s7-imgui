@@ -15,6 +15,7 @@
 // c++ std
 #include <string>
 #include <list>
+#include <X11/Xutil.h>
 // #include <iostream>
 
 #define MAX_PROPERTY_VALUE_LEN 4096
@@ -102,7 +103,7 @@ static gchar *get_window_title(Display *disp, Window win) { /*{{{*/
         title_utf8 = strdup(net_wm_name);
     } else {
         if (wm_name) {
-//             title_utf8 = g_locale_to_utf8(wm_name, -1, NULL, NULL, NULL);
+            title_utf8 = g_locale_to_utf8(wm_name, -1, NULL, NULL, NULL);
         } else {
             title_utf8 = NULL;
         }
@@ -138,30 +139,46 @@ std::list<t_window> list_windows() {
     /* print the list */
     for (i = 0; i < client_list_size / sizeof(Window); i++) {
         /* desktop ID */
-        if ((desktop = (unsigned long *)get_property(disp, client_list[i],
+        Window window = client_list[i];
+        if ((desktop = (unsigned long *)get_property(disp, window,
                        XA_CARDINAL, "_NET_WM_DESKTOP", NULL)) == NULL) {
-            desktop = (unsigned long *)get_property(disp, client_list[i],
+            desktop = (unsigned long *)get_property(disp, window,
                                                     XA_CARDINAL, "_WIN_WORKSPACE", NULL);
         }
 
         // gchar is just char? what about the utf8?
-        char *title_utf8 = get_window_title(disp, client_list[i]); /* UTF8 */
+        char *title_utf8 = get_window_title(disp, window); /* UTF8 */
+        std::string title = title_utf8;
+        g_free(title_utf8);
 
-        t_window win = {
-            .title = std::string(title_utf8),
-            .window = client_list[i]
-        };
         if ((signed long)*desktop == -1) {
-            printf("SKIPPING desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title_utf8);
-
-            // eg xfce4-panel, Dekstop
+            // SKIPPING
+            // here would be xfce4-panel, Dekstop for example
+            printf("SKIPPING desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title.c_str());
             continue;
         }
+
+        XWindowAttributes attr;
+        XClassHint classhint;
+        XGetWindowAttributes(disp, window, &attr);
+
+        std::string class_name;
+
+        if (XGetClassHint(disp, window, &classhint)) {
+            class_name = classhint.res_class;
+            XFree(classhint.res_name);
+            XFree(classhint.res_class);
+        }
+
+        t_window win = {
+            .title = title,
+            .class_name = class_name,
+            .handle = client_list[i],
+        };
+
         list.push_back(win);
+//         printf("desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title_utf8);
 
-        printf("desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title_utf8);
-
-        g_free(title_utf8);
     }
     g_free(client_list);
 
