@@ -12,12 +12,6 @@
 
 (define windows (wm/list-windows))
 
-;; adding boolean *sel?
-;; (for-each (lambda (w)
-;; 	    (with-let w
-;; 		      (define *sel? (c/new-bool #f))))
-;; 	  windows)
-
 (define buffer-size 512)
 (define *str (c/new-char[] buffer-size))
 
@@ -53,22 +47,25 @@
      ;; on text input
      (when (ig/input-text "search:" *str buffer-size)
        (set! sel-idx 0))
+     ;; when setting the focus to the input, the selectables later on
+     ;; won't return true
      (ig/set-keyboard-focus-here)
      (let ((idx 0))
        (ig/begin-group)
        (for-each (lambda (w)
-		   (when (ig/selectable (w 'title)
-					;;(w '*sel?)
-					(= idx sel-idx)
-					)
-		     (print "window" w "clicked"))
-		   (when (= idx sel-idx)
-		     (when (ig/mouse-double-clicked? 0)
-		       (print "double clicked!" w)
-		       (raise-and-focus w))
-		     (when enter?
-		       (print "enter pressed  on " w)
-		       (raise-and-focus w)))
+		   (ig/selectable (w 'title)
+				  (= idx sel-idx))
+		   (when (and (ig/is-item-hovered)
+			      (ig/mouse-moved?))
+		     (set! sel-idx idx))
+		   (when (and (= idx sel-idx)
+			      (ig/is-item-hovered)
+			      (ig/mouse-double-clicked? 0)
+			      )
+		     (raise-and-focus w))
+		   (when (and enter?
+			      (= idx sel-idx))
+		     (raise-and-focus w))
 		   (set! idx (inc idx)))
 		 (filter-windows windows (*str)))
        (ig/end-group)))

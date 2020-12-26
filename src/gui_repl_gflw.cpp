@@ -161,7 +161,7 @@ int guiLoop() {
     builder.AddText("—");
     // no need for u8"..." ?
     builder.AddText(u8"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ");
-    builder.AddText("αβγδεζηθικλμνξοπρστυφχψω");
+    builder.AddText("αβγδεζηθικλμνξοπρστυφχψως");
     builder.AddText("ΆΈΉΊΌΎΏ");
     builder.AddText("άέήίόύώ");
     builder.BuildRanges(&ranges);

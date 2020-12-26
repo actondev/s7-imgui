@@ -17,19 +17,37 @@ namespace imgui {
 namespace state {
 
 s7_pointer IsItemDeactivatedAfterEdit(s7_scheme* sc, s7_pointer args) {
+    (void)args;
     return s7_make_boolean(sc, ImGui::IsItemDeactivatedAfterEdit());
 }
 
 //IsItemDeactivated
 s7_pointer IsItemDeactivated(s7_scheme* sc, s7_pointer args) {
+    (void)args;
     return s7_make_boolean(sc, ImGui::IsItemDeactivated());
 }
 // IsItemFocused
 s7_pointer IsItemFocused(s7_scheme* sc, s7_pointer args) {
+    (void)args;
     return s7_make_boolean(sc, ImGui::IsItemFocused());
 }
 
+s7_pointer IsItemHovered(s7_scheme* sc, s7_pointer args) {
+    (void)args;
+    // ImGuiHoveredFlags_AllowWhenBlockedByActiveItem flag is useful
+    // note: it's included in ImGuiHoveredFlags_RectOnly
+    // when using set-keyboard-focus-here (eg for focusing always on a text input)
+    // this flag is needed to return that hovered is true in other items (eg list selectables)
+    return s7_make_boolean(sc, ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByActiveItem));
+}
+
+s7_pointer IsItemClicked(s7_scheme* sc, s7_pointer args) {
+    (void)args;
+    return s7_make_boolean(sc, ImGui::IsItemClicked());
+}
+
 s7_pointer SetItemDefaultFocus(s7_scheme* sc, s7_pointer args) {
+    (void)args;
     ImGui::SetItemDefaultFocus();
 
     return s7_nil(sc);
@@ -60,7 +78,15 @@ void bind(s7_scheme* sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "is-item-focused"),
               s7_make_function(sc, "is-item-focused", IsItemFocused, 0, 0, false,
                                "IsItemFocused"));
-    // SetKeyboardFocusHere
+
+    s7_define(sc, env, s7_make_symbol(sc, "is-item-hovered"),
+              s7_make_function(sc, "is-item-hovered", IsItemHovered, 0, 0, false,
+                               "(is-item-hovered)"));
+
+        s7_define(sc, env, s7_make_symbol(sc, "is-item-clicked"),
+              s7_make_function(sc, "is-item-clicked", IsItemClicked, 0, 0, false,
+                               "(is-item-clicked)"));
+
     s7_define(sc, env, s7_make_symbol(sc, "set-keyboard-focus-here"),
               s7_make_function(sc, "set-keyboard-focus-here", SetKeyboardFocusHere, 0, 1, false,
                                "SetKeyboardFocusHere (&optional offset)\n"
@@ -1041,7 +1067,7 @@ void bind(s7_scheme* sc, s7_pointer env) {
 
 namespace mouse {
 
-const char* help_is_mouse_clicked = "(mouse-clicked? button) eg button=0 left button";
+const char* help_is_mouse_clicked = "(mouse-clicked? button) eg button=0 left button TODO optional arg repeat";
 s7_pointer IsMouseClicked(s7_scheme* sc, s7_pointer args) {
     int button = s7_integer(s7_car(args));
     // TODO pass 2nd arg bool repeat
@@ -1054,6 +1080,13 @@ s7_pointer IsMouseDoubleClicked(s7_scheme* sc, s7_pointer args) {
     return s7_make_boolean(sc, ImGui::IsMouseDoubleClicked(button));
 }
 
+const char* help_mouse_moved = "(mouse-moved?)";
+s7_pointer mouse_moved(s7_scheme* sc, s7_pointer args) {
+    (void)args;
+    ImVec2 delta = ImGui::GetIO().MouseDelta;
+    return s7_make_boolean(sc, delta.x != 0.0 || delta.y != 0);
+}
+
 void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "mouse-clicked?"),
               s7_make_function(sc, "mouse-clicked?", IsMouseClicked, 1, 0, false,
@@ -1062,6 +1095,9 @@ void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "mouse-double-clicked?"),
               s7_make_function(sc, "mouse-double-clicked?", IsMouseDoubleClicked, 1, 0, false,
                                help_is_mouse_double_clicked));
+    s7_define(sc, env, s7_make_symbol(sc, "mouse-moved?"),
+              s7_make_function(sc, "mouse-moved?", mouse_moved, 0, 0, false,
+                               help_mouse_moved));
 }
 
 } // !mouse
