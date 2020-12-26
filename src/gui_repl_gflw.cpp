@@ -131,12 +131,15 @@ int guiLoop() {
     // TODO make this controllable somewhoe?
     // from the (setup) function??
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    printf("creating window\n");
     GLFWwindow* window = glfwCreateWindow(700, 400, "S7 Gui Repl (gflw)", NULL, NULL);
-    glfwSetWindowCenter(window);
+//     glfwSetWindowCenter(window);
     if (window == NULL) {
         fprintf(stderr, "Could not create window!\n");
         return 1;
     }
+    
+//     printf("created window\n");
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -147,18 +150,16 @@ int guiLoop() {
 
 
     // FONT
-    fs::path cwd_launch = fs::current_path();
-    fs::path base_path = fs::path(g_argv[0]);
-    fprintf(stderr, "argv[0] %s\n", g_argv[0]);
-    fprintf(stderr, "current path %s\n", cwd_launch.c_str());
-    fs::path font_file = cwd_launch / "fonts" / "Roboto-Medium.ttf";
-    std::cout << "font file " << fs::path(font_file) << std::endl;
+    fs::path fonts_path = fs::path(g_argv[0]).parent_path() / "fonts";
+    fs::path font_file = fonts_path / "Roboto-Medium.ttf";
+    printf("font file %s\n", font_file.string().c_str());
 
 
     ImVector<ImWchar> ranges;
     ImFontGlyphRangesBuilder builder;
     builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
-    builder.AddText("—");
+    builder.AddRanges(io.Fonts->GetGlyphRangesCyrillic());
+    builder.AddText("—’");
     // no need for u8"..." ?
     builder.AddText(u8"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ");
     builder.AddText("αβγδεζηθικλμνξοπρστυφχψως");
@@ -177,8 +178,6 @@ int guiLoop() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL2_Init();
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(30, 30, 30, 255));
-
-    printf("guiLoop: quit gui event loop, cleaning up \n");
 
 //     sf::Clock deltaClock;
     while (!glfwWindowShouldClose(window)) {
@@ -228,41 +227,44 @@ std::mutex g_s7_mutex;
 int main(int argc, char *argv[]) {
     g_argv = argv;
     // TODO gotta find the way to get the application path here
-    fs::path cwd_launch = fs::current_path();
-    fs::path base_path = fs::path(argv[0]);
-    fprintf(stderr, "argv[0] %s\n", argv[0]);
-    fprintf(stderr, "current path %s\n", cwd_launch.c_str());
+//     fs::path cwd_launch = fs::current_path();
+    fs::path base_path = fs::path(argv[0]).parent_path();
+    fs::path scheme_path = base_path / "scheme";
+    printf("scheme path: %s\n", scheme_path.c_str());
 
-    fs::path scheme_path = cwd_launch / "src/scheme";
-    std::cout << "scheme path is " << cwd_launch / "src/scheme" << '\n';
     sc = aod::s7::init(scheme_path);
 
     if (argc >= 2) {
-        fprintf(stderr, "Passed custom scheme file %s\n", argv[1]);
-        fs::path passed_file = cwd_launch / argv[1];
-        std::cout << "path of passed file is " << passed_file.parent_path()
-                  << '\n';
+        fs::path passed_file = scheme_path / argv[1];
+        // TODO test if it exists, if not try "cwd/argv[1]"
         s7_add_to_load_path(sc, passed_file.parent_path().string().c_str());
-        aod::s7::load_file(sc, passed_file.string().c_str());
+        printf("loading scheme file: %s\n", passed_file.c_str());
+        aod::s7::load_file(sc, passed_file.c_str());
     } else {
         aod::s7::load_file(sc, "main.scm");
     }
 
-    new std::thread(guiLoop);
+    bool run_thread_in_loop_with_repl = false;
 
-    aod::s7::Repl repl(sc);
+    if (!run_thread_in_loop_with_repl) {
+        guiLoop();
+    } else {
+        new std::thread(guiLoop);
 
-    cout << "S7 Example Repl " << endl << "> ";
+        aod::s7::Repl repl(sc);
 
-    char buffer[512];
-    while (running) {
-        fgets(buffer, 512, stdin);
-        std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
-//         if (repl.handleInput(buffer)) {
-//             auto result = repl.evalLastForm();
-//             cout << endl << result << endl << "> ";
-//             g_force_redraw = true;
-//         }
+        cout << "S7 Example Repl " << endl << "> ";
+
+        char buffer[512];
+        while (running) {
+            fgets(buffer, 512, stdin);
+            std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
+            if (repl.handleInput(buffer)) {
+                auto result = repl.evalLastForm();
+                cout << endl << result << endl << "> ";
+                g_force_redraw = true;
+            }
+        }
     }
 
     return 0;

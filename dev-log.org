@@ -1398,3 +1398,18 @@ time rofi -show drun
  
 * <2020-12-26 Sat> imgui & greek strings (generally utf8)
   https://github.com/ocornut/imgui/blob/master/docs/FONTS.md
+* TODO listing .desktop entries
+  https://github.com/davatorium/rofi/blob/next/source/dialogs/drun.c#L878 ?
+  #+begin_src sh
+echo $PATH
+
+find /var/lib/snapd/desktop/applications/ -iname "*desktop" -type f
+
+find /usr/share/applications/ -iname "*desktop" -type f
+
+#find / -iname "*desktop" -type f | grep Viber
+find / -iname "*desktop" -type f -not -path "/media*" -not -path "/etc*"  | grep -iR viber
+
+cat /var/lib/snapd/desktop/applications/onlyoffice-desktopeditors_onlyoffice-desktopeditors.desktop
+
+  #+end_src

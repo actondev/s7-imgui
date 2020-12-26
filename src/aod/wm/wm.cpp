@@ -154,7 +154,7 @@ std::list<t_window> list_windows() {
         if ((signed long)*desktop == -1) {
             // SKIPPING
             // here would be xfce4-panel, Dekstop for example
-            printf("SKIPPING desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title.c_str());
+//             printf("SKIPPING desktop %2ld, windows %ld ,title %s\n", (signed long)*desktop, client_list[i], title.c_str());
             continue;
         }
 
