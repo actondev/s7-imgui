@@ -1024,17 +1024,17 @@ namespace keyboard {
 s7_pointer IsKeyPressed(s7_scheme* sc, s7_pointer args) {
     int key = s7_integer(s7_car(args));
     bool reapeat = false;
+    args = s7_cdr(args);
+    if(args != s7_nil(sc)){
+        reapeat = s7_boolean(sc, s7_car(args));
+    }
     return s7_make_boolean(sc, ImGui::IsKeyPressed(ImGui::GetIO().KeyMap[key], reapeat));
 }
 
 void bind(s7_scheme* sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "key-pressed?"),
-              s7_make_function(sc, "key-pressed?", IsKeyPressed, 1, 0, false,
-                               "(key-pressed? key-idx)"));
-
-    s7_define(sc, env, s7_make_symbol(sc, "key-pressed?"),
-              s7_make_function(sc, "key-pressed?", IsKeyPressed, 1, 0, false,
-                               "(key-pressed? key-idx)"));
+              s7_make_function(sc, "key-pressed?", IsKeyPressed, 1, 1, false,
+                               "(key-pressed? key-idx &optional repeat?=#f)"));
 }
 
 } // !keyboard
