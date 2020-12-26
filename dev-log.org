@@ -1,3 +1,4 @@
+#+PROPERTY: header-args:sh :session *s7-imgui* :var root=(projectile-project-root)
 * DONE <2020-06-22 Mon> adding s7
 * emacs related
   #+BEGIN_SRC emacs-lisp
@@ -1306,7 +1307,7 @@ s7_pointer aod::s7::ffi_object(s7_scheme* sc, T);
   #+begin_src sh
 pip3 install --upgrade meson
   #+end_src
-* <2020-12-23 Wed> mongoose http server
+* DONE <2020-12-23 Wed> mongoose http server
   https://stackoverflow.com/questions/19063975/linking-c-compiled-static-library-to-c-program
   
   #+begin_src sh :session *mongoose* :dir subprojects :shell-type vterm
@@ -1348,3 +1349,27 @@ siege -d0 -r10000 -c1 http://localhost:8081
 npx http-echo-server
 node benchmark/index
   #+end_src
+* DONE <2020-12-26 Sat> gflw
+  the =gui_repl_sfml= is 14.4MB. and SDL was around 13mb.
+
+  Let's see with gflw => 11MB :)
+
+  | gui_repl size (mb) | sfml | gflw |
+  |--------------------+------+------|
+  | normal             | 14.6 | 11.1 |
+  | zipped             |  4.5 |  3.4 |
+
+  #+begin_src sh
+meson configure build 
+meson configure build -Dimgui:gflw='enabled'
+
+# timing exit after draw
+time ./build/src/gui_repl_sfml src/scheme/examples/window-list.scm # 0.5s
+time ./build/src/gui_repl_gflw src/scheme/examples/window-list.scm # 0.25s
+
+time rofi -show drun
+  #+end_src
+
+ 
+* <2020-12-26 Sat> imgui & greek strings (generally utf8)
+  https://github.com/ocornut/imgui/blob/master/docs/FONTS.md

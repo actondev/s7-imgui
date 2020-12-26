@@ -26,7 +26,7 @@ mongoose_proj = subproject('mongoose')
 mongoose_dep = mongoose_proj.get_variable('mongoose_dep')
 
 
-imgui_opts = ['opengl2=enabled', 'sdl=disabled']
+imgui_opts = ['opengl2=enabled', 'sdl=disabled', 'gflw=enabled']
 
 imgui = subproject('imgui',
 		   default_options: imgui_opts)
@@ -63,16 +63,16 @@ if meson.is_cross_build() and system == 'windows'
   # cmake_options: '-DCMAKE_TOOLCHAIN_FILE=mingw.cmake')
   sfml_opt.add_cmake_defines({
 				# 'CMAKE_TOOLCHAIN_FILE': '/home/actondev/dev/actondev/s7-reaper-repl/subprojects/s7_imgui/mingw.cmake',
-			      'TARGET_ARCH': 'x86_64-w64-mingw32',
-			      'CMAKE_SYSTEM_NAME': 'Windows',
-			      'CMAKE_C_COMPILER': 'x86_64-w64-mingw32-gcc',
-			      'CMAKE_CXX_COMPILER': 'x86_64-w64-mingw32-g++',
-			      'CMAKE_FIND_ROOT_PATH': '/usr/x86_64-w64-mingw32',
-			      'CMAKE_C_COMPILER_WORKS': 1,
-			      'CMAKE_CROSSCOMPILING': 1,
-			      'CMAKE_CXX_COMPILER_WORKS': 1,
-			      
-			     })
+				'TARGET_ARCH': 'x86_64-w64-mingw32',
+				'CMAKE_SYSTEM_NAME': 'Windows',
+				'CMAKE_C_COMPILER': 'x86_64-w64-mingw32-gcc',
+				'CMAKE_CXX_COMPILER': 'x86_64-w64-mingw32-g++',
+				'CMAKE_FIND_ROOT_PATH': '/usr/x86_64-w64-mingw32',
+				'CMAKE_C_COMPILER_WORKS': 1,
+				'CMAKE_CROSSCOMPILING': 1,
+				'CMAKE_CXX_COMPILER_WORKS': 1,
+				
+			      })
 endif
 
 sfml_proj = cmake.subproject('SFML', options: sfml_opt)
@@ -99,25 +99,20 @@ curl_opt = cmake.subproject_options()
 if meson.is_cross_build() and system == 'windows'
   curl_opt.add_cmake_defines({
 				# 'CMAKE_TOOLCHAIN_FILE': '/home/actondev/dev/actondev/s7-reaper-repl/subprojects/s7_imgui/mingw.cmake',
-			      'TARGET_ARCH': 'x86_64-w64-mingw32',
-			      'CMAKE_SYSTEM_NAME': 'Windows',
-			      'CMAKE_C_COMPILER': 'x86_64-w64-mingw32-gcc',
-			      'CMAKE_CXX_COMPILER': 'x86_64-w64-mingw32-g++',
-			      'CMAKE_FIND_ROOT_PATH': '/usr/x86_64-w64-mingw32',
-			      'CMAKE_C_COMPILER_WORKS': 1,
-			      'CMAKE_CROSSCOMPILING': 1,
-			      'CMAKE_CXX_COMPILER_WORKS': 1,
-			      'CMAKE_BUILD_WITH_INSTALL_RPATH': 1,
-			      
-			     })
+				'TARGET_ARCH': 'x86_64-w64-mingw32',
+				'CMAKE_SYSTEM_NAME': 'Windows',
+				'CMAKE_C_COMPILER': 'x86_64-w64-mingw32-gcc',
+				'CMAKE_CXX_COMPILER': 'x86_64-w64-mingw32-g++',
+				'CMAKE_FIND_ROOT_PATH': '/usr/x86_64-w64-mingw32',
+				'CMAKE_C_COMPILER_WORKS': 1,
+				'CMAKE_CROSSCOMPILING': 1,
+				'CMAKE_CXX_COMPILER_WORKS': 1,
+				'CMAKE_BUILD_WITH_INSTALL_RPATH': 1,
+				
+			      })
 endif
 
 if system == 'windows' and compiler_id == 'gcc'
-  # curl_proj = cmake.subproject('curl', options: curl_opt)
-  # curl_dep = curl_proj.dependency('libcurl')
-  # curl_proj = subproject('curl_windows')
-  # curl_dep = curl_proj.get_variable('libcurl_dep')
-
   # using prebuilt binaries
   # https://mesonbuild.com/Shipping-prebuilt-binaries-as-wraps.html
 
@@ -135,83 +130,20 @@ elif system == 'linux'
 endif
 
 
+# gflw
+gflw_opt = cmake.subproject_options()
+gflw_proj = cmake.subproject('gflw', options: gflw_opt)
+
+message('CMaket targets:\n - ' + '\n - '.join(gflw_proj.target_list()))
+gflw_dep = gflw_proj.dependency('glfw')
+
 subdir('src')
 
+
+
 if not meson.is_subproject()
-  # hm probably remove the app
-  # if sdl2_proj.found()
-  #   app = executable(
-  #     's7-imgui',
-  #     dependencies : [
-  # 	sdl2_dep, # the core library
-  # 	sdl2main_dep, # abstracts out the main thing: windows needs WinMain
-  # 	sdl_net_dep,
-  # 	imgui_dep,
-  # 	s7_dep,
-  # 	app_dep,
-  #     ],
-  #     link_args: link_args,
-  #     cpp_args: extra_args,
-  #     gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
-  #     install: true,
-  #   )
-
-  #   gui_repl = executable(
-  #     'gui_repl',
-  #     sources: files(
-  # 	'src/gui_repl.cpp',
-  #     ),
-  #     dependencies : [
-  # 	sdl2_dep, # the core library
-  # 	sdl2main_dep, # abstracts out the main thing: windows needs WinMain
-  # 	sdl_net_dep,
-  # 	imgui_dep,
-  # 	s7_dep,
-  # 	aod_dep,
-  #     ],
-  #     link_args: link_args,
-  #     cpp_args: extra_args,
-  #     gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
-  #     install: true,
-  #   )
-  # endif
-
-  gui_repl_sfml = executable(
-    'gui_repl',
-    sources: files(
-      'src/gui_repl_sfml.cpp',
-    ),
-    dependencies : [
-      imgui_dep,
-      s7_dep,
-      aod_dep,
-    ],
-    link_args: link_args,
-    cpp_args: extra_args,
-    gui_app: true, # needed on windows (int __cdecl invoke_main) : in VS /SUBSYSTEM windows
-    install: true,
-  )
-
-
-repl = executable(
-  'repl',
-  sources: files('src/repl.cpp'),
-  dependencies: [
-    aod_dep,
-    ],
-  install: true,
-)
-
   # TODO switch building the examples with a definition option
   subdir('examples')
   # TODO not build test if building for release
   subdir('test')
-else # we are in subproject => exposing the s7_imgui_dep
-  s7_imgui_dep = declare_dependency(
-    dependencies: [
-    imgui_dep,
-    s7_dep,
-    aod_dep,
-  ]
-  )
 endif

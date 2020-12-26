@@ -36,6 +36,7 @@ std::mutex g_gui_loop_mutex;
 bool running = true;
 bool g_force_redraw = false;
 
+namespace fs = std::filesystem;
 
 
 std::mutex g_s7_mutex;
@@ -54,9 +55,39 @@ int main(int argc, char *argv[]) {
     (void) io;
     ImGui::StyleColorsDark();
 
+    fs::path cwd_launch = fs::current_path();
+    fs::path base_path = fs::path(argv[0]);
+    fprintf(stderr, "argv[0] %s\n", argv[0]);
+    fprintf(stderr, "current path %s\n", cwd_launch.c_str());
+    fs::path font_file = cwd_launch / ".." / ".." / "fonts" / "Roboto-Medium.ttf";
+//     fs::path font_file = cwd_launch / ".." / ".." / "fonts" / "Arial Unicode MS.ttf";
+    std::cout << "font file " << fs::path(font_file) << std::endl;
+
+
+    ImVector<ImWchar> ranges;
+    ImFontGlyphRangesBuilder builder;
+    builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+    // no need for u8"..." ?
+    builder.AddText(u8"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ");
+    builder.AddText("αβγδεζηθικλμνξοπρστυφχψω");
+    builder.AddText("ΆΈΉΊΌΎΏ");
+    builder.AddText("άέήίόύώ");
+//     builder.AddRanges(io.Fonts->GetGlyphRangesJapanese()); // Add one of the default ranges
+    builder.BuildRanges(&ranges);                          // Build the final result (ordered ranges with all the unique characters submitted)
+
+
+    // utf8 font
+    io.Fonts->AddFontFromFileTTF(font_file.string().c_str(), 18, NULL, ranges.Data);
+
+//     io.Fonts->AddFontFromFileTTF(font_file.string().c_str(), 18, NULL, io.Fonts->GetGlyphRangesJapanese());   // Load Japanese characters
+
+//     io.Fonts->GetTexDataAsRGBA32();
+//     io.ImeWindowHandle = MY_HWND;      // To input using Microsoft IME, give ImGui the hwnd of your application
+
     ImGui::SFML::Init(window);
     ImGui_ImplOpenGL2_Init();
     ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(30, 30, 30, 255));
+
 
 
     sf::Clock deltaClock;
@@ -77,6 +108,11 @@ int main(int argc, char *argv[]) {
         ImGui::SFML::Update(window, deltaClock.restart());
         ImGui_ImplOpenGL2_NewFrame(); // builds the font (font atlas?)
         ImGui::ShowDemoWindow();
+
+        ImGui::Begin("Font showcase");
+        ImGui::Text("One two three four");
+        ImGui::Text(u8"Ένα δύο τρία τέσσερα");
+        ImGui::End();
 
 //         window.clear();
 

@@ -17,7 +17,9 @@ meson setup build
 
 ** Necessary symlinks
    #+BEGIN_SRC sh
-ln -s `readlink -f src/scheme` build/scheme
+# ln -s `readlink -f src/scheme` build/scheme
+ln -rs src/scheme build/scheme
+ln -rs fonts build/fonts
    #+END_SRC
 ** Optional: using existing repositories for subprojects
    #+BEGIN_SRC sh
@@ -263,7 +265,7 @@ time build/repl test/scheme/test-all.scm
   "GUI" Repl. The C++ code will call =setup= and =draw= functions
   #+NAME: gui-repl
   #+BEGIN_SRC emacs-lisp :var file="src/scheme/main.scm" :results silent
-(run-scheme (concat (projectile-project-root) "build/gui_repl " file))   
+(run-scheme (concat (projectile-project-root) "build/src/gui_repl_gflw " file))
   #+END_SRC
   #+CALL: gui-repl()
   #+CALL: gui-repl(file="src/scheme/examples/text-input.scm")

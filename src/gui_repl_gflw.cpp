@@ -1,0 +1,204 @@
+// dear imgui: standalone example application for SDL2 + OpenGL
+// If you are new to dear imgui, see examples/README.txt and documentation at the top of imgui.cpp.
+// (SDL is a cross-platform general purpose library for handling windows, inputs, OpenGL/Vulkan/Metal graphics context creation, etc.)
+
+// **DO NOT USE THIS CODE IF YOUR CODE/ENGINE IS USING MODERN OPENGL (SHADERS, VBO, VAO, etc.)**
+// **Prefer using the code in the example_sdl_opengl3/ folder**
+// See imgui_impl_sdl.cpp for details.
+
+
+#include <stdio.h>
+#include "s7.h"
+#include "aod/s7.hpp"
+#include "aod/s7/repl.hpp"
+#include "aod/path.hpp"
+#include <sstream>
+#include <iostream>
+#include <filesystem>
+#include <mutex>
+#include <thread>
+
+// imgui
+#include "imgui.h"
+#include "imgui_impl_opengl2.h"
+
+// gflw
+#include "imgui_impl_glfw.h"
+#include <GLFW/glfw3.h>
+// #include <SFML/Window.hpp>
+// #include <SFML/OpenGL.hpp>
+// #include "aod/imgui/imgui-SFML.h"
+
+#define DRAW_FN "draw"
+#define POST_DRAW_FN "post-draw"
+#define SETUP_FN "setup"
+
+#define SCREEN_WIDTH 400
+#define SCREEN_HEIGHT 400
+
+#define REPL_PORT 1234
+
+using std::cout;
+using std::cerr;
+using std::endl;
+namespace fs = std::filesystem;
+
+// globals, cause that's how we like it
+std::mutex g_gui_loop_mutex;
+s7_scheme* sc;
+bool running = true;
+bool g_force_redraw = false;
+
+static void glfw_error_callback(int error, const char* description) {
+    fprintf(stderr, "Glfw Error %d: %s\n", error, description);
+}
+
+char** g_argv;
+
+
+int guiLoop() {
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit()) {
+        fprintf(stderr, "Could not glfwInit!\n");
+        return 1;
+    }
+
+    // TODO make this controllable somewhoe?
+    // from the (setup) function??
+    glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+    GLFWwindow* window = glfwCreateWindow(700, 400, "S7 Gui Repl (gflw)", NULL, NULL);
+    if (window == NULL) {
+        fprintf(stderr, "Could not create window!\n");
+        return 1;
+    }
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+
+    ImGuiIO& io = ImGui::GetIO();
+    (void) io;
+    ImGui::StyleColorsDark();
+    
+    
+    // FONT
+    fs::path cwd_launch = fs::current_path();
+    fs::path base_path = fs::path(g_argv[0]);
+    fprintf(stderr, "argv[0] %s\n", g_argv[0]);
+    fprintf(stderr, "current path %s\n", cwd_launch.c_str());
+    fs::path font_file = cwd_launch / "fonts" / "Roboto-Medium.ttf";
+    std::cout << "font file " << fs::path(font_file) << std::endl;
+
+
+    ImVector<ImWchar> ranges;
+    ImFontGlyphRangesBuilder builder;
+    builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+    builder.AddText("—");
+    // no need for u8"..." ?
+    builder.AddText(u8"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ");
+    builder.AddText("αβγδεζηθικλμνξοπρστυφχψω");
+    builder.AddText("ΆΈΉΊΌΎΏ");
+    builder.AddText("άέήίόύώ");
+    builder.BuildRanges(&ranges);
+
+    io.Fonts->AddFontFromFileTTF(font_file.string().c_str(), 18, NULL, ranges.Data);
+    
+    // !!! FONT
+
+
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1); // Enable vsync
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL2_Init();
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, IM_COL32(30, 30, 30, 255));
+
+    printf("guiLoop: quit gui event loop, cleaning up \n");
+
+//     sf::Clock deltaClock;
+    while (!glfwWindowShouldClose(window)) {
+        // non-blocking, should sleep
+//         glfwPollEvents();
+        // blocking, no need to sleep
+        glfwWaitEvents();
+        std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
+
+        ImGui_ImplOpenGL2_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        // TODO do not redraw if no event..?
+        s7_eval_c_string(sc, "(draw)");
+
+        ImGui::Render();
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(0, 0, 0, 1);
+        glClear(GL_COLOR_BUFFER_BIT);
+        ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
+        glfwMakeContextCurrent(window);
+        glfwSwapBuffers(window);
+//         std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+
+    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+
+    printf("guiLoop: ----- gui loop quit ------\n");
+    // fgets is blocking, so we have to forcefully quit
+    exit(0);
+    return 0;
+
+}
+
+
+std::mutex g_s7_mutex;
+
+// Main code
+int main(int argc, char *argv[]) {
+    g_argv = argv;
+    // TODO gotta find the way to get the application path here
+    fs::path cwd_launch = fs::current_path();
+    fs::path base_path = fs::path(argv[0]);
+    fprintf(stderr, "argv[0] %s\n", argv[0]);
+    fprintf(stderr, "current path %s\n", cwd_launch.c_str());
+
+    fs::path scheme_path = cwd_launch / "src/scheme";
+    std::cout << "scheme path is " << cwd_launch / "src/scheme" << '\n';
+    sc = aod::s7::init(scheme_path);
+
+    if (argc >= 2) {
+        fprintf(stderr, "Passed custom scheme file %s\n", argv[1]);
+        fs::path passed_file = cwd_launch / argv[1];
+        std::cout << "path of passed file is " << passed_file.parent_path()
+                  << '\n';
+        s7_add_to_load_path(sc, passed_file.parent_path().string().c_str());
+        aod::s7::load_file(sc, passed_file.string().c_str());
+    } else {
+        aod::s7::load_file(sc, "main.scm");
+    }
+
+    new std::thread(guiLoop);
+
+    aod::s7::Repl repl(sc);
+
+    cout << "S7 Example Repl " << endl << "> ";
+
+    char buffer[512];
+    while (running) {
+        fgets(buffer, 512, stdin);
+        std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
+//         if (repl.handleInput(buffer)) {
+//             auto result = repl.evalLastForm();
+//             cout << endl << result << endl << "> ";
+//             g_force_redraw = true;
+//         }
+    }
+
+    return 0;
+}
+
