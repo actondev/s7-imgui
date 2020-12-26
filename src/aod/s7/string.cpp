@@ -11,11 +11,20 @@ std::regex regex_exp;
 std::smatch regex_match;
 std::string regex_str;
 
+const char* help_search = "(search str regex &optional ignore-case?) Returns #t or #f";
 s7_pointer search(s7_scheme* sc, s7_pointer args) {
     const char* str = s7_string(s7_car(args));
     args = s7_cdr(args);
     const char* regex_char = s7_string(s7_car(args));
-    regex_exp = std::regex(regex_char);
+    auto syntax = std::regex::ECMAScript;
+    args = s7_cdr(args);
+    if(args != s7_nil(sc)){
+        bool ignore_case = s7_boolean(sc, s7_car(args));
+        if(ignore_case){
+            syntax |= std::regex::icase;
+        }
+    }
+    regex_exp = std::regex(regex_char, syntax);
     regex_match = std::smatch();
 
     regex_str = str;
@@ -75,7 +84,7 @@ void bind(s7_scheme* sc) {
     s7_gc_protect(sc, env);
 
     s7_define(sc, env, s7_make_symbol(sc, "search"),
-              s7_make_function(sc, "search", search, 2, 0, 0, "(search str regex) Returns #t or #f")
+              s7_make_function(sc, "search", search, 2, 1, 0, help_search)
              );
 
     s7_define(sc, env, s7_make_symbol(sc, "count-matches"),

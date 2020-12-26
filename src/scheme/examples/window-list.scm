@@ -16,16 +16,21 @@
 (define *str (c/new-char[] buffer-size))
 
 (define (filter-windows windows string)
-  (filter (lambda (x)
-	    (string/search (x 'title)
-			   string))
+  (filter (lambda (w)
+	    (or
+	     (string/search
+	      (format #f "~A ~A" (w 'class-name) (w 'title))
+	      ;; spaces are meant to be wildcards :)
+	      (string/replace string " " ".*")
+			    #t ;; ignore-case
+			    )))
 	  windows))
 
 (define (format-window window)
-  (let* ((len 30)
-	 (format-str (format #f "~~A~~~AT\"~~A\"" (+ 10 len))))
-    (format #f format-str
+  (let ((len 30))
+    (format #f "~A~NT~A" 
 	    (object->string (window 'class-name) #f len)
+	    len
 	    (object->string (window 'title) #f len))))
 
 (define sel-idx 0)
@@ -41,7 +46,9 @@
   (igm/maximized
    ("s7 window switcher")
    (when (ig/key-pressed? igk/Escape)
-     (exit))
+     (if (equivalent? "" (*str))
+	 (exit)
+	 (set! (*str) "")))
    (when (ig/key-pressed? igk/DownArrow #t)
      (print "down pressed!")
      (set! sel-idx (inc sel-idx)))
