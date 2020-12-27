@@ -28,8 +28,12 @@
 	   ;; bubbling up the error
 
 	   (let ((applications (aod.fs/list-applications-all)))
-	     (io/spit "apps.cache.scm" (format #f "~W" applications)))
+	     (io/spit "apps.cache.scm" (format #f "~W" applications))
+	     applications)
 	   )))
+
+(define entries (append windows applications))
+(define filtered-entries entries)
 
 ;;(print "all apps " (length applications))
 
@@ -67,12 +71,71 @@
 
 (define sel-idx 0)
 
+(define (trigger entry)
+  (cond ((entry 'handle)
+	 (raise-and-focus w) 
+	 )
+	((entry 'exec)
+	 (system (entry 'exec)))
+	(#t
+	 (error 'invalid-arg "Could not handle entry ~A" entry))))
+
+(comment
+ (cond (() 1)
+       (#t 2))
+ )
 (define (raise-and-focus w)
   (print "raising " w)
   (wm/raise-window (w 'handle))
   (wm/focus-window (w 'handle))
   (exit)
   )
+(define (format-entry-type entry)
+  (cond ((entry 'handle)
+	 "win"
+	 )
+	((entry 'exec)
+	 "app")
+	(#t
+	 (error 'invalid-arg "Could not handle entry ~A" entry))))
+
+(define (draw-entries entries)
+  (let ((idx 0)
+	(enter? (ig/key-pressed? igk/Enter)))
+       ;; (ig/begin-group)
+       (ig/columns 3 "results")
+       (ig/set-column-width 0 0.1)
+       (ig/set-column-width 1 0.3)
+       (ig/set-column-width 2 0.6)
+       (for-each (lambda (entry)
+		   (ig/text (format-entry-type entry))
+		   (ig/next-column)
+		   (ig/selectable
+		    ;; TODO (entry 'title) returns #<undefind> if it's not there
+		    ;; NOT nil () :(
+		    (or (entry 'title) (entry 'name))
+				  (= idx sel-idx))
+		   (ig/next-column)
+		   (ig/text
+		    (or (entry 'title) "aa" (entry 'name))
+		    )
+		   (ig/next-column)
+		   (when (and (ig/is-item-hovered)
+			      (ig/mouse-moved?))
+		     (set! sel-idx idx))
+		   (when (and (= idx sel-idx)
+			      (ig/is-item-hovered)
+			      (ig/mouse-double-clicked? 0)
+			      )
+		     (raise-and-focus w))
+		   (when (and enter?
+			      (= idx sel-idx))
+		     (raise-and-focus w))
+		   (set! idx (inc idx)))
+		 entries)
+       (ig/columns 1)
+       ;; (ig/end-group)
+       ))
 
 (define draw-count 0)
 
@@ -94,61 +157,16 @@
      ;; there's (was.. as default) flag to return true on enter. by default it returns true
      ;; on text input
      (when (ig/input-text "search:" *str buffer-size)
+       (set! filtered-entries
+	     (append
+	      (filter-windows windows)
+	      (filter-apps applications)))
        (set! sel-idx 0))
      ;; when setting the focus to the input, the selectables later on
      ;; won't return true
      (ig/set-keyboard-focus-here)
-     (let ((idx 0))
-       ;; (ig/begin-group)
-       (ig/columns 3 "results")
-       (ig/set-column-width 0 0.1)
-       (ig/set-column-width 1 0.3)
-       (ig/set-column-width 2 0.6)
-       (for-each (lambda (w)
-		   (ig/text "win")
-		   (ig/next-column)
-		   (ig/selectable (format #f "~A" (w 'class-name))
-				  (= idx sel-idx))
-		   (ig/next-column)
-		   (ig/text (format #f "~A" (w 'title)))
-		   (ig/next-column)
-		   (when (and (ig/is-item-hovered)
-			      (ig/mouse-moved?))
-		     (set! sel-idx idx))
-		   (when (and (= idx sel-idx)
-			      (ig/is-item-hovered)
-			      (ig/mouse-double-clicked? 0)
-			      )
-		     (raise-and-focus w))
-		   (when (and enter?
-			      (= idx sel-idx))
-		     (raise-and-focus w))
-		   (set! idx (inc idx)))
-		 (filter-windows windows (*str)))
-       (for-each (lambda (app)
-		   (ig/text "app")
-		   (ig/next-column)
-		   (ig/selectable (format #f "~A" (app 'name))
-				  #f)
-		   (ig/next-column)
-		   (ig/text (format #f "~A" (app 'exec)))
-		   (ig/next-column)
-		   '(when (and (ig/is-item-hovered)
-			      (ig/mouse-moved?))
-		     (set! sel-idx idx))
-		   '(when (and (= idx sel-idx)
-			      (ig/is-item-hovered)
-			      (ig/mouse-double-clicked? 0)
-			      )
-		     (raise-and-focus w))
-		   '(when (and enter?
-			      (= idx sel-idx))
-		     (raise-and-focus w))
-		   (set! idx (inc idx)))
-		 (filter-apps applications (*str)))
-       (ig/columns 1)
-       ;; (ig/end-group)
-       ))
+     (draw-entries filtered-entries)
+     )
    ;; /maximized
    )
   ;; benchmarking
