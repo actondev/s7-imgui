@@ -10,3 +10,4 @@ subprojects/*
 *.kdev4
 *.kate-swp
 *.log
+/*cache*

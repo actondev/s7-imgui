@@ -1413,8 +1413,53 @@ find / -iname "*desktop" -type f -not -path "/media*" -not -path "/etc*"  | grep
 cat /var/lib/snapd/desktop/applications/onlyoffice-desktopeditors_onlyoffice-desktopeditors.desktop
 
   #+end_src
+  #+begin_src sh
+echo $XDG_DATA_DIRS
+ls -1 /usr/share/applications/*.desktop
+
+grep -e Name= -e Exec= /usr/share/applications/zynaddsubfx-oss.desktop
+  #+end_src
 * TODO window height: match contents
   - =ImGui::GetItemRectSize()=
 
 * TODO startup time
   gflw has a sliight delay. maybe try with SDL and software renderer? (is it the gl context creation that's causing the delay?)
+
+  #+begin_src sh
+meson configure build | grep imgui
+meson configure build -Dimgui:sdl='enabled'
+
+ninja -C build
+time build/src/gui_repl_gflw examples/window-list.scm
+
+time build/src/gui_repl_sdl examples/window-list.scm
+build/src/gui_repl_gflw examples/window-list.scm
+  #+end_src
+* std::regex multiline
+  [[file:/usr/include/c++/9/bits/regex.h::static constexpr flag_type ECMAScript = regex_constants::ECMAScript;]]
+
+  [[file:/usr/include/c++/10/bits/regex.h::static constexpr flag_type ECMAScript = regex_constants::ECMAScript;]]
+
+  #+begin_src sh
+# nah g++-10 didn't fix it
+sudo apt-get remove g++-10
+
+sudo apt-get install clang-10
+
+meson configure build | grep compiler
+
+
+export CXX=clang++
+
+rm -rf build
+CXX=clang++ meson setup build
+meson configure build
+
+grep -C 2 'rule cpp_COMPILER' build/build.ninja
+
+ninja -C build
+  #+end_src
+
+  again, in usr/include/c++/10 .. , no multiline
+  https://en.cppreference.com/w/cpp/regex/basic_regex/constants
+  it's there! (since c++17)

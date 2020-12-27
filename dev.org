@@ -20,7 +20,6 @@ meson setup build
 # ln -s `readlink -f src/scheme` build/scheme
 ln -rs src/scheme build/scheme
 ln -rs src/scheme build/src
-ln -rs fonts build/fonts
 ln -rs fonts build/src/fonts
    #+END_SRC
 ** Optional: using existing repositories for subprojects
@@ -223,6 +222,7 @@ ln -s `readlink -f examples/audio_player.scm` build/examples/audio_player.scm
    To run specific tests:
    #+BEGIN_SRC sh :session *test* :dir "build/test"
 ./gtest-all --gtest_filter=c_primitives.float_arr
+./gtest-all --gtest_filter=string.basic
    #+END_SRC
 
 ** Scheme
@@ -255,7 +255,7 @@ time build/repl test/scheme/test-all.scm
   Normal Repl
   #+NAME: repl
   #+BEGIN_SRC emacs-lisp :var file="" :results silent
-(run-scheme (concat (projectile-project-root) "build/repl " file))   
+(run-scheme (concat (projectile-project-root) "build/src/repl " file))   
   #+END_SRC
 
   #+CALL: repl(file="test/scheme/test-all.scm")

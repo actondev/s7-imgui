@@ -15,7 +15,6 @@
 #include "s7.h"
 #include "aod/s7.hpp"
 #include "aod/s7/repl.hpp"
-#include "aod/tcp_server.hpp"
 #include "aod/path.hpp"
 #include <sstream>
 #include <iostream>
@@ -41,6 +40,8 @@ namespace fs = std::filesystem;
 
 // globals, cause that's how we like it
 std::mutex g_gui_loop_mutex;
+char** g_argv;
+
 s7_scheme* sc;
 bool running = true;
 bool g_force_redraw = false;
@@ -61,9 +62,11 @@ int guiLoop() {
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
 
-    SDL_Window* window = SDL_CreateWindow("s7imgui - Gui Repl", 100, 100, SCREEN_WIDTH,
+    SDL_Window* window = SDL_CreateWindow("s7imgui - Gui Repl", 0, 0,
+                                          700, 400,
                                           // SDL_WINDOWPOS_CENTERED caused the app to not show on linux. wtf
-                                          SCREEN_HEIGHT, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+//                                           SDL_WINDOWPOS_CENTERED |
+                                          SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS);
 
     SDL_GLContext gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
@@ -73,8 +76,33 @@ int guiLoop() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
 
+
+
+
     ImGuiIO& io = ImGui::GetIO();
-    (void) io;
+
+    // FONT
+    fs::path fonts_path = fs::path(g_argv[0]).parent_path() / "fonts";
+    fs::path font_file = fonts_path / "Roboto-Medium.ttf";
+    printf("font file %s\n", font_file.string().c_str());
+
+
+    ImVector<ImWchar> ranges;
+    ImFontGlyphRangesBuilder builder;
+    builder.AddRanges(io.Fonts->GetGlyphRangesDefault());
+    builder.AddRanges(io.Fonts->GetGlyphRangesCyrillic());
+    builder.AddText("—’");
+    // no need for u8"..." ?
+    builder.AddText(u8"ΑΒΓΔΕΖΗΘΙΚΛΜΝΞΟΠΡΣΤΥΦΧΨΩ");
+    builder.AddText("αβγδεζηθικλμνξοπρστυφχψως");
+    builder.AddText("ΆΈΉΊΌΎΏ");
+    builder.AddText("άέήίόύώ");
+    builder.BuildRanges(&ranges);
+
+    io.Fonts->AddFontFromFileTTF(font_file.string().c_str(), 18, NULL, ranges.Data);
+
+    // !!! FONT
+
     ImGui::StyleColorsDark();
 
     bool sdlInit = ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
@@ -119,12 +147,12 @@ int guiLoop() {
         if (!running) {
             break;
         }
-        if (redraws_after_no_events > 2 && !g_force_redraw) {
-            // no need to redraw!
-            lock_loop.unlock();
-            std::this_thread::sleep_for(std::chrono::milliseconds(10));
-            continue;
-        }
+//         if (redraws_after_no_events > 2 && !g_force_redraw) {
+//             no need to redraw!
+//             lock_loop.unlock();
+//             std::this_thread::sleep_for(std::chrono::milliseconds(10));
+//             continue;
+//         }
         g_force_redraw = false;
 
         if (!have_events) {
@@ -149,7 +177,7 @@ int guiLoop() {
         SDL_GL_SwapWindow(window);
 
         lock_loop.unlock();
-        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+//         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     printf("guiLoop: quit gui event loop, cleaning up \n");
 
@@ -174,29 +202,23 @@ std::mutex g_s7_mutex;
 
 // Main code
 int main(int argc, char *argv[]) {
-    fs::path cwd_launch = fs::current_path();
-    char *path_char = SDL_GetBasePath();
-    fs::path base_path = fs::path(path_char);
-    fprintf(stderr, "argv[0] %s\n", argv[0]);
-
+    g_argv = argv;
+    fs::path base_path = fs::path(argv[0]).parent_path();
     fs::path scheme_path = base_path / "scheme";
-    std::cout << "scheme path is " << base_path / "scheme" << '\n';
+    printf("scheme path: %s\n", scheme_path.c_str());
+
     sc = aod::s7::init(scheme_path);
 
     if (argc >= 2) {
-        fprintf(stderr, "Passed custom scheme file %s\n", argv[1]);
-        fs::path passed_file = cwd_launch / argv[1];
-//        passed_file.append()
-//        passed_file.replace_filename(argv[1]);
-//        std::cout << "cwd was " << cwd_launch << '\n';
-//        std::cout << "cwd is " << cwd_launch << " passed file " << passed_file << '\n';
-        std::cout << "path of passed file is " << passed_file.parent_path()
-                  << '\n';
+        fs::path passed_file = scheme_path / argv[1];
+        // TODO test if it exists, if not try "cwd/argv[1]"
         s7_add_to_load_path(sc, passed_file.parent_path().string().c_str());
-        aod::s7::load_file(sc, passed_file.string().c_str());
+        printf("loading scheme file: %s\n", passed_file.c_str());
+        aod::s7::load_file(sc, passed_file.c_str());
     } else {
         aod::s7::load_file(sc, "main.scm");
     }
+
 
     new std::thread(guiLoop);
 
@@ -206,15 +228,16 @@ int main(int argc, char *argv[]) {
 
     char buffer[512];
     while (running) {
-        fgets(buffer, 512, stdin);
-        std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
-        if (repl.handleInput(buffer)) {
-            auto result = repl.evalLastForm();
-            cout << endl << result << endl << "> ";
-            g_force_redraw = true;
-        }
+//         fgets(buffer, 512, stdin);
+//         std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
+//         if (repl.handleInput(buffer)) {
+//             auto result = repl.evalLastForm();
+//             cout << endl << result << endl << "> ";
+//             g_force_redraw = true;
+//         }
     }
 
     return 0;
 }
+
 

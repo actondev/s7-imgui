@@ -15,7 +15,7 @@
 
 (test "regex-search capture"
       (is-true (s/search "abcdef" "^ab(.)(.)ef"))
-      (is eq? 3 (s/count-matches))
+      (is eq? 3 (s/match-count))
       (is equivalent? "abcdef" (s/match-at 0))
       (is equivalent? "c" (s/match-at 1))
       (is equivalent? "d" (s/match-at 2))
@@ -23,7 +23,7 @@
 
 (test "regex-search capture real case"
       (is-true (s/search "Track: split track at time selection" "^Track: (.*)"))
-      (is eq? 2 (s/count-matches))
+      (is eq? 2 (s/match-count))
       (is equivalent? "split track at time selection" (s/match-at 1))
       (is-false (s/search "Track: split track at time selection" "^Item: (.*)"))
       )

@@ -280,6 +280,12 @@ i is 2
 	  '(c d)
 	  (drop 2 '(a b c d))))
 
+(define-macro (time expr)
+  `(let ((start (*s7* 'cpu-time)))
+     (let ((res (list ,expr))) ; expr might return multiple values
+       (list (car res)
+        (- (*s7* 'cpu-time) start)))))
+
 ;; https://github.com/clojure/clojure/blob/clojure-1.10.1/src/clj/clojure/core.clj#L1677
 (define-macro (-> x . forms)
   (let loop ((x x)

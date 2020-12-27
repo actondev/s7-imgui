@@ -52,9 +52,6 @@ bool g_force_redraw = false;
 static void glfw_error_callback(int error, const char* description) {
     fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 }
-
-char** g_argv;
-
 // https://github.com/glfw/glfw/issues/310#issuecomment-52048508
 void glfwSetWindowCenter(GLFWwindow* window) {
     // Get window position and size
@@ -121,7 +118,8 @@ void glfwSetWindowCenter(GLFWwindow* window) {
 }
 
 
-int guiLoop() {
+int guiLoop(int argc, char *argv[]) {
+    (void)argc;
     glfwSetErrorCallback(glfw_error_callback);
     if (!glfwInit()) {
         fprintf(stderr, "Could not glfwInit!\n");
@@ -131,15 +129,14 @@ int guiLoop() {
     // TODO make this controllable somewhoe?
     // from the (setup) function??
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
-    printf("creating window\n");
-    GLFWwindow* window = glfwCreateWindow(700, 400, "S7 Gui Repl (gflw)", NULL, NULL);
-//     glfwSetWindowCenter(window);
+    glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+    GLFWwindow* window = glfwCreateWindow(900, 300, "S7 Gui Repl (gflw)", NULL, NULL);
+    
+    glfwSetWindowCenter(window);
     if (window == NULL) {
         fprintf(stderr, "Could not create window!\n");
         return 1;
     }
-    
-//     printf("created window\n");
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -150,7 +147,7 @@ int guiLoop() {
 
 
     // FONT
-    fs::path fonts_path = fs::path(g_argv[0]).parent_path() / "fonts";
+    fs::path fonts_path = fs::path(argv[0]).parent_path() / "fonts";
     fs::path font_file = fonts_path / "Roboto-Medium.ttf";
     printf("font file %s\n", font_file.string().c_str());
 
@@ -225,7 +222,18 @@ std::mutex g_s7_mutex;
 
 // Main code
 int main(int argc, char *argv[]) {
-    g_argv = argv;
+    bool run_thread_in_loop_with_repl = true;
+
+    if (run_thread_in_loop_with_repl) {
+        g_gui_loop_mutex.lock();
+        // TODO if I start the gui thread first will it save some startup time?
+        // - having a lock here until s7 initialization with everything
+        // - gui thread creates window and waits for that lock
+        new std::thread(guiLoop, argc, argv);
+    }
+//     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+
     // TODO gotta find the way to get the application path here
 //     fs::path cwd_launch = fs::current_path();
     fs::path base_path = fs::path(argv[0]).parent_path();
@@ -244,12 +252,12 @@ int main(int argc, char *argv[]) {
         aod::s7::load_file(sc, "main.scm");
     }
 
-    bool run_thread_in_loop_with_repl = false;
 
     if (!run_thread_in_loop_with_repl) {
-        guiLoop();
+        guiLoop(argc, argv);
     } else {
-        new std::thread(guiLoop);
+        g_gui_loop_mutex.unlock();
+//         new std::thread(guiLoop);
 
         aod::s7::Repl repl(sc);
 

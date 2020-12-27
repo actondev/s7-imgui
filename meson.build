@@ -25,8 +25,20 @@ s7_dep = s7_proj.get_variable('s7_dep')
 mongoose_proj = subproject('mongoose')
 mongoose_dep = mongoose_proj.get_variable('mongoose_dep')
 
+# sdl_proj = subproject('sdl')
+# sdl_dep = mongoose_proj.get_variable('sdl_dep')
 
-imgui_opts = ['opengl2=enabled', 'sdl=disabled', 'gflw=enabled']
+sdl2_proj = subproject('sdl2', required: false)
+if sdl2_proj.found()
+  sdl2_dep = sdl2_proj.get_variable('sdl2_dep')
+  sdl2main_dep = sdl2_proj.get_variable('sdl2main_dep')
+  # imgui looks for sdl
+  # https://mesonbuild.com/Reference-manual.html#dependency
+  meson.override_dependency('sdl', sdl2_dep)
+endif
+
+
+imgui_opts = ['opengl2=enabled', 'sdl=enabled', 'gflw=enabled']
 
 imgui = subproject('imgui',
 		   default_options: imgui_opts)
