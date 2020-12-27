@@ -83,7 +83,7 @@ void bind(s7_scheme* sc, s7_pointer env) {
               s7_make_function(sc, "is-item-hovered", IsItemHovered, 0, 0, false,
                                "(is-item-hovered)"));
 
-        s7_define(sc, env, s7_make_symbol(sc, "is-item-clicked"),
+    s7_define(sc, env, s7_make_symbol(sc, "is-item-clicked"),
               s7_make_function(sc, "is-item-clicked", IsItemClicked, 0, 0, false,
                                "(is-item-clicked)"));
 
@@ -452,6 +452,42 @@ s7_pointer dummy(s7_scheme *sc, s7_pointer args) {
     return s7_nil(sc);
 }
 
+const char* help_columns = "(columns n &optional id)";
+s7_pointer columns(s7_scheme* sc, s7_pointer args) {
+//     ImGui::Columns(4, "mycolumns"); // 4-ways, with border
+    int columns = s7_integer(s7_car(args));
+    args = s7_cdr(args);
+    if (args != s7_nil(sc)) {
+        ImGui::Columns(columns, s7_string(s7_car(args)));
+    } else {
+        ImGui::Columns(columns);
+    }
+    return s7_nil(sc);
+}
+
+s7_pointer next_column(s7_scheme* sc, s7_pointer args) {
+    (void)sc;
+    (void)args;
+    ImGui::NextColumn();
+
+    return s7_nil(sc);
+}
+
+
+const char* help_SetColumnWidth = "(set-column-width column width) Pass column -1 for current column";
+s7_pointer SetColumnWidth(s7_scheme* sc, s7_pointer args) {
+    // SetColumnWidth(int column_index, float width);
+    int column_index = s7_integer(s7_car(args));
+    args = s7_cdr(args);
+    double width = s7_real(s7_car(args));
+    if(width < 1.0) {
+        width = width * ImGui::GetWindowContentRegionWidth();
+    }
+    ImGui::SetColumnWidth(column_index, width);
+    ImGui::GetContentRegionAvailWidth();
+    return s7_nil(sc);
+}
+
 void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "same-line"),
               s7_make_function(sc, "same-line", same_line, 0, 0, false,
@@ -476,6 +512,18 @@ void bind(s7_scheme *sc, s7_pointer env) {
     s7_define(sc, env, s7_make_symbol(sc, "dummy"),
               s7_make_function(sc, "dummy", dummy, 2, 0, false,
                                help_dummy));
+
+    s7_define(sc, env, s7_make_symbol(sc, "columns"),
+              s7_make_function(sc, "columns", columns, 1, 1, false,
+                               help_columns));
+
+    s7_define(sc, env, s7_make_symbol(sc, "next-column"),
+              s7_make_function(sc, "next-column", next_column, 0, 0, false,
+                               "(next-column)"));
+    
+        s7_define(sc, env, s7_make_symbol(sc, "set-column-width"),
+              s7_make_function(sc, "set-column-width", SetColumnWidth, 2, 0, false,
+                               help_SetColumnWidth));
 }
 }
 
@@ -943,7 +991,7 @@ s7_pointer selectable(s7_scheme* sc, s7_pointer args) {
     args = s7_cdr(args);
 
     // with flags 0 ImGui::IsMouseDoubleClicked() doesn't work
-    ImGuiSelectableFlags flags = ImGuiSelectableFlags_AllowDoubleClick;
+    ImGuiSelectableFlags flags = ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_SpanAllColumns;
 
     if (s7_is_c_object(s7_car(args))) {
         bool* sel = (bool*) s7_c_object_value_checked(s7_car(args),
@@ -1051,7 +1099,7 @@ s7_pointer IsKeyPressed(s7_scheme* sc, s7_pointer args) {
     int key = s7_integer(s7_car(args));
     bool reapeat = false;
     args = s7_cdr(args);
-    if(args != s7_nil(sc)){
+    if (args != s7_nil(sc)) {
         reapeat = s7_boolean(sc, s7_car(args));
     }
     return s7_make_boolean(sc, ImGui::IsKeyPressed(ImGui::GetIO().KeyMap[key], reapeat));
