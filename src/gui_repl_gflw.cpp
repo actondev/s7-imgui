@@ -131,7 +131,7 @@ int guiLoop(int argc, char *argv[]) {
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
     GLFWwindow* window = glfwCreateWindow(900, 300, "S7 Gui Repl (gflw)", NULL, NULL);
-    
+
     glfwSetWindowCenter(window);
     if (window == NULL) {
         fprintf(stderr, "Could not create window!\n");
@@ -224,12 +224,13 @@ std::mutex g_s7_mutex;
 int main(int argc, char *argv[]) {
     bool run_thread_in_loop_with_repl = true;
 
+    std::thread* thread = nullptr;
     if (run_thread_in_loop_with_repl) {
         g_gui_loop_mutex.lock();
         // TODO if I start the gui thread first will it save some startup time?
         // - having a lock here until s7 initialization with everything
         // - gui thread creates window and waits for that lock
-        new std::thread(guiLoop, argc, argv);
+        thread = new std::thread(guiLoop, argc, argv);
     }
 //     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
@@ -264,14 +265,21 @@ int main(int argc, char *argv[]) {
         cout << "S7 Example Repl " << endl << "> ";
 
         char buffer[512];
-        while (running) {
-            fgets(buffer, 512, stdin);
-            std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
-            if (repl.handleInput(buffer)) {
-                auto result = repl.evalLastForm();
-                cout << endl << result << endl << "> ";
-                g_force_redraw = true;
+        bool shell_repl = false;
+        if (shell_repl) {
+            while (running) {
+                fgets(buffer, 512, stdin);
+                std::unique_lock<std::mutex> lock_loop(g_gui_loop_mutex);
+                if (repl.handleInput(buffer)) {
+                    auto result = repl.evalLastForm();
+                    cout << endl << result << endl << "> ";
+                    g_force_redraw = true;
+                }
             }
+        }
+
+        if (thread) {
+            thread->join();
         }
     }
 

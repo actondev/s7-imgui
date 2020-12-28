@@ -14,6 +14,23 @@
 (define windows (wm/list-windows))
 ;;(define applications (aod.fs/list-applications-all))
 
+(define (get from . args)
+;;  (print "gettin from " from "args" args)
+  (if (null? args)
+      (error 'get "Could not get any property from ~A" from)
+      (if (keyword? (car args))
+	  (let ((res (from (car args))))
+	    (if (undefined? res)
+		(apply get from (cdr args))
+		res))
+	  ;; else, we consider it a fallback value
+	  (car args)
+	  )))
+
+(comment
+ (get (inlet :a 1 :b 2) :c :a)
+ )
+
 (define applications
   (catch #t
 	 (lambda ()
@@ -72,13 +89,11 @@
 (define sel-idx 0)
 
 (define (trigger entry)
-  (cond ((entry 'handle)
-	 (raise-and-focus w) 
-	 )
-	((entry 'exec)
-	 (system (entry 'exec)))
-	(#t
-	 (error 'invalid-arg "Could not handle entry ~A" entry))))
+  (when-let (handle (get entry :handle #f))
+	    (raise-and-focus entry))
+  (when-let (exec (get entry :exec #f))
+	    (system (format #f "setsid ~A &" exec)))
+  (exit))
 
 (comment
  (cond (() 1)
@@ -91,13 +106,13 @@
   (exit)
   )
 (define (format-entry-type entry)
-  (cond ((entry 'handle)
-	 "win"
-	 )
-	((entry 'exec)
-	 "app")
-	(#t
-	 (error 'invalid-arg "Could not handle entry ~A" entry))))
+  (or (and (get entry :handle #f) "win")
+      (and (get entry :exec #f) "app")
+      (error 'invalid-arg "Could not handle entry ~A" entry)
+      ))
+(comment
+ (format-entry-type (inlet :exec 1))
+ )
 
 (define (draw-entries entries)
   (let ((idx 0)
@@ -113,12 +128,11 @@
 		   (ig/selectable
 		    ;; TODO (entry 'title) returns #<undefind> if it's not there
 		    ;; NOT nil () :(
-		    (or (entry 'title) (entry 'name))
+		    (get entry :class-name :name)
 				  (= idx sel-idx))
 		   (ig/next-column)
 		   (ig/text
-		    (or (entry 'title) "aa" (entry 'name))
-		    )
+		    (get entry :title :exec))
 		   (ig/next-column)
 		   (when (and (ig/is-item-hovered)
 			      (ig/mouse-moved?))
@@ -127,10 +141,10 @@
 			      (ig/is-item-hovered)
 			      (ig/mouse-double-clicked? 0)
 			      )
-		     (raise-and-focus w))
+		     (trigger entry))
 		   (when (and enter?
 			      (= idx sel-idx))
-		     (raise-and-focus w))
+		     (trigger entry))
 		   (set! idx (inc idx)))
 		 entries)
        (ig/columns 1)
@@ -159,8 +173,8 @@
      (when (ig/input-text "search:" *str buffer-size)
        (set! filtered-entries
 	     (append
-	      (filter-windows windows)
-	      (filter-apps applications)))
+	      (filter-windows windows (*str))
+	      (filter-apps applications (*str))))
        (set! sel-idx 0))
      ;; when setting the focus to the input, the selectables later on
      ;; won't return true

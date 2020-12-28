@@ -11,6 +11,7 @@ subdir('lib')
 subdir('aod')
 subdir('s7bi')
 
+
 app_dep = declare_dependency(
   include_directories: includes,
   sources: sources,
@@ -53,6 +54,7 @@ if not meson.is_subproject()
     install: true,
   )
 
+  # TODO it's fucking gLfw.. ugh
   gui_repl_gflw = executable(
     'gui_repl_gflw',
     sources: files(
