@@ -104,7 +104,7 @@ void set_autoloads(s7_scheme *sc) {
 }
 
 s7_scheme* init(std::filesystem::path init_load_path) {
-    cout << "Initializing scheme in " << init_load_path << endl;
+    // cout << "Initializing scheme in " << init_load_path << endl;
     s7_scheme *sc = s7_init();
     set_print_stderr(sc);
     set_autoloads(sc);

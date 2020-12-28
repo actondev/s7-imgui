@@ -1,5 +1,5 @@
 ;; some basic functionality that I miss from clojure
-(display "loading aod/clj.scm\n")
+;; (display "loading aod/clj.scm\n")
 
 #;
 (define-macro (comment . body)

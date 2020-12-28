@@ -1,4 +1,4 @@
-(display "loading aod/core\n")
+;; (display "loading aod/core\n")
 ;; putting the autload info here, among other necessary things (that I use often)
 (load "aod/autoloads.scm")
 ;; comment, map-indexed, dotimes, range, mod

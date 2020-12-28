@@ -130,6 +130,7 @@ int guiLoop(int argc, char *argv[]) {
     // from the (setup) function??
     glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
     glfwWindowHint(GLFW_AUTO_ICONIFY, GLFW_FALSE);
+    // printf("Creating window\n");
     GLFWwindow* window = glfwCreateWindow(900, 300, "S7 Gui Repl (gflw)", NULL, NULL);
 
     glfwSetWindowCenter(window);
@@ -137,6 +138,7 @@ int guiLoop(int argc, char *argv[]) {
         fprintf(stderr, "Could not create window!\n");
         return 1;
     }
+    // printf("Created window\n");
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -149,7 +151,7 @@ int guiLoop(int argc, char *argv[]) {
     // FONT
     fs::path fonts_path = fs::path(argv[0]).parent_path() / "fonts";
     fs::path font_file = fonts_path / "Roboto-Medium.ttf";
-    printf("font file %s\n", font_file.string().c_str());
+    // printf("font file %s\n", font_file.string().c_str());
 
 
     ImVector<ImWchar> ranges;
@@ -239,7 +241,7 @@ int main(int argc, char *argv[]) {
 //     fs::path cwd_launch = fs::current_path();
     fs::path base_path = fs::path(argv[0]).parent_path();
     fs::path scheme_path = base_path / "scheme";
-    printf("scheme path: %s\n", scheme_path.c_str());
+    // printf("scheme path: %s\n", scheme_path.c_str());
 
     sc = aod::s7::init(scheme_path);
 
@@ -247,7 +249,7 @@ int main(int argc, char *argv[]) {
         fs::path passed_file = scheme_path / argv[1];
         // TODO test if it exists, if not try "cwd/argv[1]"
         s7_add_to_load_path(sc, passed_file.parent_path().string().c_str());
-        printf("loading scheme file: %s\n", passed_file.c_str());
+        // printf("loading scheme file: %s\n", passed_file.c_str());
         aod::s7::load_file(sc, passed_file.c_str());
     } else {
         aod::s7::load_file(sc, "main.scm");
@@ -262,7 +264,7 @@ int main(int argc, char *argv[]) {
 
         aod::s7::Repl repl(sc);
 
-        cout << "S7 Example Repl " << endl << "> ";
+        // cout << "S7 Example Repl " << endl << "> ";
 
         char buffer[512];
         bool shell_repl = false;

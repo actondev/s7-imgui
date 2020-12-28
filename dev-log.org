@@ -1463,3 +1463,15 @@ ninja -C build
   again, in usr/include/c++/10 .. , no multiline
   https://en.cppreference.com/w/cpp/regex/basic_regex/constants
   it's there! (since c++17)
+* DONE desktop entries field codes
+  https://specifications.freedesktop.org/desktop-entry-spec/desktop-entry-spec-latest.html
+  eg
+  - %F
+  - %u
+
+  parse them & removed them from the =exec= field
+
+  #+begin_src scheme
+(string/replace (string/match-at 1)
+				  " %[a-zA-Z]" "")   
+  #+end_src
