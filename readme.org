@@ -1,4 +1,4 @@
-**Deprecated**
+*Deprecated*
 This project will not receive any updates! Glad if it helps as a skeleton to your own projects though
 
 * S7 & ImGui
